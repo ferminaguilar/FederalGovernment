@@ -1,0 +1,9 @@
+name: 'Configuration Module Exclude Test'
+type: module
+package: Testing
+# version: VERSION
+
+# Information added by Drupal.org packaging script on 2025-06-06
+version: '10.4.8'
+project: 'drupal'
+datestamp: 1749168408
