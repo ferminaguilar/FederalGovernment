@@ -1,0 +1,12 @@
+name: 'Message subscribe test module'
+description: 'Functionality to assist message subscribe testing.'
+type: module
+core_version_requirement: ^10.2 || ^11
+dependencies:
+  - message_subscribe:message_subscribe
+package: Testing
+
+# Information added by Drupal.org packaging script on 2025-05-20
+version: '2.0.1'
+project: 'message_subscribe'
+datestamp: 1747771055

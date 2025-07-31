@@ -1,0 +1,6 @@
+show_on_admin: false
+alert_styles: 'primary|Default'
+display_order:  'ascending'
+refresh_interval: 15
+automatic_refresh: true
+cache_max_age: 15

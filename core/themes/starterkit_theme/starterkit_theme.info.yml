@@ -2,7 +2,7 @@ name: Starterkit theme
 type: theme
 'base theme': stable9
 hidden: true
-# version: VERSION
+version: VERSION
 libraries:
   - starterkit_theme/base
   - starterkit_theme/messages
@@ -18,8 +18,3 @@ libraries-extend:
     - starterkit_theme/file
   core/drupal.progress:
     - starterkit_theme/progress
-
-# Information added by Drupal.org packaging script on 2025-06-06
-version: '10.4.8'
-project: 'drupal'
-datestamp: 1749168407
