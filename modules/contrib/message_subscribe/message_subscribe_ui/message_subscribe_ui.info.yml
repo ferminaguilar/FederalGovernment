@@ -1,0 +1,13 @@
+name: 'Message subscribe UI'
+description: 'Message subscribe UI'
+core_version_requirement: ^10.2 || ^11
+package: Message
+dependencies:
+  - message_subscribe:message_subscribe
+  - drupal:views
+type: module
+
+# Information added by Drupal.org packaging script on 2025-05-20
+version: '2.0.1'
+project: 'message_subscribe'
+datestamp: 1747771055
