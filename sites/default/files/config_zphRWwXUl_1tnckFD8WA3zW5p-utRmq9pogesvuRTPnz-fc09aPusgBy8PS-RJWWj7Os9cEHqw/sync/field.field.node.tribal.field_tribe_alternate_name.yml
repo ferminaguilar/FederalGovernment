@@ -1,0 +1,19 @@
+uuid: 0bed8a5d-cf91-486c-a2e8-c796ffd75fd1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tribe_alternate_name
+    - node.type.tribal
+id: node.tribal.field_tribe_alternate_name
+field_name: field_tribe_alternate_name
+entity_type: node
+bundle: tribal
+label: 'Tribe Alternate Name'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
