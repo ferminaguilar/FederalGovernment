@@ -1,9 +1,0 @@
-uuid: d11afc7b-a40e-48d5-858c-32f63044a078
-langcode: en
-status: true
-dependencies: {  }
-name: Category
-vid: category
-description: 'Category Description here'
-weight: 0
-new_revision: false
