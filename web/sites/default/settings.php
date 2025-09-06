@@ -3,12 +3,13 @@
 use Symfony\Component\Dotenv\Dotenv;
 
 $dotenv = new Dotenv();
+
+// Load .env.local if it exists, otherwise fall back to .env.production
 if (file_exists(__DIR__ . '/../../../.env.local')) {
   $dotenv->load(__DIR__ . '/../../../.env.local');
 } elseif (file_exists(__DIR__ . '/../../../.env.production')) {
   $dotenv->load(__DIR__ . '/../../../.env.production');
 }
-
 
 
 
