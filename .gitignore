@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 /vendor/
 /sites/default/files/
 /.env.local
 /.env.production
-=======
-/web/sites/default/files/
-/web/sites/default/settings.php
-.env
-.env*
->>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
