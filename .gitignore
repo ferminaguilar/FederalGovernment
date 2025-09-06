@@ -1,0 +1,4 @@
+/web/sites/default/files/
+/web/sites/default/settings.php
+.env
+.env*

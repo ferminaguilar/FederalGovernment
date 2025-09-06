@@ -1,5 +1,18 @@
 <?php
 
+use Symfony\Component\Dotenv\Dotenv;
+
+$dotenv = new Dotenv();
+
+// Load .env.local if it exists, otherwise fall back to .env.production
+if (file_exists(__DIR__ . '/../../../.env.local')) {
+  $dotenv->load(__DIR__ . '/../../../.env.local');
+} elseif (file_exists(__DIR__ . '/../../../.env.production')) {
+  $dotenv->load(__DIR__ . '/../../../.env.production');
+}
+
+
+
 // phpcs:ignoreFile
 
 /**
@@ -848,15 +861,16 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 #   include $app_root . '/' . $site_path . '/settings.local.php';
 # }
 $databases['default']['default'] = array (
-  'database' => 'drupal11',
-  'username' => 'root',
-  'password' => 'root',
+  'database' => $_ENV['DB_NAME'],
+  'username' => $_ENV['DB_USER'],
+  'password' => $_ENV['DB_PASS'],
   'prefix' => '',
-  'host' => 'localhost',
-  'port' => '3306',
+  'host' => $_ENV['DB_HOST'],
+  'port' => $_ENV['DB_PORT'],
   'isolation_level' => 'READ COMMITTED',
   'driver' => 'mysql',
   'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
   'autoload' => 'core/modules/mysql/src/Driver/Database/mysql/',
 );
+
 $settings['config_sync_directory'] = 'sites/default/files/config_IEuC1Rg0Np2vCQ5ZeFx70UBV0NZt2c0HdBIF-gImcZ-ZxocmoP3hIVjI5t38WYqbbYXfRybJog/sync';
