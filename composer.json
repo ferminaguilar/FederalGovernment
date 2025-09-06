@@ -20,6 +20,10 @@
         "drupal/core-project-message": "^11.2",
         "drupal/core-recipe-unpack": "^11.2",
         "drupal/core-recommended": "^11.2",
+<<<<<<< HEAD
+=======
+        "drupal/gin": "^5.0",
+>>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
         "symfony/dotenv": "^7.3"
     },
     "conflict": {
@@ -99,5 +103,8 @@
                 "      composer remove drupal/core-project-message"
             ]
         }
+    },
+    "require-dev": {
+        "drush/drush": "^13.6"
     }
 }
