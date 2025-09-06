@@ -1,0 +1,5 @@
+/vendor/
+/sites/default/files/
+/.env.local
+/.env.production
+
