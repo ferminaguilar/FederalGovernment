@@ -874,6 +874,8 @@ $databases['default']['default'] = array (
 );
 
 #$settings['config_sync_directory'] = 'sites/default/files/config_IEuC1Rg0Np2vCQ5ZeFx70UBV0NZt2c0HdBIF-gImcZ-ZxocmoP3hIVjI5t38WYqbbYXfRybJog/sync';
-$settings['config_sync_directory'] = '../config/sync';
+#$settings['config_sync_directory'] = '../config/sync';
+$settings['config_sync_directory'] = dirname(__DIR__) . '/../config/sync';
+
 
 
