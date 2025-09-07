@@ -1,4 +1,4 @@
-/vendor/
-/sites/default/files/
+#/vendor/
+#/sites/default/files/
 /.env.local
 /.env.production
