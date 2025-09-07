@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "1cde0fe69261de04897b8742dd3bb5ff",
-=======
-    "content-hash": "ae6247264087216d6f009536554f96d9",
->>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
+    "content-hash": "2f3cbdda5921d287bbee32d318ce9727e1c17c0a",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -493,19 +489,11 @@
         },
         {
             "name": "drupal/core",
-<<<<<<< HEAD
-            "version": "11.2.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/drupal/core.git",
-                "reference": "2e115b19fcff820bd7e2ba41aeaa23ff04cfe8a8"
-=======
             "version": "11.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core.git",
                 "reference": "6d684b0407541c61df4e3bd47b33de475d9f0418"
->>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
             },
             "dist": {
                 "type": "zip",
@@ -665,13 +653,6 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-<<<<<<< HEAD
-            "description": "Drupal is an open source content management platform powering millions of websites and applications."
-        },
-        {
-            "name": "drupal/core-composer-scaffold",
-            "version": "11.2.3",
-=======
             "description": "Drupal is an open source content management platform powering millions of websites and applications.",
             "support": {
                 "source": "https://github.com/drupal/core/tree/11.2.4"
@@ -681,7 +662,6 @@
         {
             "name": "drupal/core-composer-scaffold",
             "version": "11.2.4",
->>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core-composer-scaffold.git",
@@ -723,13 +703,6 @@
             "homepage": "https://www.drupal.org/project/drupal",
             "keywords": [
                 "drupal"
-<<<<<<< HEAD
-            ]
-        },
-        {
-            "name": "drupal/core-project-message",
-            "version": "11.2.3",
-=======
             ],
             "support": {
                 "source": "https://github.com/drupal/core-composer-scaffold/tree/11.2.4"
@@ -739,7 +712,6 @@
         {
             "name": "drupal/core-project-message",
             "version": "11.2.4",
->>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core-project-message.git",
@@ -772,13 +744,6 @@
             "homepage": "https://www.drupal.org/project/drupal",
             "keywords": [
                 "drupal"
-<<<<<<< HEAD
-            ]
-        },
-        {
-            "name": "drupal/core-recipe-unpack",
-            "version": "11.2.3",
-=======
             ],
             "support": {
                 "source": "https://github.com/drupal/core-project-message/tree/11.2.4"
@@ -788,7 +753,6 @@
         {
             "name": "drupal/core-recipe-unpack",
             "version": "11.2.4",
->>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core-recipe-unpack.git",
@@ -824,17 +788,6 @@
             "homepage": "https://www.drupal.org/project/drupal",
             "keywords": [
                 "drupal"
-<<<<<<< HEAD
-            ]
-        },
-        {
-            "name": "drupal/core-recommended",
-            "version": "11.2.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/drupal/core-recommended.git",
-                "reference": "07ed2ffda41e106017a8b4ed450c8bb0d775bd35"
-=======
             ],
             "support": {
                 "source": "https://github.com/drupal/core-recipe-unpack/tree/11.2.4"
@@ -848,7 +801,6 @@
                 "type": "git",
                 "url": "https://github.com/drupal/core-recommended.git",
                 "reference": "53d63022e07ded81964d295c50ffd76279869b07"
->>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
             },
             "dist": {
                 "type": "zip",
@@ -922,9 +874,6 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-<<<<<<< HEAD
-            "description": "Core and its dependencies with known-compatible minor versions. Require this project INSTEAD OF drupal/core."
-=======
             "description": "Core and its dependencies with known-compatible minor versions. Require this project INSTEAD OF drupal/core.",
             "support": {
                 "source": "https://github.com/drupal/core-recommended/tree/11.2.4"
@@ -1059,7 +1008,6 @@
                     "url": "https://paypal.me/saschaeggi"
                 }
             ]
->>>>>>> 2f3cbdda5921d287bbee32d318ce9727e1c17c0a
         },
         {
             "name": "egulias/email-validator",
