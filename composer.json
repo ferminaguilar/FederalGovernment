@@ -24,6 +24,7 @@
         "drupal/core-recommended": "^11.2",
         "drupal/gin": "^5.0",
         "drupal/key": "^1.20",
+        "drupal/uswds_base": "^3.10",
         "symfony/dotenv": "^7.3"
     },
     "conflict": {

@@ -13,6 +13,7 @@ editor: ckeditor5
 settings:
   toolbar:
     items:
+      - aickeditor
       - bold
       - italic
       - '|'
@@ -29,13 +30,47 @@ settings:
       - '|'
       - sourceEditing
   plugins:
+    ai_ckeditor_ai:
+      dialog:
+        autoresize: 'min-width: 600px'
+        height: '750'
+        width: '900'
+        dialog_class: ai-ckeditor-modal
+      plugins:
+        ai_ckeditor_completion:
+          enabled: true
+          provider: openai__gpt-4o
+        ai_ckeditor_help:
+          enabled: false
+        ai_ckeditor_modify_prompt:
+          enabled: true
+          provider: openai__gpt-4o
+        ai_ckeditor_reformat_html:
+          enabled: false
+          provider: openai__gpt-4o
+        ai_ckeditor_spellfix:
+          enabled: true
+          provider: openai__gpt-4o
+        ai_ckeditor_summarize:
+          enabled: true
+          provider: openai__gpt-4o
+        ai_ckeditor_tone:
+          autocreate: false
+          provider: openai__gpt-4o
+          tone_vocabulary: tags
+          use_description: 0
+          enabled: false
+        ai_ckeditor_translate:
+          autocreate: false
+          provider: openai__gpt-4o
+          translate_vocabulary: tags
+          use_description: false
+          language_source: tax
+          enabled: false
     ckeditor5_heading:
       enabled_headings:
         - heading2
         - heading3
-        - heading4
-        - heading5
-        - heading6
     ckeditor5_imageResize:
       allow_resize: true
     ckeditor5_list:
