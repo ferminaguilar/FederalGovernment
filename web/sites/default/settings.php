@@ -751,7 +751,14 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
  *
  * @see https://www.drupal.org/docs/installing-drupal/trusted-host-settings
  */
-# $settings['trusted_host_patterns'] = [];
+# 
+$settings['trusted_host_patterns'] = [
+  '^govfed\.us$',
+    '^localhost$',
+  '127\.0\.0\.1',
+  // Or use preg_quote() to escape the dots and other characters.
+  preg_quote('127.0.0.1'),
+];
 
 /**
  * The default list of directories that will be ignored by Drupal's file API.
