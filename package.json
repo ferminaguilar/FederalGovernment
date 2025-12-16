@@ -1,0 +1,26 @@
+{
+  "name": "ls",
+  "version": "1.0.0",
+  "description": "uswds",
+  "homepage": "https://github.com/ferminaguilar/FederalGovernment#readme",
+  "bugs": {
+    "url": "https://github.com/ferminaguilar/FederalGovernment/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ferminaguilar/FederalGovernment.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@uswds/uswds": "3.13.0"
+  },
+  "devDependencies": {
+    "@uswds/compile": "^1.3.1"
+  }
+}

@@ -2,3 +2,4 @@
 #/sites/default/files/
 /.env.local
 /.env.production
+node_modules
