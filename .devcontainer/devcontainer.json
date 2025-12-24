@@ -2,8 +2,16 @@
   "name": "Drupal PHP 8.3",
   "image": "mcr.microsoft.com/devcontainers/php:8.3",
   "features": {
+    "ghcr.io/devcontainers/features/git-lfs:1": {},
     "ghcr.io/devcontainers/features/mysql:1": {
-      "version": "latest" 
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client"
+      ]
     }
   },
   "remoteEnv": {
