@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/php:8.3
+    volumes:
+      - ..:/workspaces:cached
+    environment:
+      - DB_NAME=drupal
+      - DB_USER=drupal
+      - DB_PASS=drupal
+      - DB_HOST=db
+      - DB_PORT=3306
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_DATABASE=drupal
+      - MARIADB_USER=drupal
+      - MARIADB_PASSWORD=drupal
+    volumes:
+      - drupal-db-data:/var/lib/mysql
+
+volumes:
+  drupal-db-data:

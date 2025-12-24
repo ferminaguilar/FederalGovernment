@@ -1,15 +1,17 @@
 {
-  "name": "Drupal PHP 8.3",
-  "image": "mcr.microsoft.com/devcontainers/php:8.3",
+  "name": "Drupal PHP 8.3 (Compose)",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "features": {
     "ghcr.io/devcontainers/features/git-lfs:1": {}
   },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "bmewburn.vscode-intelephense-client"
-      ]
-    }
+  "containerEnv": {
+    "DB_NAME": "drupal",
+    "DB_USER": "drupal",
+    "DB_PASS": "drupal",
+    "DB_HOST": "db",
+    "DB_PORT": "3306"
   },
   "remoteEnv": {
     "PATH": "/usr/local/bin:${containerEnv:PATH}"
