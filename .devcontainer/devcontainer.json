@@ -4,7 +4,11 @@
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "features": {
-    "ghcr.io/devcontainers/features/git-lfs:1": {}
+    "ghcr.io/devcontainers/features/git-lfs:1": {},
+    "ghcr.io/devcontainers/features/php:1": {
+        "installComposer": true,
+        "additionalExtensions": "pdo_mysql gd opcache zip"
+    }
   },
   "containerEnv": {
     "DB_NAME": "drupal",
@@ -12,9 +16,5 @@
     "DB_PASS": "drupal",
     "DB_HOST": "db",
     "DB_PORT": "3306"
-  },
-  "remoteEnv": {
-    "PATH": "/usr/local/bin:${containerEnv:PATH}"
-  },
-  "postCreateCommand": "composer install"
+  }
 }

@@ -885,5 +885,7 @@ $databases['default']['default'] = array (
 #$settings['config_sync_directory'] = '../config/sync';
 $settings['config_sync_directory'] = dirname(__DIR__) . '/../config/sync';
 
-
+$config['system.logging']['error_level'] = 'verbose';
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
 
