@@ -1,13 +1,12 @@
 {
-  "name": "Drupal 10",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "app",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "features": {
-    "ghcr.io/devcontainers/features/php:1": {
-      "version": "8.3",
-      "additionalExtensions": "pdo_mysql gd zip"
-    }
-  },
-  "postCreateCommand": "composer install"
+    "name": "Drupal Environment",
+    "image": "mcr.microsoft.com/devcontainers/php:1-8.3-bullseye",
+    "features": {
+        "ghcr.io/devcontainers/features/php:1": {
+            "version": "8.3",
+            "additionalExtensions": "pdo_mysql gd zip mysqli"
+        }
+    },
+    "forwardPorts": [8080],
+    "postCreateCommand": "composer install"
 }

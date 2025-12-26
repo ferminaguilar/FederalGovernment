@@ -868,17 +868,16 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 # if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
 #   include $app_root . '/' . $site_path . '/settings.local.php';
 # }
+
 $databases['default']['default'] = array (
-  'database' => $_ENV['DB_NAME'],
-  'username' => $_ENV['DB_USER'],
-  'password' => $_ENV['DB_PASS'],
+  'database' => 'drupal',
+  'username' => 'drupal',
+  'password' => 'drupal',
   'prefix' => '',
-  'host' => $_ENV['DB_HOST'],
-  'port' => $_ENV['DB_PORT'],
-  'isolation_level' => 'READ COMMITTED',
-  'driver' => 'mysql',
+  'host' => '127.0.0.1', // Ensure this is 127.0.0.1, NOT db
+  'port' => '3306',
   'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
-  'autoload' => 'core/modules/mysql/src/Driver/Database/mysql/',
+  'driver' => 'mysql',
 );
 
 #$settings['config_sync_directory'] = 'sites/default/files/config_IEuC1Rg0Np2vCQ5ZeFx70UBV0NZt2c0HdBIF-gImcZ-ZxocmoP3hIVjI5t38WYqbbYXfRybJog/sync';
