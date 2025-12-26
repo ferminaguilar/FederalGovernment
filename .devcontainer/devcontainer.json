@@ -1,21 +1,13 @@
 {
-  "name": "Drupal PHP 8.3",
+  "name": "Drupal 10",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "features": {
-    "ghcr.io/devcontainers/features/git-lfs:1": {},
     "ghcr.io/devcontainers/features/php:1": {
       "version": "8.3",
       "additionalExtensions": "pdo_mysql gd zip"
     }
-  },
-  "containerEnv": {
-    "DB_NAME": "drupal",
-    "DB_USER": "drupal",
-    "DB_PASS": "drupal",
-    "DB_HOST": "db",
-    "DB_PORT": "3306"
   },
   "postCreateCommand": "composer install"
 }

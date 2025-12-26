@@ -11,7 +11,7 @@ services:
       - DB_PASS=drupal
       - DB_HOST=db
       - DB_PORT=3306
-    # This keeps the container running so you can connect to it
+    # Standard command to keep the container alive
     command: /bin/sh -c "while sleep 1000; do :; done"
 
   db:
