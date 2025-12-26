@@ -752,15 +752,7 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
  * @see https://www.drupal.org/docs/installing-drupal/trusted-host-settings
  */
 # 
-$settings['trusted_host_patterns'] = [
-  '^govfed\.us$',
-    '^localhost$',
-  '127\.0\.0\.1',
-  // Or use preg_quote() to escape the dots and other characters.
-  preg_quote('127.0.0.1'),
-  '^.*\.app\.github\.dev$',
-];
-
+$settings['trusted_host_patterns'] = ['.*'];
 /**
  * The default list of directories that will be ignored by Drupal's file API.
  *
@@ -888,3 +880,13 @@ $config['system.logging']['error_level'] = 'verbose';
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
+// Fix for GitHub Codespaces / Reverse Proxies
+$settings['reverse_proxy'] = TRUE;
+$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
+
+// Remove the port from generated URLs
+$base_url = 'https://' . $_SERVER['HTTP_HOST'];
+// Ensure HTTP_HOST doesn't have the :8080 appended by PHP
+if (strpos($base_url, ':8080') !== false) {
+    $base_url = str_replace(':8080', '', $base_url);
+}
