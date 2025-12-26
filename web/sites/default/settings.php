@@ -890,3 +890,6 @@ $base_url = 'https://' . $_SERVER['HTTP_HOST'];
 if (strpos($base_url, ':8080') !== false) {
     $base_url = str_replace(':8080', '', $base_url);
 }
+
+// Settings.php bypass
+$settings['database_db_skip_version_check'] = TRUE;
