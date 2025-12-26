@@ -880,9 +880,15 @@ $config['system.logging']['error_level'] = 'verbose';
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-// Fix for GitHub Codespaces / Reverse Proxies
-$settings['reverse_proxy'] = TRUE;
-$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
+// Improved fix for GitHub Codespaces
+if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+  $settings['reverse_proxy'] = TRUE;
+  $settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
+  
+  // This helps Drupal recognize it is on HTTPS even if the internal port is 8080
+  $_SERVER['HTTPS'] = 'on';
+  $_SERVER['SERVER_PORT'] = 443;
+}
 
 // Remove the port from generated URLs
 $base_url = 'https://' . $_SERVER['HTTP_HOST'];

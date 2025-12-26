@@ -345,7 +345,7 @@ function system_requirements($phase): array {
     'date',
     'dom',
     'filter',
-    'gd',
+    //'gd',
     'hash',
     'json',
     'pcre',
