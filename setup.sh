@@ -2,29 +2,26 @@
 
 echo "🚀 Preparing Drupal 11 for SQLite Install..."
 
-# --- MASTER BYPASS FOR CODESPACES ---
+# --- 1. MASTER BYPASS FOR CODESPACES ---
 echo "🛠️  Applying Master Bypass for GD/SQLite..."
 
-# 1. Global Patch: Find every .install file and make REQUIREMENT_ERROR non-fatal
-# This targets System, Image, and any other module demanding GD
+# Patch System/Image modules & Update logic
 find web/core -type f -name "*.install" -exec chmod 666 {} +
 find web/core -type f -name "*.install" -exec sed -i "s/REQUIREMENT_ERROR/REQUIREMENT_INFO/g" {} +
 
-# 2. Force Update Script to allow continuation even with "Errors"
 if [ -f "web/core/includes/update.inc" ]; then
     chmod 666 web/core/includes/update.inc
-    # This specifically targets the line that blocks the "Continue" button
     sed -i 's/return !\$has_error;/return true;/g' web/core/includes/update.inc
 fi
 
-# 3. Patch SQLite version check (3.45 -> 3.30)
+# Patch SQLite version check
 SQLITE_TASKS="web/core/modules/sqlite/src/Driver/Database/sqlite/Install/Tasks.php"
 if [ -f "$SQLITE_TASKS" ]; then
     chmod 666 "$SQLITE_TASKS"
     sed -i "s/3.45/3.30/g" "$SQLITE_TASKS"
 fi
 
-# 4. Unlock directories for Composer/Development
+# --- 2. PERMISSIONS & DIRECTORY SETUP ---
 if [ -d "web/sites/default" ]; then
     echo "🔓 Unlocking sites/default..."
     chmod 777 web/sites/default
@@ -32,27 +29,44 @@ if [ -d "web/sites/default" ]; then
     [ -f "web/sites/default/settings.php" ] && chmod 666 web/sites/default/settings.php
 fi
 
-# 5. Reverse Proxy Fix for Codespaces (append only if not present)
-if [ -f "web/sites/default/settings.php" ]; then
-    if ! grep -q "reverse_proxy" web/sites/default/settings.php; then
-        echo "\$settings['reverse_proxy'] = TRUE;" >> web/sites/default/settings.php
-        echo "\$settings['reverse_proxy_addresses'] = [\$_SERVER['REMOTE_ADDR']];" >> web/sites/default/settings.php
+mkdir -p web/sites/default/files
+chmod 777 web/sites/default/files
+
+# Create settings.php if it doesn't exist
+if [ ! -f "web/sites/default/settings.php" ]; then
+    cp web/sites/default/default.settings.php web/sites/default/settings.php
+    chmod 666 web/sites/default/settings.php
+fi
+
+# --- 3. INJECT SETTINGS.PHP FIXES ---
+SETTINGS="web/sites/default/settings.php"
+if [ -f "$SETTINGS" ]; then
+    echo "✨ Injecting Codespace-specific settings..."
+    
+    # Reverse Proxy
+    if ! grep -q "reverse_proxy" "$SETTINGS"; then
+        echo "\$settings['reverse_proxy'] = TRUE;" >> "$SETTINGS"
+        echo "\$settings['reverse_proxy_addresses'] = [\$_SERVER['REMOTE_ADDR']];" >> "$SETTINGS"
+    fi
+
+    # Trusted Host, Toolkit, and Permissions hardening bypass
+    if ! grep -q "trusted_host_patterns" "$SETTINGS"; then
+        cat <<EOF >> "$SETTINGS"
+
+// Codespaces Environment Bypasses
+\$settings['trusted_host_patterns'] = ['.*'];
+\$settings['image_toolkit'] = 'test';
+\$settings['skip_permissions_hardening'] = TRUE;
+EOF
     fi
 fi
 
-# 6. Configure Composer
+# --- 4. COMPOSER & DRUSH ---
+echo "📦 Finalizing environment..."
 composer config platform.ext-gd 2.3.0
 
-# 7. Fix Trusted Host Settings in settings.php
-SETTINGS="web/sites/default/settings.php"
-if [ -f "$SETTINGS" ]; then
-    echo "🔒 Configuring Trusted Hosts..."
-    echo "\$settings['trusted_host_patterns'] = ['.*'];" >> "$SETTINGS"
-fi
-
-# 8. Run Database Updates and Clear Cache
-echo "🔄 Running database updates via Drush..."
+# Use vendor/bin/drush to ensure we use the local project version
 vendor/bin/drush updatedb -y
 vendor/bin/drush cr
 
-echo "✅ Ready! Run: ./setup.sh then drush cr"
+echo "✅ Ready! Access your site and check /admin/reports/status"
