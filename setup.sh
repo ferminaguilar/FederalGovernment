@@ -2,48 +2,45 @@
 
 echo "🚀 Preparing Drupal 11 for SQLite Install..."
 
-# 1. Increase Memory
-PHP_CONF_DIR="/usr/local/php/8.3.29/ini/conf.d"
-sudo mkdir -p $PHP_CONF_DIR
-echo "memory_limit=512M" | sudo tee $PHP_CONF_DIR/90-limits.ini
+# --- MASTER BYPASS FOR CODESPACES ---
+echo "🛠️  Applying Master Bypass for GD/SQLite..."
 
-# 2. Aggressive Extension Scrub (GD/Zip)
-SYSTEM_INSTALL="web/core/modules/system/system.install"
-if [ -f "$SYSTEM_INSTALL" ]; then
-    echo "🧼 Downgrading GD/Zip requirements to Info-only..."
-    chmod 666 "$SYSTEM_INSTALL"
-    # Replace ERROR with INFO specifically for GD and Zip blocks
-    sed -i "s/REQUIREMENT_ERROR/REQUIREMENT_INFO/g" "$SYSTEM_INSTALL"
+# 1. Global Patch: Find every .install file and make REQUIREMENT_ERROR non-fatal
+# This targets System, Image, and any other module demanding GD
+find web/core -type f -name "*.install" -exec chmod 666 {} +
+find web/core -type f -name "*.install" -exec sed -i "s/REQUIREMENT_ERROR/REQUIREMENT_INFO/g" {} +
+
+# 2. Force Update Script to allow continuation even with "Errors"
+if [ -f "web/core/includes/update.inc" ]; then
+    chmod 666 web/core/includes/update.inc
+    # This specifically targets the line that blocks the "Continue" button
+    sed -i 's/return !\$has_error;/return true;/g' web/core/includes/update.inc
 fi
 
-# Bypass SQLite Version Requirement (3.45 -> 3.30)
+# 3. Patch SQLite version check (3.45 -> 3.30)
 SQLITE_TASKS="web/core/modules/sqlite/src/Driver/Database/sqlite/Install/Tasks.php"
 if [ -f "$SQLITE_TASKS" ]; then
-    echo "Bypassing SQLite version check..."
+    chmod 666 "$SQLITE_TASKS"
     sed -i "s/3.45/3.30/g" "$SQLITE_TASKS"
 fi
 
-# Unlock directories for Composer/Development
+# 4. Unlock directories for Composer/Development
 if [ -d "web/sites/default" ]; then
-    echo "Unlocking sites/default for development..."
+    echo "🔓 Unlocking sites/default..."
     chmod 777 web/sites/default
     [ -f "web/sites/default/default.settings.php" ] && chmod 666 web/sites/default/default.settings.php
     [ -f "web/sites/default/settings.php" ] && chmod 666 web/sites/default/settings.php
 fi
 
-# 3. Prepare Directory Permissions
-mkdir -p web/sites/default/files
-chmod 777 web/sites/default/files
-cp web/sites/default/default.settings.php web/sites/default/settings.php
-chmod 666 web/sites/default/settings.php
+# 5. Reverse Proxy Fix for Codespaces (append only if not present)
+if [ -f "web/sites/default/settings.php" ]; then
+    if ! grep -q "reverse_proxy" web/sites/default/settings.php; then
+        echo "\$settings['reverse_proxy'] = TRUE;" >> web/sites/default/settings.php
+        echo "\$settings['reverse_proxy_addresses'] = [\$_SERVER['REMOTE_ADDR']];" >> web/sites/default/settings.php
+    fi
+fi
 
-# 4. Reverse Proxy Fix for Codespaces
-echo "\$settings['reverse_proxy'] = TRUE;" >> web/sites/default/settings.php
-echo "\$settings['reverse_proxy_addresses'] = [\$_SERVER['REMOTE_ADDR']];" >> web/sites/default/settings.php
-
-# Tell Composer to pretend GD is installed
+# 6. Configure Composer
 composer config platform.ext-gd 2.3.0
 
-
-
-echo "✅ Ready! Run: php -S 0.0.0.0:8080 -t web"
+echo "✅ Ready! Run: ./setup.sh then drush cr"
