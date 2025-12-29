@@ -1,18 +1,5 @@
 <?php
 
-use Symfony\Component\Dotenv\Dotenv;
-
-$dotenv = new Dotenv();
-
-// Load .env.local if it exists, otherwise fall back to .env.production
-if (file_exists(__DIR__ . '/../../../.env.local')) {
-  $dotenv->load(__DIR__ . '/../../../.env.local');
-} elseif (file_exists(__DIR__ . '/../../../.env.production')) {
-  $dotenv->load(__DIR__ . '/../../../.env.production');
-}
-
-
-
 // phpcs:ignoreFile
 
 /**
@@ -299,7 +286,7 @@ $databases = [];
  *   $settings['hash_salt'] = file_get_contents('/home/example/salt.txt');
  * @endcode
  */
-$settings['hash_salt'] = '8dBRIngDniw7tt914EiA271Fv_GedhSbDPDg-x-G_hsWo71x5PWbKEujcAmOsHVLRm6gunvPtw';
+$settings['hash_salt'] = '6tdARHqFBAiqURyglJCt-RacQDmBtf1gncq2DW356JqPPH08NWPjBROqkQybDDGr5-Civ2YNZA';
 
 /**
  * Deployment identifier.
@@ -751,8 +738,8 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
  *
  * @see https://www.drupal.org/docs/installing-drupal/trusted-host-settings
  */
-# 
-$settings['trusted_host_patterns'] = ['.*'];
+# $settings['trusted_host_patterns'] = [];
+
 /**
  * The default list of directories that will be ignored by Drupal's file API.
  *
@@ -860,42 +847,13 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 # if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
 #   include $app_root . '/' . $site_path . '/settings.local.php';
 # }
-
+$settings['reverse_proxy'] = TRUE;
+$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
 $databases['default']['default'] = array (
-  'database' => 'drupal',
-  'username' => 'drupal',
-  'password' => 'drupal',
+  'database' => 'sites/default/files/.ht.sqlite',
   'prefix' => '',
-  'host' => '127.0.0.1', // Ensure this is 127.0.0.1, NOT db
-  'port' => '3306',
-  'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
-  'driver' => 'mysql',
+  'driver' => 'sqlite',
+  'namespace' => 'Drupal\\sqlite\\Driver\\Database\\sqlite',
+  'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
 );
-
-#$settings['config_sync_directory'] = 'sites/default/files/config_IEuC1Rg0Np2vCQ5ZeFx70UBV0NZt2c0HdBIF-gImcZ-ZxocmoP3hIVjI5t38WYqbbYXfRybJog/sync';
-#$settings['config_sync_directory'] = '../config/sync';
-$settings['config_sync_directory'] = dirname(__DIR__) . '/../config/sync';
-
-$config['system.logging']['error_level'] = 'verbose';
-ini_set('display_errors', TRUE);
-ini_set('display_startup_errors', TRUE);
-
-// Improved fix for GitHub Codespaces
-if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-  $settings['reverse_proxy'] = TRUE;
-  $settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
-  
-  // This helps Drupal recognize it is on HTTPS even if the internal port is 8080
-  $_SERVER['HTTPS'] = 'on';
-  $_SERVER['SERVER_PORT'] = 443;
-}
-
-// Remove the port from generated URLs
-$base_url = 'https://' . $_SERVER['HTTP_HOST'];
-// Ensure HTTP_HOST doesn't have the :8080 appended by PHP
-if (strpos($base_url, ':8080') !== false) {
-    $base_url = str_replace(':8080', '', $base_url);
-}
-
-// Settings.php bypass
-$settings['database_db_skip_version_check'] = TRUE;
+$settings['config_sync_directory'] = 'sites/default/files/config_HY4jKqXObletZFA7GMCO8TqO7XMC8qYDZtmJpWSwwktdA2IuRJvs9qTqsFTRdS0MiT3oJPOahA/sync';

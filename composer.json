@@ -23,6 +23,7 @@
         "drupal/core-recipe-unpack": "^11.2",
         "drupal/core-recommended": "^11.2",
         "drupal/gin": "^5.0",
+        "drupal/gin_toolbar": "^3.0",
         "drupal/key": "^1.20",
         "drupal/uswds_base": "^3.10",
         "symfony/dotenv": "^7.3"
@@ -43,7 +44,10 @@
             "php-http/discovery": true,
             "php-tuf/composer-integration": true
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "ext-gd": "2.3.0"
+        }
     },
     "extra": {
         "drupal-scaffold": {

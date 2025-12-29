@@ -1,44 +1,47 @@
 #!/bin/bash
 
-echo "🚀 Starting Drupal 11 environment prep..."
+echo "🚀 Preparing Drupal 11 for SQLite Install..."
 
-# 1. Increase PHP Memory Limit
-echo "Updating PHP memory limits..."
-echo "memory_limit=512M" | sudo tee /usr/local/etc/php/conf.d/90-limits.ini
+# 1. Increase Memory
+PHP_CONF_DIR="/usr/local/php/8.3.29/ini/conf.d"
+sudo mkdir -p $PHP_CONF_DIR
+echo "memory_limit=512M" | sudo tee $PHP_CONF_DIR/90-limits.ini
 
-# 2. Bypass MariaDB Version Requirement (10.6 -> 10.5)
-# We target the Tasks.php file in the mysql driver module
-TASKS_FILE="web/core/modules/mysql/src/Driver/Database/mysql/Install/Tasks.php"
-if [ -f "$TASKS_FILE" ]; then
-    echo "Bypassing MariaDB version check in Tasks.php..."
-    sed -i "s/10.6.1/10.5.0/g" "$TASKS_FILE"
-else
-    echo "⚠️ Tasks.php not found at $TASKS_FILE"
-fi
-
-# 3. Remove GD and Zip from required extensions
-# We target the system.install file
+# 2. Remove Extension Requirements (GD/Zip)
 SYSTEM_INSTALL="web/core/modules/system/system.install"
 if [ -f "$SYSTEM_INSTALL" ]; then
-    echo "Removing GD/Zip requirements from system.install..."
     sed -i "/'gd',/d" "$SYSTEM_INSTALL"
     sed -i "/'zip',/d" "$SYSTEM_INSTALL"
-else
-    echo "⚠️ system.install not found at $SYSTEM_INSTALL"
 fi
 
-# 4. Prepare settings.php
-# Create the directory and file if they don't exist, then add the bypass flag
-mkdir -p web/sites/default
-if [ ! -f "web/sites/default/settings.php" ]; then
-    cp web/sites/default/default.settings.php web/sites/default/settings.php
-    chmod 666 web/sites/default/settings.php
+# Bypass SQLite Version Requirement (3.45 -> 3.30)
+SQLITE_TASKS="web/core/modules/sqlite/src/Driver/Database/sqlite/Install/Tasks.php"
+if [ -f "$SQLITE_TASKS" ]; then
+    echo "Bypassing SQLite version check..."
+    sed -i "s/3.45/3.30/g" "$SQLITE_TASKS"
 fi
 
-echo "Adding bypass flags to settings.php..."
-echo "\$settings['database_db_skip_version_check'] = TRUE;" >> web/sites/default/settings.php
+# Unlock directories for Composer/Development
+if [ -d "web/sites/default" ]; then
+    echo "Unlocking sites/default for development..."
+    chmod 777 web/sites/default
+    [ -f "web/sites/default/default.settings.php" ] && chmod 666 web/sites/default/default.settings.php
+    [ -f "web/sites/default/settings.php" ] && chmod 666 web/sites/default/settings.php
+fi
+
+# 3. Prepare Directory Permissions
+mkdir -p web/sites/default/files
+chmod 777 web/sites/default/files
+cp web/sites/default/default.settings.php web/sites/default/settings.php
+chmod 666 web/sites/default/settings.php
+
+# 4. Reverse Proxy Fix for Codespaces
 echo "\$settings['reverse_proxy'] = TRUE;" >> web/sites/default/settings.php
 echo "\$settings['reverse_proxy_addresses'] = [\$_SERVER['REMOTE_ADDR']];" >> web/sites/default/settings.php
 
-echo "✅ Setup complete! You can now start your server:"
-echo "php -S 0.0.0.0:8080 -t web"
+# Tell Composer to pretend GD is installed
+composer config platform.ext-gd 2.3.0
+
+
+
+echo "✅ Ready! Run: php -S 0.0.0.0:8080 -t web"

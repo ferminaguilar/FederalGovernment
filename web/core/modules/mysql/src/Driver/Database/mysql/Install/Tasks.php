@@ -24,7 +24,7 @@ class Tasks extends InstallTasks {
   /**
    * Minimum required MariaDB version.
    */
-  const MARIADB_MINIMUM_VERSION = '10.5.0';
+  const MARIADB_MINIMUM_VERSION = '10.6';
 
   /**
    * The PDO driver name for MySQL and equivalent databases.
@@ -113,7 +113,10 @@ class Tasks extends InstallTasks {
         catch (DatabaseNotFoundException $e) {
           // Still no dice; probably a permission issue. Raise the error to the
           // installer.
-          $this->fail($this->t('Database %database not found. The server reports the following message when attempting to create the database: %error.', ['%database' => $database, '%error' => $e->getMessage()]));
+          $this->fail($this->t('Database %database not found. The server reports the following message when attempting to create the database: %error.', [
+            '%database' => $database,
+            '%error' => $e->getMessage(),
+          ]));
         }
       }
       else {

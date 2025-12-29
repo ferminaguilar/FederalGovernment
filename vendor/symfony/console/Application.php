@@ -65,7 +65,7 @@ use Symfony\Contracts\Service\ResetInterface;
  * Usage:
  *
  *     $app = new Application('myapp', '1.0 (stable)');
- *     $app->add(new SimpleCommand());
+ *     $app->addCommand(new SimpleCommand());
  *     $app->run();
  *
  * @author Fabien Potencier <fabien@symfony.com>
@@ -389,10 +389,7 @@ class Application implements ResetInterface
         $this->definition ??= $this->getDefaultInputDefinition();
 
         if ($this->singleCommand) {
-            $inputDefinition = $this->definition;
-            $inputDefinition->setArguments();
-
-            return $inputDefinition;
+            $this->definition->setArguments();
         }
 
         return $this->definition;
@@ -536,7 +533,7 @@ class Application implements ResetInterface
      */
     public function register(string $name): Command
     {
-        return $this->add(new Command($name));
+        return $this->addCommand(new Command($name));
     }
 
     /**
@@ -544,13 +541,23 @@ class Application implements ResetInterface
      *
      * If a Command is not enabled it will not be added.
      *
-     * @param Command[] $commands An array of commands
+     * @param callable[]|Command[] $commands An array of commands
      */
     public function addCommands(array $commands): void
     {
         foreach ($commands as $command) {
-            $this->add($command);
+            $this->addCommand($command);
         }
+    }
+
+    /**
+     * @deprecated since Symfony 7.4, use Application::addCommand() instead
+     */
+    public function add(Command $command): ?Command
+    {
+        trigger_deprecation('symfony/console', '7.4', 'The "%s()" method is deprecated and will be removed in Symfony 8.0, use "%s::addCommand()" instead.', __METHOD__, self::class);
+
+        return $this->addCommand($command);
     }
 
     /**
@@ -559,9 +566,13 @@ class Application implements ResetInterface
      * If a command with the same name already exists, it will be overridden.
      * If the command is not enabled it will not be added.
      */
-    public function add(Command $command): ?Command
+    public function addCommand(callable|Command $command): ?Command
     {
         $this->init();
+
+        if (!$command instanceof Command) {
+            $command = new Command(null, $command);
+        }
 
         $command->setApplication($this);
 
@@ -628,7 +639,7 @@ class Application implements ResetInterface
     {
         $this->init();
 
-        return isset($this->commands[$name]) || ($this->commandLoader?->has($name) && $this->add($this->commandLoader->get($name)));
+        return isset($this->commands[$name]) || ($this->commandLoader?->has($name) && $this->addCommand($this->commandLoader->get($name)));
     }
 
     /**
@@ -1324,8 +1335,14 @@ class Application implements ResetInterface
         }
         $this->initialized = true;
 
+        if ((new \ReflectionMethod($this, 'add'))->getDeclaringClass()->getName() !== (new \ReflectionMethod($this, 'addCommand'))->getDeclaringClass()->getName()) {
+            $adder = $this->add(...);
+        } else {
+            $adder = $this->addCommand(...);
+        }
+
         foreach ($this->getDefaultCommands() as $command) {
-            $this->add($command);
+            $adder($command);
         }
     }
 }
