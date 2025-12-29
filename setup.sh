@@ -7,9 +7,13 @@ PHP_CONF_DIR="/usr/local/php/8.3.29/ini/conf.d"
 sudo mkdir -p $PHP_CONF_DIR
 echo "memory_limit=512M" | sudo tee $PHP_CONF_DIR/90-limits.ini
 
-# 2. Remove Extension Requirements (GD/Zip)
+# 2. Aggressive Extension Scrub (GD/Zip)
 SYSTEM_INSTALL="web/core/modules/system/system.install"
 if [ -f "$SYSTEM_INSTALL" ]; then
+    echo "🧼 Scrubbing GD and Zip from system requirements..."
+    chmod 666 "$SYSTEM_INSTALL"
+    sed -i "/'gd' =>/,/],/d" "$SYSTEM_INSTALL"
+    sed -i "/'zip' =>/,/],/d" "$SYSTEM_INSTALL"
     sed -i "/'gd',/d" "$SYSTEM_INSTALL"
     sed -i "/'zip',/d" "$SYSTEM_INSTALL"
 fi
