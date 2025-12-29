@@ -43,4 +43,16 @@ fi
 # 6. Configure Composer
 composer config platform.ext-gd 2.3.0
 
+# 7. Fix Trusted Host Settings in settings.php
+SETTINGS="web/sites/default/settings.php"
+if [ -f "$SETTINGS" ]; then
+    echo "🔒 Configuring Trusted Hosts..."
+    echo "\$settings['trusted_host_patterns'] = ['.*'];" >> "$SETTINGS"
+fi
+
+# 8. Run Database Updates and Clear Cache
+echo "🔄 Running database updates via Drush..."
+vendor/bin/drush updatedb -y
+vendor/bin/drush cr
+
 echo "✅ Ready! Run: ./setup.sh then drush cr"
