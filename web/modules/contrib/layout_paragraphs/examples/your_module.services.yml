@@ -1,0 +1,9 @@
+# Example services.yml configuration for registering the duplicate event subscriber
+
+services:
+  your_module.layout_paragraphs_duplicate_subscriber:
+    class: Drupal\your_module\EventSubscriber\LayoutParagraphsDuplicateExampleSubscriber
+    arguments:
+      - '@messenger'
+    tags:
+      - { name: 'event_subscriber' }
