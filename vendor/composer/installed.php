@@ -3,7 +3,7 @@
         'name' => 'drupal/recommended-project',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'd5a3a9320a854c80873d9cb49ac14a5c42405494',
+        'reference' => '056ee5b01702387a19ffbab3404d7688bce5a039',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -370,6 +370,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'drupal/entity_usage' => array(
+            'pretty_version' => '2.0.0-beta25',
+            'version' => '2.0.0.0-beta25',
+            'reference' => '8.x-2.0-beta25',
+            'type' => 'drupal-module',
+            'install_path' => __DIR__ . '/../../web/modules/contrib/entity_usage',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'drupal/gin' => array(
             'pretty_version' => '5.0.10',
             'version' => '5.0.10.0',
@@ -418,7 +427,7 @@
         'drupal/recommended-project' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'd5a3a9320a854c80873d9cb49ac14a5c42405494',
+            'reference' => '056ee5b01702387a19ffbab3404d7688bce5a039',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
