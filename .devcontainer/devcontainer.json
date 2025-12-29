@@ -8,5 +8,5 @@
         }
     },
     "forwardPorts": [8080],
-    "postCreateCommand": "composer install"
+    "postCreateCommand": "composer install && chmod +x setup.sh && ./setup.sh"
 }
