@@ -1,0 +1,25 @@
+{#
+/**
+ * @file
+ * Override of system/menu.html.twig for the secondary menu.
+ */
+#}
+
+{% set classes = [] %}
+
+{% if items %}
+<ul class="usa-nav__secondary-links">
+{% for item in items %}
+  <li class="usa-nav__secondary-item">
+    
+    {% if item.in_active_trail %}
+      {% set classes = classes|merge(['usa-current']) %}
+    {% else %}
+      {% set classes = [] %}
+    {% endif %}
+    
+    {{ link(item.title, item.url, create_attribute({'class': classes})) }}
+  </li>
+{% endfor %}
+</ul>
+{% endif %}

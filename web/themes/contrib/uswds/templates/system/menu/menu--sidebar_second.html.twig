@@ -1,0 +1,48 @@
+{#
+/**
+ * @file
+ * Override of system/menu.html.twig for a sidebar menu.
+ */
+#}
+
+{% import _self as menus %}
+
+{#
+  We call a macro which calls itself to render the full tree.
+  @see http://twig.sensiolabs.org/doc/tags/macro.html
+#}
+{{ menus.menu_links(items, 0) }}
+
+{% macro menu_links(items, menu_level) %}
+  {% import _self as menus %}
+
+  {% set classes = [] %}
+  
+  {% if items %}
+
+    {% if menu_level == 0 %}
+      <ul class="usa-sidenav">
+    {% else %}
+      <ul class="usa-sidenav__sublist">
+    {% endif %}
+
+    {% for item in items %}
+
+      {% if item.in_active_trail %}
+        {% set classes = classes|merge(['usa-current']) %}
+      {% else %}
+        {% set classes = [] %}
+      {% endif %}
+
+      <li class="usa-sidenav__item">
+        {{ link(item.title, item.url, create_attribute({'class': classes})) }}
+
+        {% if item.in_active_trail and item.below %}
+          {{ menus.menu_links(item.below, menu_level + 1) }}
+        {% endif %}
+
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}

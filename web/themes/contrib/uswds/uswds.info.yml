@@ -1,0 +1,33 @@
+name: U.S. Web Design Standards 3.x
+type: theme
+description: 'A base theme implementing the U.S. Web Design Standards v3.x.'
+base theme: classy
+core_version_requirement: ^10 | ^11
+dependencies:
+  - classy:classy
+libraries:
+  - uswds/uswds
+  - uswds/drupal
+libraries-override:
+  core/drupal.collapse: false
+  classy/base: false
+regions:
+  header_top: 'Above Header'
+  header: 'Header'
+  primary_menu: 'Primary Menu'
+  secondary_menu: 'Secondary Menu'
+  sidebar_first: 'First sidebar'
+  sidebar_second: 'Second sidebar'
+  breadcrumb: 'Breadcrumb'
+  highlighted: 'Highlighted'
+  help: 'Help'
+  hero: 'Hero'
+  content: 'Content'
+  footer_menu: 'Footer Menu'
+  footer: 'Primary Footer'
+  footer_secondary: 'Secondary Footer'
+
+# Information added by Drupal.org packaging script on 2025-11-07
+version: '3.2.2'
+project: 'uswds'
+datestamp: 1762528490

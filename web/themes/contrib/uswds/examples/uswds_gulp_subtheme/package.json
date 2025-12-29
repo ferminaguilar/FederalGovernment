@@ -1,0 +1,15 @@
+{
+  "name": "uswds_gulp_subtheme-change-me",
+  "version": "3.x",
+  "description": "Dependencies for compiling the assets/styles",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@uswds/uswds": "^3.5.0"
+  },
+  "devDependencies": {
+    "@uswds/compile": "^1.0.0-beta.3"
+  }
+}
