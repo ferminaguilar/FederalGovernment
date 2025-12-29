@@ -1,5 +1,14 @@
-#/vendor/
-#/sites/default/files/
+# Ignore the vendor folder (it's huge, use composer install instead)
+/vendor/
+
+# Ignore uploaded assets, BUT keep the SQLite database
+/web/sites/default/files/*
+!/web/sites/default/files/.ht.sqlite
+
+# Ignore environment and node files
 /.env.local
 /.env.production
-node_modules
+node_modules/
+
+# Ignore Drupal's generated settings if you want a clean repo
+/web/sites/default/settings.php
