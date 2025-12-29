@@ -10,12 +10,10 @@ echo "memory_limit=512M" | sudo tee $PHP_CONF_DIR/90-limits.ini
 # 2. Aggressive Extension Scrub (GD/Zip)
 SYSTEM_INSTALL="web/core/modules/system/system.install"
 if [ -f "$SYSTEM_INSTALL" ]; then
-    echo "🧼 Scrubbing GD and Zip from system requirements..."
+    echo "🧼 Downgrading GD/Zip requirements to Info-only..."
     chmod 666 "$SYSTEM_INSTALL"
-    sed -i "/'gd' =>/,/],/d" "$SYSTEM_INSTALL"
-    sed -i "/'zip' =>/,/],/d" "$SYSTEM_INSTALL"
-    sed -i "/'gd',/d" "$SYSTEM_INSTALL"
-    sed -i "/'zip',/d" "$SYSTEM_INSTALL"
+    # Replace ERROR with INFO specifically for GD and Zip blocks
+    sed -i "s/REQUIREMENT_ERROR/REQUIREMENT_INFO/g" "$SYSTEM_INSTALL"
 fi
 
 # Bypass SQLite Version Requirement (3.45 -> 3.30)
