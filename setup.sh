@@ -2,6 +2,15 @@
 
 echo "🚀 Preparing Drupal 11 for SQLite Install..."
 
+# --- 0. FIX ENVIRONMENT (Suppress PHP Warnings) ---
+# Installs MySQL driver to stop the "pdo_mysql" warning, even if using SQLite
+if dpkg -s php-mysql >/dev/null 2>&1; then
+    echo "✅ PHP MySQL driver already installed."
+else
+    echo "🔧 Installing PHP MySQL driver to suppress warnings..."
+    sudo apt-get update && sudo apt-get install -y php-mysql
+fi
+
 # --- 1. MASTER BYPASS FOR CODESPACES ---
 echo "🛠️  Applying Master Bypass for GD/SQLite..."
 
@@ -66,7 +75,14 @@ echo "📦 Finalizing environment..."
 composer config platform.ext-gd 2.3.0
 
 # Use vendor/bin/drush to ensure we use the local project version
-vendor/bin/drush updatedb -y
-vendor/bin/drush cr
+# We use || true so the script doesn't crash if the DB isn't installed yet
+vendor/bin/drush updatedb -y || true
+vendor/bin/drush cr || true
 
-echo "✅ Ready! Access your site and check /admin/reports/status"
+echo "✅ Setup complete. Starting Server..."
+echo "-------------------------------------"
+
+# --- 5. START SERVER ---
+# Change to web directory and start PHP server
+cd web
+php -S 0.0.0.0:8080 .ht.router.php
