@@ -4,9 +4,9 @@
     "features": {
         "ghcr.io/devcontainers/features/php:1": {
             "version": "8.3",
-            "additionalExtensions": "pdo_mysql gd zip mysqli"
+            "installOptions": "gd pdo_mysql zip mysqli"
         }
-    },
+    },    
     "forwardPorts": [8080],
     "postCreateCommand": "composer install && chmod +x setup.sh && ./setup.sh"
 }

@@ -1,0 +1,29 @@
+uuid: 9fdf1983-66f2-4c72-8ae2-30bf0eebc506
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_bia_region
+    - node.type.tribe
+    - taxonomy.vocabulary.regions
+id: node.tribe.field_bia_region
+field_name: field_bia_region
+entity_type: node
+bundle: tribe
+label: 'BIA Region'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      regions: regions
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

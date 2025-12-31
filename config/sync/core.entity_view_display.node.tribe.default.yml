@@ -1,0 +1,158 @@
+uuid: 66b00d61-0994-4d31-a9bb-f07425685171
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.tribe.field_alaska_subsistence_region
+    - field.field.node.tribe.field_bia_agency
+    - field.field.node.tribe.field_bia_region
+    - field.field.node.tribe.field_election_date
+    - field.field.node.tribe.field_first_name
+    - field.field.node.tribe.field_latitude
+    - field.field.node.tribe.field_leader_name
+    - field.field.node.tribe.field_leader_title
+    - field.field.node.tribe.field_longitude
+    - field.field.node.tribe.field_mailing_address
+    - field.field.node.tribe.field_object_id
+    - field.field.node.tribe.field_phone
+    - field.field.node.tribe.field_tribe
+    - field.field.node.tribe.field_website
+    - node.type.tribe
+  module:
+    - datetime
+    - link
+    - user
+id: node.tribe.default
+targetEntityType: node
+bundle: tribe
+mode: default
+content:
+  field_alaska_subsistence_region:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 110
+    region: content
+  field_bia_agency:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_bia_region:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  field_election_date:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: medium
+    third_party_settings: {  }
+    weight: 111
+    region: content
+  field_first_name:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 117
+    region: content
+  field_latitude:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 113
+    region: content
+  field_leader_name:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 104
+    region: content
+  field_leader_title:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 105
+    region: content
+  field_longitude:
+    type: number_decimal
+    label: above
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 114
+    region: content
+  field_mailing_address:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 107
+    region: content
+  field_object_id:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 115
+    region: content
+  field_phone:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 118
+    region: content
+  field_tribe:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 116
+    region: content
+  field_website:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 112
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

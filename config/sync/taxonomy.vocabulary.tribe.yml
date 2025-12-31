@@ -1,0 +1,9 @@
+uuid: 17b526a9-7cb8-439b-931e-31f619fbaaf6
+langcode: en
+status: true
+dependencies: {  }
+name: Tribe
+vid: tribe
+description: 'Specific Tribe'
+weight: 0
+new_revision: false

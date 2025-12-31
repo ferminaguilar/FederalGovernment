@@ -1,0 +1,19 @@
+uuid: 7285f79f-161a-409c-b728-99ada4fd3610
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_leader_name
+    - node.type.tribe
+id: node.tribe.field_leader_name
+field_name: field_leader_name
+entity_type: node
+bundle: tribe
+label: 'Leader Name'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

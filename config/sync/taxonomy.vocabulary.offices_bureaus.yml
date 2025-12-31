@@ -1,0 +1,9 @@
+uuid: a0488412-bd12-4687-a1bc-129efc9c9e63
+langcode: en
+status: true
+dependencies: {  }
+name: Offices/Bureaus
+vid: offices_bureaus
+description: null
+weight: 0
+new_revision: false

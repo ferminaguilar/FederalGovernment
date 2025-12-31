@@ -855,9 +855,11 @@ $databases['default']['default'] = array (
   'driver' => 'sqlite',
   'namespace' => 'Drupal\\sqlite\\Driver\\Database\\sqlite',
   'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
+  'journal_mode' => 'WAL', 
 );
-$settings['config_sync_directory'] = 'sites/default/files/config_HY4jKqXObletZFA7GMCO8TqO7XMC8qYDZtmJpWSwwktdA2IuRJvs9qTqsFTRdS0MiT3oJPOahA/sync';
+#$settings['config_sync_directory'] = 'sites/default/files/config_HY4jKqXObletZFA7GMCO8TqO7XMC8qYDZtmJpWSwwktdA2IuRJvs9qTqsFTRdS0MiT3oJPOahA/sync';
 
+$settings['config_sync_directory'] = '../config/sync';
 /**
  * Codespaces Status Report Fixes
  */
@@ -866,7 +868,7 @@ $settings['trusted_host_patterns'] = ['.*'];
 
 // 2. Suppress Image Toolkit errors
 // We tell Drupal to use the 'test' toolkit which doesn't require GD
-$config['system.image']['toolkit'] = 'test';
+//$config['system.image']['toolkit'] = '';
 $settings['image_allow_insecure_derivatives'] = TRUE;
 
 // 3. Skip permissions hardening (prevents 'settings.php is not protected' error)

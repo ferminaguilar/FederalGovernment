@@ -1,0 +1,29 @@
+uuid: 990e001a-3579-4334-8a24-00cb6ed37a9a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_bia_agency
+    - node.type.tribe
+    - taxonomy.vocabulary.offices_bureaus
+id: node.tribe.field_bia_agency
+field_name: field_bia_agency
+entity_type: node
+bundle: tribe
+label: 'BIA Agency'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      offices_bureaus: offices_bureaus
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

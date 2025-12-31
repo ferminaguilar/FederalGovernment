@@ -1,0 +1,23 @@
+uuid: c0079167-2de0-4926-9144-08796feaa5c7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_latitude
+    - node.type.tribe
+id: node.tribe.field_latitude
+field_name: field_latitude
+entity_type: node
+bundle: tribe
+label: Latitude
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal
