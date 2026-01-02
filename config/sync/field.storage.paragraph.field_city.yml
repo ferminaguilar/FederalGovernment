@@ -1,15 +1,17 @@
-uuid: 152957ae-b3c9-4117-8d30-15fdde63b937
+uuid: 07d9b0ba-a24d-49e6-b33e-bd75c760452e
 langcode: en
 status: true
 dependencies:
   module:
-    - node
-id: node.field_mailing_address
-field_name: field_mailing_address
-entity_type: node
-type: string_long
+    - paragraphs
+id: paragraph.field_city
+field_name: field_city
+entity_type: paragraph
+type: string
 settings:
+  max_length: 255
   case_sensitive: false
+  is_ascii: false
 module: core
 locked: false
 cardinality: 1

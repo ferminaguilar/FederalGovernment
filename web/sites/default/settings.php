@@ -847,29 +847,80 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 # if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
 #   include $app_root . '/' . $site_path . '/settings.local.php';
 # }
+
+// Reverse proxy support for Codespaces
 $settings['reverse_proxy'] = TRUE;
 $settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
-$databases['default']['default'] = array (
+
+// Trusted hosts (Codespaces URLs change)
+$settings['trusted_host_patterns'] = ['.*'];
+
+// Skip permissions hardening (Codespaces uses non-standard FS)
+$settings['skip_permissions_hardening'] = TRUE;
+
+// Config sync directory
+$settings['config_sync_directory'] = '../config/sync';
+
+// Allow image derivatives (optional)
+$settings['image_allow_insecure_derivatives'] = TRUE;
+
+// SQLite database configuration
+$databases['default']['default'] = [
   'database' => 'sites/default/files/.ht.sqlite',
   'prefix' => '',
   'driver' => 'sqlite',
   'namespace' => 'Drupal\\sqlite\\Driver\\Database\\sqlite',
   'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
-  'journal_mode' => 'WAL', 
-);
-#$settings['config_sync_directory'] = 'sites/default/files/config_HY4jKqXObletZFA7GMCO8TqO7XMC8qYDZtmJpWSwwktdA2IuRJvs9qTqsFTRdS0MiT3oJPOahA/sync';
+  'journal_mode' => 'WAL',
+];
 
-$settings['config_sync_directory'] = '../config/sync';
-/**
- * Codespaces Status Report Fixes
- */
-// 1. Fix Trusted Host (allows any host for dynamic Codespace URLs)
+// --- Codespaces Environment Fixes ---
+$settings['reverse_proxy'] = TRUE;
+$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
 $settings['trusted_host_patterns'] = ['.*'];
-
-// 2. Suppress Image Toolkit errors
-// We tell Drupal to use the 'test' toolkit which doesn't require GD
-//$config['system.image']['toolkit'] = '';
-$settings['image_allow_insecure_derivatives'] = TRUE;
-
-// 3. Skip permissions hardening (prevents 'settings.php is not protected' error)
 $settings['skip_permissions_hardening'] = TRUE;
+$settings['config_sync_directory'] = '../config/sync';
+
+// SQLite Database
+$databases['default']['default'] = [
+  'database' => 'sites/default/files/.ht.sqlite',
+  'prefix' => '',
+  'driver' => 'sqlite',
+  'namespace' => 'Drupal\\sqlite\\Driver\\Database\\sqlite',
+  'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
+  'journal_mode' => 'WAL',
+];
+
+// --- Codespaces Environment Fixes ---
+$settings['reverse_proxy'] = TRUE;
+$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
+$settings['trusted_host_patterns'] = ['.*'];
+$settings['skip_permissions_hardening'] = TRUE;
+$settings['config_sync_directory'] = '../config/sync';
+
+// SQLite Database
+$databases['default']['default'] = [
+  'database' => 'sites/default/files/.ht.sqlite',
+  'prefix' => '',
+  'driver' => 'sqlite',
+  'namespace' => 'Drupal\\sqlite\\Driver\\Database\\sqlite',
+  'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
+  'journal_mode' => 'WAL',
+];
+
+// --- Codespaces Environment Fixes ---
+$settings['reverse_proxy'] = TRUE;
+$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
+$settings['trusted_host_patterns'] = ['.*'];
+$settings['skip_permissions_hardening'] = TRUE;
+$settings['config_sync_directory'] = '../config/sync';
+
+// SQLite Database
+$databases['default']['default'] = [
+  'database' => 'sites/default/files/.ht.sqlite',
+  'prefix' => '',
+  'driver' => 'sqlite',
+  'namespace' => 'Drupal\\sqlite\\Driver\\Database\\sqlite',
+  'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
+  'journal_mode' => 'WAL',
+];

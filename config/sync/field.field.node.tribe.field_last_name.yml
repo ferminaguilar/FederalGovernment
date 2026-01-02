@@ -1,19 +1,19 @@
-uuid: 539631e3-4d47-4e46-b096-dc14d33de300
+uuid: afad653e-2b54-4914-898f-7c022ba143a6
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_mailing_address
+    - field.storage.node.field_last_name
     - node.type.tribe
-id: node.tribe.field_mailing_address
-field_name: field_mailing_address
+id: node.tribe.field_last_name
+field_name: field_last_name
 entity_type: node
 bundle: tribe
-label: 'Mailing Address'
+label: 'Last Name'
 description: ''
 required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
 settings: {  }
-field_type: string_long
+field_type: string

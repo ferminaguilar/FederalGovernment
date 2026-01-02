@@ -3,24 +3,29 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.tribe.field_address
     - field.field.node.tribe.field_alaska_subsistence_region
     - field.field.node.tribe.field_bia_agency
     - field.field.node.tribe.field_bia_region
     - field.field.node.tribe.field_election_date
     - field.field.node.tribe.field_first_name
+    - field.field.node.tribe.field_job_title
+    - field.field.node.tribe.field_last_name
     - field.field.node.tribe.field_latitude
     - field.field.node.tribe.field_leader_name
     - field.field.node.tribe.field_leader_title
     - field.field.node.tribe.field_longitude
-    - field.field.node.tribe.field_mailing_address
     - field.field.node.tribe.field_object_id
+    - field.field.node.tribe.field_organization
     - field.field.node.tribe.field_phone
+    - field.field.node.tribe.field_suffix
     - field.field.node.tribe.field_tribe
     - field.field.node.tribe.field_website
     - node.type.tribe
   module:
     - datetime
     - link
+    - paragraphs
     - path
 id: node.tribe.default
 targetEntityType: node
@@ -32,6 +37,24 @@ content:
     weight: 5
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_address:
+    type: paragraphs
+    weight: 31
+    region: content
+    settings:
+      title: Paragraph
+      title_plural: Paragraphs
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: ''
+      features:
+        collapse_edit_all: collapse_edit_all
+        duplicate: duplicate
     third_party_settings: {  }
   field_alaska_subsistence_region:
     type: entity_reference_autocomplete
@@ -77,6 +100,22 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_job_title:
+    type: string_textfield
+    weight: 29
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_last_name:
+    type: string_textfield
+    weight: 27
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_latitude:
     type: number
     weight: 16
@@ -107,14 +146,6 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
-  field_mailing_address:
-    type: string_textarea
-    weight: 12
-    region: content
-    settings:
-      rows: 5
-      placeholder: ''
-    third_party_settings: {  }
   field_object_id:
     type: number
     weight: 0
@@ -122,9 +153,25 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
+  field_organization:
+    type: string_textfield
+    weight: 30
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_phone:
     type: string_textfield
     weight: 26
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_suffix:
+    type: string_textfield
+    weight: 28
     region: content
     settings:
       size: 60

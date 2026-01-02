@@ -1,0 +1,57 @@
+uuid: db67449a-d09e-41bc-ba88-64398e013f25
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.address.field_address_type
+    - field.field.paragraph.address.field_city
+    - field.field.paragraph.address.field_state
+    - field.field.paragraph.address.field_street
+    - field.field.paragraph.address.field_zip_code
+    - paragraphs.paragraphs_type.address
+  module:
+    - options
+id: paragraph.address.default
+targetEntityType: paragraph
+bundle: address
+mode: default
+content:
+  field_address_type:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_city:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_state:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  field_street:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_zip_code:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 3
+    region: content
+hidden: {  }

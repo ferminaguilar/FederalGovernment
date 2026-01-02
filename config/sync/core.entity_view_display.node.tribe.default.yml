@@ -3,23 +3,28 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.tribe.field_address
     - field.field.node.tribe.field_alaska_subsistence_region
     - field.field.node.tribe.field_bia_agency
     - field.field.node.tribe.field_bia_region
     - field.field.node.tribe.field_election_date
     - field.field.node.tribe.field_first_name
+    - field.field.node.tribe.field_job_title
+    - field.field.node.tribe.field_last_name
     - field.field.node.tribe.field_latitude
     - field.field.node.tribe.field_leader_name
     - field.field.node.tribe.field_leader_title
     - field.field.node.tribe.field_longitude
-    - field.field.node.tribe.field_mailing_address
     - field.field.node.tribe.field_object_id
+    - field.field.node.tribe.field_organization
     - field.field.node.tribe.field_phone
+    - field.field.node.tribe.field_suffix
     - field.field.node.tribe.field_tribe
     - field.field.node.tribe.field_website
     - node.type.tribe
   module:
     - datetime
+    - entity_reference_revisions
     - link
     - user
 id: node.tribe.default
@@ -27,6 +32,15 @@ targetEntityType: node
 bundle: tribe
 mode: default
 content:
+  field_address:
+    type: entity_reference_revisions_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 123
+    region: content
   field_alaska_subsistence_region:
     type: entity_reference_label
     label: above
@@ -68,6 +82,22 @@ content:
     third_party_settings: {  }
     weight: 117
     region: content
+  field_job_title:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 121
+    region: content
+  field_last_name:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 119
+    region: content
   field_latitude:
     type: number_decimal
     label: above
@@ -106,13 +136,6 @@ content:
     third_party_settings: {  }
     weight: 114
     region: content
-  field_mailing_address:
-    type: basic_string
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    weight: 107
-    region: content
   field_object_id:
     type: number_integer
     label: above
@@ -122,6 +145,14 @@ content:
     third_party_settings: {  }
     weight: 115
     region: content
+  field_organization:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 122
+    region: content
   field_phone:
     type: string
     label: above
@@ -129,6 +160,14 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 118
+    region: content
+  field_suffix:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 120
     region: content
   field_tribe:
     type: entity_reference_label

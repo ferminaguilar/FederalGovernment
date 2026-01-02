@@ -1,12 +1,8 @@
 {
-    "name": "Drupal Environment",
-    "image": "mcr.microsoft.com/devcontainers/php:1-8.3-bullseye",
-    "features": {
-        "ghcr.io/devcontainers/features/php:1": {
-            "version": "8.3",
-            "installOptions": "gd pdo_mysql zip mysqli"
-        }
-    },    
-    "forwardPorts": [8080],
-    "postCreateCommand": "composer install && chmod +x setup.sh && ./setup.sh"
-}
+  "name": "Drupal Environment",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [8080],
+  "postCreateCommand": "composer install && chmod +x setup.sh && ./setup.sh && ln -sf /workspaces/FederalGovernment/vendor/bin/drush /usr/local/bin/drush && chown vscode:vscode -R /workspaces/FederalGovernment"
+  }

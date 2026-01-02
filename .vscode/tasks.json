@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Drupal Server",
+      "type": "shell",
+      "command": "php -S 0.0.0.0:8080 .ht.router.php",
+      "options": {
+        "cwd": "${workspaceFolder}/web"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}
