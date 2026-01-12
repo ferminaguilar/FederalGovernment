@@ -31,6 +31,8 @@
         "drupal/gin_toolbar": "^3.0",
         "drupal/key": "^1.20",
         "drupal/layout_paragraphs": "^3.0@alpha",
+        "drupal/migrate_plus": "^6.0",
+        "drupal/migrate_tools": "^6.1",
         "drupal/paragraphs": "^1.19",
         "drupal/uswds": "^3.2",
         "drupal/uswds_base": "^3.10",

@@ -924,3 +924,20 @@ $databases['default']['default'] = [
   'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
   'journal_mode' => 'WAL',
 ];
+
+// --- Codespaces Environment Fixes ---
+$settings['reverse_proxy'] = TRUE;
+$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
+$settings['trusted_host_patterns'] = ['.*'];
+$settings['skip_permissions_hardening'] = TRUE;
+$settings['config_sync_directory'] = '../config/sync';
+
+// SQLite Database
+$databases['default']['default'] = [
+  'database' => 'sites/default/files/.ht.sqlite',
+  'prefix' => '',
+  'driver' => 'sqlite',
+  'namespace' => 'Drupal\\sqlite\\Driver\\Database\\sqlite',
+  'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
+  'journal_mode' => 'WAL',
+];

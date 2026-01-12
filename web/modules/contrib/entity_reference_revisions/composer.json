@@ -9,11 +9,7 @@
   "require-dev": {
     "drupal/diff": "^1 || ^2"
   },
-  "extra": {
-    "drush": {
-      "services": {
-        "drush.services.yml": "^9 || ^10 || ^11"
-      }
-    }
+  "conflict": {
+      "drush/drush": "<12.5.1"
   }
 }

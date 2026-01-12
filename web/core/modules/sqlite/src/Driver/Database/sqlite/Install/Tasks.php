@@ -22,7 +22,7 @@ class Tasks extends InstallTasks {
    *
    * @see https://www.sqlite.org/json1.html
    */
-  const SQLITE_MINIMUM_VERSION = '3.30';
+  const SQLITE_MINIMUM_VERSION = '3.45';
 
   /**
    * {@inheritdoc}

@@ -287,11 +287,13 @@ class EntityReferenceRevisionsItem extends EntityReferenceItem implements Option
       if ($is_affected && !$host->isNew() && $this->entity && $this->entity->getEntityType()->get('entity_revision_parent_id_field')) {
         if ($host->isNewRevision()) {
           $this->entity->setNewRevision();
+          // Additionally ensure that the default revision state is kept synced.
+          $this->entity->isDefaultRevision($host->isDefaultRevision());
           $needs_save = TRUE;
         }
-        // Additionally ensure that the default revision state is kept in sync.
-        if ($this->entity && $host->isDefaultRevision() != $this->entity->isDefaultRevision()) {
-          $this->entity->isDefaultRevision($host->isDefaultRevision());
+        elseif (!$host->wasDefaultRevision() && $host->isDefaultRevision() && !$this->entity->isDefaultRevision()) {
+          // Ensure that the default revision is synced when the parent changes.
+          $this->entity->isDefaultRevision(TRUE);
           $needs_save = TRUE;
         }
       }

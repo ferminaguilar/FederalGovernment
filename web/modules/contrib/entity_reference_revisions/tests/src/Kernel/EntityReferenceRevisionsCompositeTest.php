@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\entity_reference_revisions\Kernel;
 
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\entity_composite_relationship_test\Entity\EntityTestCompositeRelationship;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -67,6 +69,10 @@ class EntityReferenceRevisionsCompositeTest extends EntityKernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
+    $definitions['dedicated_table_field'] = BaseFieldDefinition::create('string')
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setRevisionable(TRUE);
+    $this->container->get('state')->set('entity_test_composite.additional_base_field_definitions', $definitions);
     $this->installEntitySchema('entity_test_composite');
     $this->installSchema('node', ['node_access']);
 
@@ -81,6 +87,7 @@ class EntityReferenceRevisionsCompositeTest extends EntityKernelTestBase {
       'settings' => array(
         'target_type' => 'entity_test_composite'
       ),
+      'cardinality' => FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED,
     ));
     $field_storage->save();
     $field = FieldConfig::create(array(
@@ -456,6 +463,80 @@ class EntityReferenceRevisionsCompositeTest extends EntityKernelTestBase {
     // Ensure the second revision still exists.
     $composite2_revision = $this->entityTypeManager->getStorage('entity_test_composite')->loadRevision($composite2_rev_id);
     $this->assertNotNull($composite2_revision);
+
+    // Set a new pending revision, composite entity should have a new revision
+    // as well, but it should not be the default.
+    $node->setNewRevision(TRUE);
+    $node->isDefaultRevision(FALSE);
+    $second_composite_value = $this->randomMachineName();
+    // Add another composite entity, which will be a default revision.
+    $second_composite = EntityTestCompositeRelationship::create([
+      'uuid' => $this->randomMachineName(),
+      'name' => $this->randomMachineName(),
+      'dedicated_table_field' => $second_composite_value
+    ]);
+    $node->composite_reference[1] = $second_composite;
+    $node->save();
+    // Ensure that we saved a new revision ID, the first composite is not the
+    // default, but the second one is.
+    $node_latest_revision_id = $node->getRevisionId();
+    $composite3_rev_id = $this->entityTypeManager->getStorage('entity_test_composite')->getLatestRevisionId($composite->id());
+    $this->assertNotEquals($node_original_revision_id, $node_latest_revision_id);
+    $this->assertNotEquals($composite3_rev_id, $composite2_rev_id);
+    $composite3_revision = $this->entityTypeManager->getStorage('entity_test_composite')->loadRevision($composite3_rev_id);
+    $this->assertFalse($composite3_revision->isDefaultRevision());
+    $second_composite_rev_id = $this->entityTypeManager->getStorage('entity_test_composite')->getLatestRevisionId($second_composite->id());
+    $second_composite = $this->entityTypeManager->getStorage('entity_test_composite')->loadRevision($second_composite_rev_id);
+    $this->assertSame($second_composite_value, $second_composite->dedicated_table_field->value);
+    $this->assertTrue($second_composite->isDefaultRevision());
+
+    $node = $this->entityTypeManager->getStorage('node')->loadRevision($node_latest_revision_id);
+
+    // Update the pending revision, ensuring updates persist.
+    $first_composite_new_value = $this->randomMachineName();
+    $second_composite_new_value = $this->randomMachineName();
+    $node->composite_reference[0]->entity->dedicated_table_field->value = $first_composite_new_value;
+    $node->composite_reference[0]->entity->setNeedsSave(TRUE);
+    $node->composite_reference[1]->entity->dedicated_table_field->value = $second_composite_new_value;
+    $node->composite_reference[1]->entity->setNeedsSave(TRUE);
+    $node->save();
+    $this->assertEquals($node_latest_revision_id, $node->getRevisionId());
+    // The first composite was updated, and not made a default revision.
+    $this->assertEquals($composite3_rev_id, $this->entityTypeManager->getStorage('entity_test_composite')->getLatestRevisionId($composite->id()));
+    $this->assertEquals($second_composite_rev_id, $this->entityTypeManager->getStorage('entity_test_composite')->getLatestRevisionId($second_composite->id()));
+    $composite3_revision = $this->entityTypeManager->getStorage('entity_test_composite')->loadRevision($composite3_rev_id);
+    $this->assertFalse($composite3_revision->isDefaultRevision());
+    $this->assertEquals($first_composite_new_value, $composite3_revision->dedicated_table_field->value);
+    // The second composite was updated, and stayed the default revision.
+    $this->entityTypeManager->getStorage('entity_test_composite')->resetCache([$second_composite->id()]);
+    $second_composite = $this->entityTypeManager->getStorage('entity_test_composite')->loadRevision($second_composite_rev_id);
+    $this->assertTrue($second_composite->isDefaultRevision());
+    $this->assertEquals($second_composite_new_value, $second_composite->dedicated_table_field->value);
+    // Actually loading the default revision produces the same result.
+    $second_composite_default = $this->entityTypeManager->getStorage('entity_test_composite')->load($second_composite->id());
+    $this->assertEquals($second_composite_rev_id, $second_composite_default->getRevisionId());
+    $this->assertEquals($second_composite_new_value, $second_composite_default->dedicated_table_field->value);
+
+    // Make the pending revision default, ensuring updates persist.
+    // Change the value of the first composite, it should be saved automatically
+    // because it must become the default revision.
+    $first_composite_new_value = $this->randomMachineName();
+    $node->composite_reference[0]->entity->dedicated_table_field->value = $first_composite_new_value;
+    $node->isDefaultRevision(TRUE);
+    $node->save();
+    // The node did not get a new revision.
+    $this->assertEquals($node_latest_revision_id, $node->getRevisionId());
+    $this->assertTrue($node->isDefaultRevision());
+    // The first composite was updated, and made a default revision.
+    $this->assertEquals($composite3_rev_id, $this->entityTypeManager->getStorage('entity_test_composite')->getLatestRevisionId($composite->id()));
+    $composite3_revision = $this->entityTypeManager->getStorage('entity_test_composite')->loadRevision($composite3_rev_id);
+    $this->assertTrue($composite3_revision->isDefaultRevision());
+    $this->assertEquals($first_composite_new_value, $composite3_revision->dedicated_table_field->value);
+    // The second composite stayed the default revision.
+    $this->assertEquals($second_composite_rev_id, $this->entityTypeManager->getStorage('entity_test_composite')->getLatestRevisionId($second_composite->id()));
+    $second_composite = $this->entityTypeManager->getStorage('entity_test_composite')->loadRevision($second_composite_rev_id);
+    $this->assertTrue($second_composite->isDefaultRevision());
+    $this->assertEquals($second_composite_new_value, $second_composite->dedicated_table_field->value);
   }
 
   /**

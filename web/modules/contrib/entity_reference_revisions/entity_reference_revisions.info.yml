@@ -6,7 +6,7 @@ package: Field types
 dependencies:
   - drupal:field
 
-# Information added by Drupal.org packaging script on 2025-12-12
-version: '8.x-1.13'
+# Information added by Drupal.org packaging script on 2026-01-01
+version: '8.x-1.14'
 project: 'entity_reference_revisions'
-datestamp: 1765498077
+datestamp: 1767266827

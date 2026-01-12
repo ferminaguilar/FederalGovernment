@@ -195,15 +195,6 @@ class HookCollectorPass implements CompilerPassInterface {
       'group_includes' => $groupIncludes,
       'packed_order_operations' => $packed_order_operations,
     ]);
-
-    // Remove converted flags, they are only needed while building the
-    // container.
-    $parameters = $container->getParameterBag();
-    foreach ($parameters->all() as $name => $value) {
-      if (str_ends_with($name, '.skip_procedural_hook_scan')) {
-        $parameters->remove($name);
-      }
-    }
   }
 
   /**
@@ -460,7 +451,11 @@ class HookCollectorPass implements CompilerPassInterface {
    */
   protected function collectModuleHookImplementations($dir, $module, $current_module_preg, $all_modules_preg, bool $skip_procedural): void {
     $hook_file_cache = FileCacheFactory::get('hook_implementations');
-    $procedural_hook_file_cache = FileCacheFactory::get('procedural_hook_implementations:' . $all_modules_preg);
+    // List of modules must be included in the cache key to ensure rediscovery
+    // takes place when a new module is installed. Some modules define hooks
+    // on behalf of other modules and those hooks need to be found.
+    // Hash to prevent massive key sizes.
+    $procedural_hook_file_cache = FileCacheFactory::get('procedural_hook_implementations:' . hash('xxh3', $all_modules_preg));
 
     $iterator = new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::FOLLOW_SYMLINKS);
     $iterator = new \RecursiveCallbackFilterIterator($iterator, static::filterIterator(...));
