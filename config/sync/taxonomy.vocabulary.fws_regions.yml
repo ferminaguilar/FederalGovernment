@@ -1,0 +1,9 @@
+uuid: 3f8f447f-1470-43ed-8525-32525a2c7761
+langcode: en
+status: true
+dependencies: {  }
+name: 'FWS Regions'
+vid: fws_regions
+description: 'U.S. Fish and Wildlife Service'
+weight: 0
+new_revision: false

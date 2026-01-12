@@ -1,0 +1,55 @@
+uuid: cad87897-7932-4cb7-97a7-c2473907238b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.federal_agencies.field_agency_acronym
+    - field.field.taxonomy_term.federal_agencies.field_agency_website
+    - field.field.taxonomy_term.federal_agencies.field_headquarters_address
+    - taxonomy.vocabulary.federal_agencies
+  module:
+    - entity_reference_revisions
+    - link
+    - text
+id: taxonomy_term.federal_agencies.default
+targetEntityType: taxonomy_term
+bundle: federal_agencies
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_agency_acronym:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_agency_website:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_headquarters_address:
+    type: entity_reference_revisions_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    weight: 3
+    region: content
+hidden: {  }

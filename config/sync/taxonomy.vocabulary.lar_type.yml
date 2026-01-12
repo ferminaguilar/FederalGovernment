@@ -1,0 +1,9 @@
+uuid: 9d4c9863-dba3-47ba-9706-0a1b8b0b2762
+langcode: en
+status: true
+dependencies: {  }
+name: 'LAR Type'
+vid: lar_type
+description: 'This distinguishes whether the entity is an "Alaska Native Village," a "Tribe," or a "Community."'
+weight: 0
+new_revision: false

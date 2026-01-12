@@ -1,0 +1,31 @@
+uuid: 24bff24e-0c53-4870-8f81-82df167ed9e5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_headquarters_address
+    - paragraphs.paragraphs_type.address
+    - taxonomy.vocabulary.federal_agencies
+  module:
+    - entity_reference_revisions
+id: taxonomy_term.federal_agencies.field_headquarters_address
+field_name: field_headquarters_address
+entity_type: taxonomy_term
+bundle: federal_agencies
+label: 'Headquarters Address'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      address: address
+    negate: 0
+    target_bundles_drag_drop:
+      address:
+        weight: 2
+        enabled: true
+field_type: entity_reference_revisions

@@ -11,7 +11,7 @@ third_party_settings:
     parent: 'main:'
 name: Tribe
 type: tribe
-description: null
+description: 'The 574 Federally Recognized Indian Tribes in the United States'
 help: null
 new_revision: true
 preview_mode: 1

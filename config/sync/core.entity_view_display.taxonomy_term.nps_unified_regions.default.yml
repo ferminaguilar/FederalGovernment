@@ -1,0 +1,30 @@
+uuid: 0b0ff92d-ffc7-4136-a2c5-3df9c6ce4ec7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.nps_unified_regions.field_parent_agency
+    - taxonomy.vocabulary.nps_unified_regions
+  module:
+    - text
+id: taxonomy_term.nps_unified_regions.default
+targetEntityType: taxonomy_term
+bundle: nps_unified_regions
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_parent_agency:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

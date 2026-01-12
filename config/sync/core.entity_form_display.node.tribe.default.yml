@@ -4,17 +4,27 @@ status: true
 dependencies:
   config:
     - field.field.node.tribe.field_address
+    - field.field.node.tribe.field_aka
     - field.field.node.tribe.field_alaska_subsistence_region
+    - field.field.node.tribe.field_ancsa_region
     - field.field.node.tribe.field_bia_agency
     - field.field.node.tribe.field_bia_region
+    - field.field.node.tribe.field_bureau_of_land_management
     - field.field.node.tribe.field_election_date
+    - field.field.node.tribe.field_email
+    - field.field.node.tribe.field_fax
     - field.field.node.tribe.field_first_name
+    - field.field.node.tribe.field_fws_regions
     - field.field.node.tribe.field_job_title
+    - field.field.node.tribe.field_lar_type
     - field.field.node.tribe.field_last_name
     - field.field.node.tribe.field_latitude
     - field.field.node.tribe.field_leader_name
     - field.field.node.tribe.field_leader_title
     - field.field.node.tribe.field_longitude
+    - field.field.node.tribe.field_next_election
+    - field.field.node.tribe.field_notes
+    - field.field.node.tribe.field_nps_unified_regions
     - field.field.node.tribe.field_object_id
     - field.field.node.tribe.field_organization
     - field.field.node.tribe.field_phone
@@ -27,6 +37,7 @@ dependencies:
     - link
     - paragraphs
     - path
+    - text
 id: node.tribe.default
 targetEntityType: node
 bundle: tribe
@@ -56,9 +67,27 @@ content:
         collapse_edit_all: collapse_edit_all
         duplicate: duplicate
     third_party_settings: {  }
+  field_aka:
+    type: string_textfield
+    weight: 34
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_alaska_subsistence_region:
     type: entity_reference_autocomplete
     weight: 13
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_ancsa_region:
+    type: entity_reference_autocomplete
+    weight: 36
     region: content
     settings:
       match_operator: CONTAINS
@@ -86,11 +115,37 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_bureau_of_land_management:
+    type: entity_reference_autocomplete
+    weight: 41
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_election_date:
     type: datetime_default
     weight: 14
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_email:
+    type: email_default
+    weight: 33
+    region: content
+    settings:
+      placeholder: ''
+      size: 60
+    third_party_settings: {  }
+  field_fax:
+    type: string_textfield
+    weight: 37
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
   field_first_name:
     type: string_textfield
@@ -100,11 +155,31 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_fws_regions:
+    type: entity_reference_autocomplete
+    weight: 39
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_job_title:
     type: string_textfield
     weight: 29
     region: content
     settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_lar_type:
+    type: entity_reference_autocomplete
+    weight: 35
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
       size: 60
       placeholder: ''
     third_party_settings: {  }
@@ -144,6 +219,30 @@ content:
     weight: 17
     region: content
     settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_next_election:
+    type: datetime_default
+    weight: 32
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_notes:
+    type: text_textfield
+    weight: 38
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_nps_unified_regions:
+    type: entity_reference_autocomplete
+    weight: 40
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
       placeholder: ''
     third_party_settings: {  }
   field_object_id:

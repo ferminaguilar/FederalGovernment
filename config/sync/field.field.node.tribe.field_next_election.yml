@@ -1,0 +1,21 @@
+uuid: 67548566-5a57-4368-8268-e4a79f84029c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_next_election
+    - node.type.tribe
+  module:
+    - datetime
+id: node.tribe.field_next_election
+field_name: field_next_election
+entity_type: node
+bundle: tribe
+label: 'Next Election'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

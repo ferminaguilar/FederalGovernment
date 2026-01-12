@@ -1,0 +1,33 @@
+uuid: a458235e-4a07-4831-ba91-27a7a5b68e58
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_parent_agency
+    - taxonomy.vocabulary.blm_regions
+    - taxonomy.vocabulary.federal_agencies
+  content:
+    - 'taxonomy_term:federal_agencies:12ea2eb0-0949-4082-b4da-82723cd67ed9'
+id: taxonomy_term.blm_regions.field_parent_agency
+field_name: field_parent_agency
+entity_type: taxonomy_term
+bundle: blm_regions
+label: 'Parent Agency'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    target_uuid: 12ea2eb0-0949-4082-b4da-82723cd67ed9
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      federal_agencies: federal_agencies
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

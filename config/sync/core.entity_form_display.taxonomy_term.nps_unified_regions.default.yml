@@ -1,0 +1,55 @@
+uuid: 481197b5-6e3f-4179-9c0f-f1018df36cd7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.nps_unified_regions.field_parent_agency
+    - taxonomy.vocabulary.nps_unified_regions
+  module:
+    - path
+    - text
+id: taxonomy_term.nps_unified_regions.default
+targetEntityType: taxonomy_term
+bundle: nps_unified_regions
+mode: default
+content:
+  description:
+    type: text_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_parent_agency:
+    type: entity_reference_autocomplete
+    weight: 101
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  name:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 100
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+hidden: {  }

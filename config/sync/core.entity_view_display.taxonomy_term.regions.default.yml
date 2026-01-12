@@ -1,0 +1,30 @@
+uuid: bf869111-3246-4f77-86af-98861ff15f42
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.regions.field_parent_agency
+    - taxonomy.vocabulary.regions
+  module:
+    - text
+id: taxonomy_term.regions.default
+targetEntityType: taxonomy_term
+bundle: regions
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_parent_agency:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

@@ -1,0 +1,9 @@
+uuid: 271611b7-c93f-4556-bf34-de26e6e65f35
+langcode: en
+status: true
+dependencies: {  }
+name: 'ANCSA Region'
+vid: ancsa_region
+description: 'Link to a new "ANCSA Corporations" parent if you want, but often stand-alone'
+weight: 0
+new_revision: false

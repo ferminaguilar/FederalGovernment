@@ -1,0 +1,9 @@
+uuid: 697c48d8-b990-48d7-9b49-5fa2fc3fdbee
+langcode: en
+status: true
+dependencies: {  }
+name: 'BLM State Offices'
+vid: blm_regions
+description: 'Bureau of Land Management'
+weight: 0
+new_revision: false

@@ -1,0 +1,33 @@
+uuid: f31e6314-8608-469b-80f0-e0890f032ed9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_parent_agency
+    - taxonomy.vocabulary.federal_agencies
+    - taxonomy.vocabulary.fws_regions
+  content:
+    - 'taxonomy_term:federal_agencies:9b091308-da6c-452a-8c3b-5399add50f3f'
+id: taxonomy_term.fws_regions.field_parent_agency
+field_name: field_parent_agency
+entity_type: taxonomy_term
+bundle: fws_regions
+label: 'Parent Agency'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    target_uuid: 9b091308-da6c-452a-8c3b-5399add50f3f
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      federal_agencies: federal_agencies
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

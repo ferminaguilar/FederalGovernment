@@ -1,0 +1,30 @@
+uuid: 77f1bff0-ecb0-4f22-9664-673837b6dd95
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.offices_bureaus.field_parent_agency
+    - taxonomy.vocabulary.offices_bureaus
+  module:
+    - text
+id: taxonomy_term.offices_bureaus.default
+targetEntityType: taxonomy_term
+bundle: offices_bureaus
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_parent_agency:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

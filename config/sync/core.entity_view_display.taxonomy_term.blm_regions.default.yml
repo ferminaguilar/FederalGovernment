@@ -1,0 +1,30 @@
+uuid: d0976824-c840-4c7a-aeab-8ce24d3a4b78
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.blm_regions.field_parent_agency
+    - taxonomy.vocabulary.blm_regions
+  module:
+    - text
+id: taxonomy_term.blm_regions.default
+targetEntityType: taxonomy_term
+bundle: blm_regions
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_parent_agency:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+hidden: {  }

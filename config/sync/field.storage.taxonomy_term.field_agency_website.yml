@@ -1,0 +1,19 @@
+uuid: ee942af8-8be4-4e3e-8218-db320e504b07
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - taxonomy
+id: taxonomy_term.field_agency_website
+field_name: field_agency_website
+entity_type: taxonomy_term
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
