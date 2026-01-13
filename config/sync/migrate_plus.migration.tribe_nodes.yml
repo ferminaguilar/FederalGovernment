@@ -1,0 +1,59 @@
+id: tribe_nodes
+label: 'Tribes (Main Node Migration)'
+migration_group: tribe_import
+source:
+  plugin: url
+  data_fetcher_plugin: http
+  data_parser_plugin: json
+  urls: 'https://YOUR_ARCGIS_GEOJSON_URL'
+  item_selector: '$.features[*]'
+  fields:
+    - name: register_name
+      label: 'Federal Register Name'
+      selector: 'properties/Federal_Register_Name'
+    - name: bia_region_text
+      label: 'BIA Region Name'
+      selector: 'properties/BIA_REGION'
+    - name: lon
+      label: 'Longitude'
+      selector: 'geometry/coordinates/0'
+    - name: lat
+      label: 'Latitude'
+      selector: 'geometry/coordinates/1'
+    # Add all other GeoJSON property paths here...
+
+  ids:
+    register_name:
+      type: string
+
+process:
+  type:
+    plugin: default_value
+    default_value: tribe # Content Type machine name
+
+  title: register_name
+
+  # --- TAXONOMY LOOKUPS (The Pro Knowledge Graph) ---
+  field_bia_region:
+    plugin: entity_lookup
+    source: bia_region_text
+    entity_type: taxonomy_term
+    bundle: regions # The machine name for BIA Regions
+    value_key: name
+
+  # --- COORDINATES ---
+  field_geolocation/lat: lat
+  field_geolocation/lng: lon
+
+  # --- ADDRESS LINK (The Paragraph Connection) ---
+  field_address:
+    plugin: migration_lookup
+    migration: tribe_addresses
+    source: register_name
+
+destination:
+  plugin: 'entity:node'
+
+migration_dependencies:
+  required:
+    - tribe_addresses

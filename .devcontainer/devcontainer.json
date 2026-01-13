@@ -1,8 +1,16 @@
 {
   "name": "Drupal Environment",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/FederalGovernment",
+  "remoteUser": "vscode",
   "forwardPorts": [8080],
-  "postCreateCommand": "composer install && chmod +x setup.sh && ./setup.sh && ln -sf /workspaces/FederalGovernment/vendor/bin/drush /usr/local/bin/drush && chown vscode:vscode -R /workspaces/FederalGovernment"
+  "portsAttributes": {
+  "8080": {
+    "label": "Drupal Web Server",
+    "onAutoForward": "notify",
+    "visibility": "public"
   }
+},
+"postCreateCommand": "git config --global --add safe.directory /workspaces/FederalGovernment && composer install && chmod +x setup.sh && ./setup.sh"
+}

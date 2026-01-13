@@ -1,0 +1,41 @@
+id: tribe_addresses
+label: 'Tribe Physical Addresses (Paragraphs)'
+migration_group: tribe_import
+source:
+  plugin: url
+  data_fetcher_plugin: http
+  data_parser_plugin: json
+  urls: 'https://services1.arcgis.com/UxqqIfhng71wUT9x/arcgis/rest/services/TribalLeadership_Directory/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson'
+  item_selector: '$.features[*]'
+  fields:
+    - name: src_id
+      label: 'Unique Name'
+      selector: 'properties/Federal_Register_Name'
+    - name: street
+      label: 'Street'
+      selector: 'properties/PhysicalAddress'
+    - name: city
+      label: 'City'
+      selector: 'properties/PhysicalCity'
+    - name: zip
+      label: 'Zip'
+      selector: 'properties/PhysicalZip'
+
+  ids:
+    src_id:
+      type: string
+
+process:
+  # Creating the 'address_paragraph' bundle
+  type:
+    plugin: default_value
+    default_value: address_paragraph # Replace with your actual Paragraph machine name
+
+  # Map sub-fields of your Paragraph (e.g., field_street, field_city)
+  field_street_address: street
+  field_city: city
+  field_zip_code: zip
+
+destination:
+  plugin: 'entity_reference_revisions:paragraph'
+  default_bundle: address_paragraph

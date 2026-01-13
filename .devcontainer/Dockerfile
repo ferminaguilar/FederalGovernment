@@ -1,6 +1,9 @@
-FROM php:8.3-apache
+FROM php:8.4-apache
 
-# Install system dependencies
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -8,18 +11,22 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libgd-dev \
     unzip \
-    git
+    git \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
 
-# Enable GD
+# Install PHP extensions
 RUN docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
-    && docker-php-ext-install gd
+    && docker-php-ext-install gd pdo pdo_mysql mysqli
 
-# Enable other PHP extensions Drupal needs
-RUN docker-php-ext-install pdo pdo_mysql mysqli
-
-# Enable Apache rewrite
 RUN a2enmod rewrite
 
-# Create the vscode user
-RUN useradd -ms /bin/bash vscode \
+# Create vscode user if it doesn't exist
+RUN id -u vscode >/dev/null 2>&1 || useradd -m -s /bin/bash -u 1000 vscode \
     && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Set working directory ownership
+RUN chown -R vscode:vscode /var/www/html
+
+# This ensures that 'drush' points to your project's local drush
+ENV PATH="/workspaces/FederalGovernment/vendor/bin:${PATH}"
