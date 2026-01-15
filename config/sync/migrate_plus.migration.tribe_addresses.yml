@@ -1,41 +1,53 @@
+uuid: 52280e03-f51e-417b-b256-619e3b42d0e2
+langcode: en
+status: true
+dependencies: {  }
 id: tribe_addresses
-label: 'Tribe Physical Addresses (Paragraphs)'
+class: null
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags: null
 migration_group: tribe_import
+label: 'Tribe Physical Addresses'
 source:
   plugin: url
   data_fetcher_plugin: http
   data_parser_plugin: json
-  urls: 'https://services1.arcgis.com/UxqqIfhng71wUT9x/arcgis/rest/services/TribalLeadership_Directory/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson'
-  item_selector: '$.features[*]'
+  urls: 'https://services1.arcgis.com/UxqqIfhng71wUT9x/arcgis/rest/services/TribalLeadership_Directory/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson'
+  item_selector: /features
   fields:
-    - name: src_id
-      label: 'Unique Name'
-      selector: 'properties/Federal_Register_Name'
-    - name: street
-      label: 'Street'
-      selector: 'properties/PhysicalAddress'
-    - name: city
-      label: 'City'
-      selector: 'properties/PhysicalCity'
-    - name: zip
-      label: 'Zip'
-      selector: 'properties/PhysicalZip'
-
+    -
+      name: src_id
+      selector: properties/OBJECTID
+    -
+      name: street_val
+      selector: properties/physicaladdress
+    -
+      name: city_val
+      selector: properties/city
+    -
+      name: state_val
+      selector: properties/state
+    -
+      name: zip_val
+      selector: properties/zipcode
   ids:
     src_id:
-      type: string
-
+      type: integer
 process:
-  # Creating the 'address_paragraph' bundle
   type:
     plugin: default_value
-    default_value: address_paragraph # Replace with your actual Paragraph machine name
-
-  # Map sub-fields of your Paragraph (e.g., field_street, field_city)
-  field_street_address: street
-  field_city: city
-  field_zip_code: zip
-
+    default_value: address
+  field_address_type:
+    plugin: default_value
+    default_value: Physical
+  field_street: street_val
+  field_city: city_val
+  field_state: state_val
+  field_zip_code: zip_val
 destination:
   plugin: 'entity_reference_revisions:paragraph'
-  default_bundle: address_paragraph
+  default_bundle: address
+idMap: {  }
+migration_dependencies: null
+include: null

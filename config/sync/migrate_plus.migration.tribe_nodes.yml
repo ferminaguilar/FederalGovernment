@@ -1,59 +1,89 @@
+uuid: b4534b49-c851-4d5c-aef5-90132ce62eeb
+langcode: en
+status: true
+dependencies: {  }
 id: tribe_nodes
-label: 'Tribes (Main Node Migration)'
+class: null
+field_plugin_method: null
+cck_plugin_method: null
+migration_tags: null
 migration_group: tribe_import
+label: 'Tribe Directory'
 source:
   plugin: url
   data_fetcher_plugin: http
   data_parser_plugin: json
-  urls: 'https://YOUR_ARCGIS_GEOJSON_URL'
-  item_selector: '$.features[*]'
+  urls: 'https://services1.arcgis.com/UxqqIfhng71wUT9x/arcgis/rest/services/TribalLeadership_Directory/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson'
+  item_selector: /features
   fields:
-    - name: register_name
-      label: 'Federal Register Name'
-      selector: 'properties/Federal_Register_Name'
-    - name: bia_region_text
-      label: 'BIA Region Name'
-      selector: 'properties/BIA_REGION'
-    - name: lon
-      label: 'Longitude'
-      selector: 'geometry/coordinates/0'
-    - name: lat
-      label: 'Latitude'
-      selector: 'geometry/coordinates/1'
-    # Add all other GeoJSON property paths here...
-
+    -
+      name: obj_id
+      selector: properties/OBJECTID
+    -
+      name: tribe_title
+      selector: properties/tribefullname
+    -
+      name: bia_reg_str
+      selector: properties/biaregion
+    -
+      name: leader_first
+      selector: properties/firstname
+    -
+      name: leader_last
+      selector: properties/lastname
+    -
+      name: aka_name
+      selector: properties/aka
   ids:
-    register_name:
-      type: string
-
+    obj_id:
+      type: integer
 process:
   type:
     plugin: default_value
-    default_value: tribe # Content Type machine name
-
-  title: register_name
-
-  # --- TAXONOMY LOOKUPS (The Pro Knowledge Graph) ---
+    default_value: tribe
+  title: tribe_title
+  field_aka: aka_name
+  field_object_id: obj_id
+  field_first_name: leader_first
+  field_last_name: leader_last
   field_bia_region:
-    plugin: entity_lookup
-    source: bia_region_text
-    entity_type: taxonomy_term
-    bundle: regions # The machine name for BIA Regions
-    value_key: name
-
-  # --- COORDINATES ---
-  field_geolocation/lat: lat
-  field_geolocation/lng: lon
-
-  # --- ADDRESS LINK (The Paragraph Connection) ---
-  field_address:
-    plugin: migration_lookup
-    migration: tribe_addresses
-    source: register_name
-
+    -
+      plugin: entity_generate
+      source: bia_reg_str
+      value_key: name
+      bundle: regions
+      entity_type: taxonomy_term
+      ignore_case: true
+  field_address/target_id:
+    -
+      plugin: migration_lookup
+      migration:
+        - tribe_addresses
+        - tribe_mailing_addresses
+      source: obj_id
+      no_stub: true
+    -
+      plugin: extract
+      index:
+        - 0
+  field_address/target_revision_id:
+    -
+      plugin: migration_lookup
+      migration:
+        - tribe_addresses
+        - tribe_mailing_addresses
+      source: obj_id
+      no_stub: true
+    -
+      plugin: extract
+      index:
+        - 1
 destination:
   plugin: 'entity:node'
-
+  default_bundle: tribe
+idMap: {  }
 migration_dependencies:
   required:
     - tribe_addresses
+    - tribe_mailing_addresses
+include: null
