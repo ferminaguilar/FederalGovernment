@@ -1,0 +1,21 @@
+uuid: f5e9eb76-bafc-4e7d-94df-4dc9de9257a2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_geoloc
+    - node.type.tribe
+  module:
+    - geofield
+id: node.tribe.field_geoloc
+field_name: field_geoloc
+entity_type: node
+bundle: tribe
+label: Location
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: geofield

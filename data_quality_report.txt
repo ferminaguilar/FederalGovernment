@@ -1,0 +1,4 @@
+TRIBE NAME                               | ISSUE FIELD     | DETAIL/SUGGESTION
+--------------------------------------------------------------------------------
+Pribilof Islands Aleut Communities       | State           | Field is empty
+Yupiit of Andreafski                     | City/Street     | Potential misspelling: (Saint Marys)

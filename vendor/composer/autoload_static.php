@@ -597,6 +597,7 @@ class ComposerStaticInit9d559ab354f63dc7e9a3fc1a03ad7d46
         'Symfony\\Component\\HttpKernel\\HttpKernelInterface' => __DIR__ . '/..' . '/symfony/http-kernel/HttpKernelInterface.php',
         'Symfony\\Component\\HttpKernel\\TerminableInterface' => __DIR__ . '/..' . '/symfony/http-kernel/TerminableInterface.php',
         'System' => __DIR__ . '/..' . '/pear/pear-core-minimal/src/System.php',
+        'geoPHP' => __DIR__ . '/..' . '/itamair/geophp/geoPHP.inc',
     );
 
     public static function getInitializer(ClassLoader $loader)

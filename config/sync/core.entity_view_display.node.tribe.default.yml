@@ -15,6 +15,7 @@ dependencies:
     - field.field.node.tribe.field_fax
     - field.field.node.tribe.field_first_name
     - field.field.node.tribe.field_fws_regions
+    - field.field.node.tribe.field_geoloc
     - field.field.node.tribe.field_job_title
     - field.field.node.tribe.field_lar_type
     - field.field.node.tribe.field_last_name
@@ -35,6 +36,7 @@ dependencies:
   module:
     - datetime
     - entity_reference_revisions
+    - geofield
     - link
     - text
     - user
@@ -139,6 +141,15 @@ content:
       link: true
     third_party_settings: {  }
     weight: 131
+    region: content
+  field_geoloc:
+    type: geofield_default
+    label: above
+    settings:
+      output_format: wkt
+      output_escape: true
+    third_party_settings: {  }
+    weight: 134
     region: content
   field_job_title:
     type: string

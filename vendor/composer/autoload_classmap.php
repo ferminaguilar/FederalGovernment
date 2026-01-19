@@ -81,4 +81,5 @@ return array(
     'Symfony\\Component\\HttpKernel\\HttpKernelInterface' => $vendorDir . '/symfony/http-kernel/HttpKernelInterface.php',
     'Symfony\\Component\\HttpKernel\\TerminableInterface' => $vendorDir . '/symfony/http-kernel/TerminableInterface.php',
     'System' => $vendorDir . '/pear/pear-core-minimal/src/System.php',
+    'geoPHP' => $vendorDir . '/itamair/geophp/geoPHP.inc',
 );
