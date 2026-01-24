@@ -23,10 +23,12 @@
     {% endfor %}
     >
       <div class="chat-header">
-        <div class="chat-title">
-          {{ 'Hello'|t }} 👋
+        <span class="chat-header--icon"></span>
+        <div class="chat-header--title">
+          {{ "Hi there! \n Welcome to \n Drupal"|t|nl2br }}
+          <div class="chat-header--title-emoji">👋</div>
           <br />
-          <span>{{ 'How can I help you today'|t }}</span>
+          <span class="chat-header--subtitle">{{ 'How can I help you today?'|t }}</span>
         </div>
       </div>
     </deep-chat>

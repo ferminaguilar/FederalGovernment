@@ -9,6 +9,7 @@ use Drupal\ai\Dto\TokenUsageDto;
 use Drupal\ai\Enum\AiProviderCapability;
 use Drupal\ai\Exception\AiQuotaException;
 use Drupal\ai\Exception\AiRateLimitException;
+use Drupal\ai\Exception\AiRequestErrorException;
 use Drupal\ai\Exception\AiResponseErrorException;
 use Drupal\ai\Exception\AiSetupFailureException;
 use Drupal\ai\OperationType\Chat\ChatInput;
@@ -371,12 +372,17 @@ abstract class OpenAiBasedProviderClientBase extends AiProviderClientBase implem
   public function moderation(string|ModerationInput $input, ?string $model_id = NULL, array $tags = []): ModerationOutput {
     $this->loadClient();
 
+    // Do not allow empty model IDs for moderation.
+    if (empty($model_id)) {
+      throw new AiRequestErrorException('Model ID is required for moderation requests.');
+    }
+
     if ($input instanceof ModerationInput) {
       $input = $input->getPrompt();
     }
 
     $payload = [
-      'model' => $model_id ?? 'text-moderation-latest',
+      'model' => $model_id,
       'input' => $input,
     ] + $this->configuration;
 

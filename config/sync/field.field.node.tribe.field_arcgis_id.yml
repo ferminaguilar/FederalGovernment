@@ -1,0 +1,19 @@
+uuid: 3bc1596b-8804-4ad1-bc1c-7a440e5f653c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_arcgis_id
+    - node.type.tribe
+id: node.tribe.field_arcgis_id
+field_name: field_arcgis_id
+entity_type: node
+bundle: tribe
+label: 'ArcGIS ID'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

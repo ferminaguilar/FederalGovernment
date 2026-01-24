@@ -147,7 +147,7 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
     return [
       'ai_assistant' => NULL,
       'bot_name' => 'Assistant',
-      'bot_image' => '/modules/contrib/ai/modules/ai_chatbot/assets/ai-star-avatar.svg',
+      'bot_image' => '/modules/contrib/ai/modules/ai_chatbot/assets/ai-icon-gradient.svg',
       'use_username' => FALSE,
       'default_username' => '',
       'use_avatar' => FALSE,

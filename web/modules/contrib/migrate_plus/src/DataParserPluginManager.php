@@ -31,7 +31,7 @@ class DataParserPluginManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/migrate_plus/data_parser', $namespaces, $module_handler, DataParserPluginInterface::class, DataParser::class, 'use Drupal\migrate_plus\Annotation\DataParser');
+    parent::__construct('Plugin/migrate_plus/data_parser', $namespaces, $module_handler, DataParserPluginInterface::class, DataParser::class, 'Drupal\migrate_plus\Annotation\DataParser');
 
     $this->alterInfo('data_parser_info');
     $this->setCacheBackend($cache_backend, 'migrate_plus_plugins_data_parser');

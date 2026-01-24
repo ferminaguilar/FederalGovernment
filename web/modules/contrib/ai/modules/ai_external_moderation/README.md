@@ -8,4 +8,4 @@ need to enable this module** as all calls using this provider are automatically
 moderated before being sent.
 
 ## How to configure the AI External Moderation module
-For more information, please see the [AI External Moderation module documentation](https://project.pages.drupalcode.org/ai/latest/modules/ai_external_moderation/index.md).
+For more information, please see the [AI External Moderation module documentation](https://project.pages.drupalcode.org/ai/latest/modules/ai_external_moderation/).

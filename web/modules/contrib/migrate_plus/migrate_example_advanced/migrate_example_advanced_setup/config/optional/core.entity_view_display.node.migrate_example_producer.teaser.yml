@@ -12,6 +12,6 @@ id: node.migrate_example_producer.teaser
 targetEntityType: node
 bundle: migrate_example_producer
 mode: teaser
-content:
+content: {  }
 hidden:
   migrate_example_wine_region: true

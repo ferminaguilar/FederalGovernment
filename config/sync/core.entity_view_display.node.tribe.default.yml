@@ -3,10 +3,10 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.tribe.field_address
     - field.field.node.tribe.field_aka
     - field.field.node.tribe.field_alaska_subsistence_region
     - field.field.node.tribe.field_ancsa_region
+    - field.field.node.tribe.field_arcgis_id
     - field.field.node.tribe.field_bia_agency
     - field.field.node.tribe.field_bia_region
     - field.field.node.tribe.field_bureau_of_land_management
@@ -20,22 +20,27 @@ dependencies:
     - field.field.node.tribe.field_lar_type
     - field.field.node.tribe.field_last_name
     - field.field.node.tribe.field_latitude
-    - field.field.node.tribe.field_leader_name
-    - field.field.node.tribe.field_leader_title
     - field.field.node.tribe.field_longitude
+    - field.field.node.tribe.field_mailing_city
+    - field.field.node.tribe.field_mailing_state
+    - field.field.node.tribe.field_mailing_street_po_box
+    - field.field.node.tribe.field_mailing_zip
     - field.field.node.tribe.field_next_election
     - field.field.node.tribe.field_notes
     - field.field.node.tribe.field_nps_unified_regions
     - field.field.node.tribe.field_object_id
     - field.field.node.tribe.field_organization
     - field.field.node.tribe.field_phone
+    - field.field.node.tribe.field_physical_city
+    - field.field.node.tribe.field_physical_state
+    - field.field.node.tribe.field_physical_street
+    - field.field.node.tribe.field_physical_zip
     - field.field.node.tribe.field_suffix
     - field.field.node.tribe.field_tribe
     - field.field.node.tribe.field_website
     - node.type.tribe
   module:
     - datetime
-    - entity_reference_revisions
     - geofield
     - link
     - text
@@ -45,15 +50,6 @@ targetEntityType: node
 bundle: tribe
 mode: default
 content:
-  field_address:
-    type: entity_reference_revisions_entity_view
-    label: above
-    settings:
-      view_mode: default
-      link: ''
-    third_party_settings: {  }
-    weight: 123
-    region: content
   field_aka:
     type: string
     label: above
@@ -77,6 +73,14 @@ content:
       link: true
     third_party_settings: {  }
     weight: 128
+    region: content
+  field_arcgis_id:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 144
     region: content
   field_bia_agency:
     type: entity_reference_label
@@ -186,22 +190,6 @@ content:
     third_party_settings: {  }
     weight: 113
     region: content
-  field_leader_name:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 104
-    region: content
-  field_leader_title:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-    third_party_settings: {  }
-    weight: 105
-    region: content
   field_longitude:
     type: number_decimal
     label: above
@@ -212,6 +200,38 @@ content:
       prefix_suffix: true
     third_party_settings: {  }
     weight: 114
+    region: content
+  field_mailing_city:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 142
+    region: content
+  field_mailing_state:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 146
+    region: content
+  field_mailing_street_po_box:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 139
+    region: content
+  field_mailing_zip:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 140
     region: content
   field_next_election:
     type: datetime_default
@@ -261,6 +281,38 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     weight: 118
+    region: content
+  field_physical_city:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 136
+    region: content
+  field_physical_state:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 145
+    region: content
+  field_physical_street:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 135
+    region: content
+  field_physical_zip:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 138
     region: content
   field_suffix:
     type: string

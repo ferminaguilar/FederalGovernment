@@ -1,15 +1,15 @@
-uuid: 635bf9ae-1ef2-4dd8-ae5a-b143640ff8f7
+uuid: 5b989079-f50a-47fb-84f0-2a382a1c2c55
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_leader_title
+    - field.storage.node.field_mailing_city
     - node.type.tribe
-id: node.tribe.field_leader_title
-field_name: field_leader_title
+id: node.tribe.field_mailing_city
+field_name: field_mailing_city
 entity_type: node
 bundle: tribe
-label: 'Leader Title'
+label: 'Mailing City'
 description: ''
 required: false
 translatable: false

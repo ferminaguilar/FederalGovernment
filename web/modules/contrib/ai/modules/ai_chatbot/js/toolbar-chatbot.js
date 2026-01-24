@@ -3,12 +3,14 @@
 
   Drupal.behaviors.aiChatbot = {
     attach: function (context, settings) {
-      const toggleChatbot = (isOpen) => {
+      const toggleChatbot = () => {
+        const shouldExpand = document.body.classList.toggle('ai-chatbot-opened');
+
         if (window.Drupal.ginCoreNavigation) {
           window.Drupal.ginCoreNavigation.collapseToolbar();
         }
-        document.body.classList.toggle('ai-chatbot-opened', isOpen);
-        window.localStorage.setItem('Drupal.ai.chatbotExpanded', isOpen ? 'true' : 'false');
+
+        window.localStorage.setItem('Drupal.ai.chatbotExpanded', shouldExpand ? 'true' : 'false');
       };
 
       once('ai-chatbot', '.button--ai-chatbot', context).forEach(($toolbarIcon) => {
@@ -19,11 +21,11 @@
         }
 
         if (window.localStorage.getItem('Drupal.ai.chatbotExpanded') === 'true') {
-          toggleChatbot(true);
+          toggleChatbot();
         }
 
         $toolbarIcon.addEventListener('click', (e) => {
-          toggleChatbot(true);
+          toggleChatbot();
         });
       });
 
@@ -31,7 +33,6 @@
         const $dropdownMenu = $chatContainer.querySelector('.chat-dropdown');
         const $menuButton = $chatContainer.querySelector('.chat-dropdown-button');
         const $clearHistoryButton = $chatContainer.querySelector('.clear-history');
-
         const $closeButton = $chatContainer.querySelector('.toolbar-button.close')
 
         const toggleMenu = (event) => {

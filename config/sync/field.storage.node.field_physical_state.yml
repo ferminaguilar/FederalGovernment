@@ -1,17 +1,16 @@
-uuid: c9ffefc5-af22-4d3a-bc19-0b12bb7763f8
+uuid: b27662f2-6577-4fbb-98d5-177920424e8c
 langcode: en
 status: true
 dependencies:
   module:
     - node
-id: node.field_leader_name
-field_name: field_leader_name
+    - taxonomy
+id: node.field_physical_state
+field_name: field_physical_state
 entity_type: node
-type: string
+type: entity_reference
 settings:
-  max_length: 100
-  case_sensitive: false
-  is_ascii: false
+  target_type: taxonomy_term
 module: core
 locked: false
 cardinality: 1

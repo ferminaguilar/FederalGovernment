@@ -3,10 +3,10 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.tribe.field_address
     - field.field.node.tribe.field_aka
     - field.field.node.tribe.field_alaska_subsistence_region
     - field.field.node.tribe.field_ancsa_region
+    - field.field.node.tribe.field_arcgis_id
     - field.field.node.tribe.field_bia_agency
     - field.field.node.tribe.field_bia_region
     - field.field.node.tribe.field_bureau_of_land_management
@@ -20,26 +20,71 @@ dependencies:
     - field.field.node.tribe.field_lar_type
     - field.field.node.tribe.field_last_name
     - field.field.node.tribe.field_latitude
-    - field.field.node.tribe.field_leader_name
-    - field.field.node.tribe.field_leader_title
     - field.field.node.tribe.field_longitude
+    - field.field.node.tribe.field_mailing_city
+    - field.field.node.tribe.field_mailing_state
+    - field.field.node.tribe.field_mailing_street_po_box
+    - field.field.node.tribe.field_mailing_zip
     - field.field.node.tribe.field_next_election
     - field.field.node.tribe.field_notes
     - field.field.node.tribe.field_nps_unified_regions
     - field.field.node.tribe.field_object_id
     - field.field.node.tribe.field_organization
     - field.field.node.tribe.field_phone
+    - field.field.node.tribe.field_physical_city
+    - field.field.node.tribe.field_physical_state
+    - field.field.node.tribe.field_physical_street
+    - field.field.node.tribe.field_physical_zip
     - field.field.node.tribe.field_suffix
     - field.field.node.tribe.field_tribe
     - field.field.node.tribe.field_website
     - node.type.tribe
   module:
     - datetime
+    - field_group
     - geofield
     - link
-    - paragraphs
     - path
     - text
+third_party_settings:
+  field_group:
+    group_physical_address:
+      children:
+        - field_physical_street
+        - field_physical_city
+        - field_physical_state
+        - field_physical_zip
+        - field_geoloc
+      label: 'Physical Address'
+      region: content
+      parent_name: ''
+      weight: 34
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: ''
+        required_fields: true
+    group_mailing_address:
+      children:
+        - field_mailing_street_po_box
+        - field_mailing_city
+        - field_mailing_state
+        - field_mailing_zip
+      label: 'Mailing Address'
+      region: content
+      parent_name: ''
+      weight: 35
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        description: ''
+        required_fields: true
 id: node.tribe.default
 targetEntityType: node
 bundle: tribe
@@ -51,27 +96,9 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_address:
-    type: paragraphs
-    weight: 31
-    region: content
-    settings:
-      title: Paragraph
-      title_plural: Paragraphs
-      edit_mode: open
-      closed_mode: summary
-      autocollapse: none
-      closed_mode_threshold: 0
-      add_mode: dropdown
-      form_display_mode: default
-      default_paragraph_type: ''
-      features:
-        collapse_edit_all: collapse_edit_all
-        duplicate: duplicate
-    third_party_settings: {  }
   field_aka:
     type: string_textfield
-    weight: 34
+    weight: 26
     region: content
     settings:
       size: 60
@@ -89,11 +116,19 @@ content:
     third_party_settings: {  }
   field_ancsa_region:
     type: entity_reference_autocomplete
-    weight: 36
+    weight: 28
     region: content
     settings:
       match_operator: CONTAINS
       match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_arcgis_id:
+    type: string_textfield
+    weight: 40
+    region: content
+    settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
@@ -119,7 +154,7 @@ content:
     third_party_settings: {  }
   field_bureau_of_land_management:
     type: entity_reference_autocomplete
-    weight: 41
+    weight: 33
     region: content
     settings:
       match_operator: CONTAINS
@@ -135,7 +170,7 @@ content:
     third_party_settings: {  }
   field_email:
     type: email_default
-    weight: 33
+    weight: 25
     region: content
     settings:
       placeholder: ''
@@ -143,7 +178,7 @@ content:
     third_party_settings: {  }
   field_fax:
     type: string_textfield
-    weight: 37
+    weight: 29
     region: content
     settings:
       size: 60
@@ -159,7 +194,7 @@ content:
     third_party_settings: {  }
   field_fws_regions:
     type: entity_reference_autocomplete
-    weight: 39
+    weight: 31
     region: content
     settings:
       match_operator: CONTAINS
@@ -169,14 +204,14 @@ content:
     third_party_settings: {  }
   field_geoloc:
     type: geofield_latlon
-    weight: 42
+    weight: 39
     region: content
     settings:
       html5_geolocation: false
     third_party_settings: {  }
   field_job_title:
     type: string_textfield
-    weight: 29
+    weight: 21
     region: content
     settings:
       size: 60
@@ -184,7 +219,7 @@ content:
     third_party_settings: {  }
   field_lar_type:
     type: entity_reference_autocomplete
-    weight: 35
+    weight: 27
     region: content
     settings:
       match_operator: CONTAINS
@@ -194,7 +229,7 @@ content:
     third_party_settings: {  }
   field_last_name:
     type: string_textfield
-    weight: 27
+    weight: 19
     region: content
     settings:
       size: 60
@@ -207,22 +242,6 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
-  field_leader_name:
-    type: string_textfield
-    weight: 10
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_leader_title:
-    type: string_textfield
-    weight: 11
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
   field_longitude:
     type: number
     weight: 17
@@ -230,15 +249,49 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
+  field_mailing_city:
+    type: string_textfield
+    weight: 37
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_mailing_state:
+    type: entity_reference_autocomplete
+    weight: 42
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_mailing_street_po_box:
+    type: string_textfield
+    weight: 36
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_mailing_zip:
+    type: string_textfield
+    weight: 39
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_next_election:
     type: datetime_default
-    weight: 32
+    weight: 24
     region: content
     settings: {  }
     third_party_settings: {  }
   field_notes:
     type: text_textfield
-    weight: 38
+    weight: 30
     region: content
     settings:
       size: 60
@@ -246,7 +299,7 @@ content:
     third_party_settings: {  }
   field_nps_unified_regions:
     type: entity_reference_autocomplete
-    weight: 40
+    weight: 32
     region: content
     settings:
       match_operator: CONTAINS
@@ -263,7 +316,7 @@ content:
     third_party_settings: {  }
   field_organization:
     type: string_textfield
-    weight: 30
+    weight: 22
     region: content
     settings:
       size: 60
@@ -271,7 +324,41 @@ content:
     third_party_settings: {  }
   field_phone:
     type: string_textfield
-    weight: 26
+    weight: 18
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_physical_city:
+    type: string_textfield
+    weight: 36
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_physical_state:
+    type: entity_reference_autocomplete
+    weight: 41
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_physical_street:
+    type: string_textfield
+    weight: 35
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_physical_zip:
+    type: string_textfield
+    weight: 38
     region: content
     settings:
       size: 60
@@ -279,7 +366,7 @@ content:
     third_party_settings: {  }
   field_suffix:
     type: string_textfield
-    weight: 28
+    weight: 20
     region: content
     settings:
       size: 60
@@ -310,7 +397,7 @@ content:
     settings: {  }
     third_party_settings: {  }
   simple_sitemap:
-    weight: 10
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }

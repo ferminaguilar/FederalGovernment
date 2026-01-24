@@ -212,6 +212,7 @@ tada
 tanabata
 TCHA
 testsetestt
+textcolor
 texte
 Tiktoken
 tmgmt
@@ -340,3 +341,4 @@ valthebald
 wouters
 yautja
 zoocha
+topbar

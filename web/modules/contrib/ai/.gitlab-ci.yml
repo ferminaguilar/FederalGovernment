@@ -170,3 +170,7 @@ phpstan:
     # Show the configuration for debugging purposes.
     - php --ri ffi
 
+composer (previous major):
+  before_script:
+    # We need doctrine/instantiator to still be on 2.0 for previous major.
+    - composer require doctrine/instantiator:"2.0.0" --no-update

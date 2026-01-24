@@ -1,0 +1,19 @@
+uuid: 1e90d8a9-d852-40e7-b875-a2b20e657c82
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_physical_zip
+    - node.type.tribe
+id: node.tribe.field_physical_zip
+field_name: field_physical_zip
+entity_type: node
+bundle: tribe
+label: 'Physical Zip'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

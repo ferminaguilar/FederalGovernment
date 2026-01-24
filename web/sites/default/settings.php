@@ -948,6 +948,9 @@ $settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
 $settings['trusted_host_patterns'] = ['.*'];
 $settings['skip_permissions_hardening'] = TRUE;
 $settings['config_sync_directory'] = '../config/sync';
+// Use the standard database cache but disable the most aggressive caching modules
+$settings['cache']['bins']['render'] = 'cache.backend.database';
+$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.database';
 
 // SQLite Database
 $databases['default']['default'] = [

@@ -1,15 +1,15 @@
-uuid: 7285f79f-161a-409c-b728-99ada4fd3610
+uuid: 21e844d4-1a7b-4e71-a60d-73507f7ef961
 langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_leader_name
+    - field.storage.node.field_physical_city
     - node.type.tribe
-id: node.tribe.field_leader_name
-field_name: field_leader_name
+id: node.tribe.field_physical_city
+field_name: field_physical_city
 entity_type: node
 bundle: tribe
-label: 'Leader Name'
+label: 'Physical City'
 description: ''
 required: false
 translatable: false

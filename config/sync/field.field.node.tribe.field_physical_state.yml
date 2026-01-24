@@ -1,0 +1,29 @@
+uuid: 4a14fe72-4881-4c3e-84a0-6c2915438bde
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_physical_state
+    - node.type.tribe
+    - taxonomy.vocabulary.states
+id: node.tribe.field_physical_state
+field_name: field_physical_state
+entity_type: node
+bundle: tribe
+label: 'Physical State'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      states: states
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

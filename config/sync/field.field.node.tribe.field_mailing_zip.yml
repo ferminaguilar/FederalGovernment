@@ -1,0 +1,19 @@
+uuid: b14c238b-f428-4d7c-85bb-f582b5bcf723
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_mailing_zip
+    - node.type.tribe
+id: node.tribe.field_mailing_zip
+field_name: field_mailing_zip
+entity_type: node
+bundle: tribe
+label: 'Mailing Zip'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string
