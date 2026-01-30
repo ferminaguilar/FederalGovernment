@@ -9,7 +9,7 @@ use Drupal\geofield\DmsConverter;
 /**
  * Provides a Geofield DMS form element.
  *
- * @FormElementBase("geofield_dms")
+ * @FormElement("geofield_dms")
  */
 class GeofieldDms extends FormElementBase {
 

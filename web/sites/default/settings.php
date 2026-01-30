@@ -689,7 +689,7 @@ $settings['update_free_access'] = FALSE;
 /**
  * Load services definition file.
  */
-$settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
+$settings['container_yamls'][] = $app_root . '/' . $site_path . '/development.services.yml';
 
 /**
  * Override the default service container class.
@@ -844,9 +844,9 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
  * Keep this code block at the end of this file to take full effect.
  */
 #
-# if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
-#   include $app_root . '/' . $site_path . '/settings.local.php';
-# }
+if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
+   include $app_root . '/' . $site_path . '/settings.local.php';
+}
 
 // Reverse proxy support for Codespaces
 $settings['reverse_proxy'] = TRUE;
@@ -949,8 +949,9 @@ $settings['trusted_host_patterns'] = ['.*'];
 $settings['skip_permissions_hardening'] = TRUE;
 $settings['config_sync_directory'] = '../config/sync';
 // Use the standard database cache but disable the most aggressive caching modules
-$settings['cache']['bins']['render'] = 'cache.backend.database';
-$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.database';
+$settings['cache']['bins']['render'] = 'cache.backend.memory';
+$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.memory';
+$settings['cache']['bins']['page'] = 'cache.backend.memory';
 
 // SQLite Database
 $databases['default']['default'] = [

@@ -342,3 +342,4 @@ wouters
 yautja
 zoocha
 topbar
+litellm

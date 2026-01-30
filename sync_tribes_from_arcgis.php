@@ -2,7 +2,7 @@
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '1024M'); // Bumped for the 500+ records
 gc_enable();
 
 $url = "https://services1.arcgis.com/UxqqIfhng71wUT9x/arcgis/rest/services/TribalLeadership_Directory/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson";
@@ -32,6 +32,8 @@ function get_term_id_by_name($name, $vocabulary_vid) {
   return $term->id();
 }
 
+$count = 0;
+
 foreach ($data['features'] as $feature) {
   $p = array_change_key_case($feature['properties'], CASE_LOWER);
   $arcgis_id = $p['objectid'] ?? null;
@@ -45,63 +47,77 @@ foreach ($data['features'] as $feature) {
   if ($nids) {
     $node = Node::load(reset($nids));
 
-    // --- NEW: MAP TRIBE FIELD (Taxonomy: tribe) ---
+    // --- TAXONOMY MAPPINGS ---
     if (!empty($p['tribe'])) {
       $node->set('field_tribe', get_term_id_by_name($p['tribe'], 'tribe'));
     }
 
-    // --- MAP STATES (Taxonomy: states) ---
     $node->set('field_physical_state', get_term_id_by_name($p['state'] ?? '', 'states'));
     $node->set('field_mailing_state',  get_term_id_by_name($p['mailingaddressstate'] ?? '', 'states'));
 
-    // --- MAP BIA REGION (Taxonomy: bia_regions) ---
     if (!empty($p['biaregion'])) {
       $node->set('field_bia_region', get_term_id_by_name($p['biaregion'], 'bia_regions'));
     }
 
-    // --- MAP BIA Agency (Taxonomy: offices_bureaus) ---
     if (!empty($p['biaagency'])) {
       $node->set('field_bia_agency', get_term_id_by_name($p['biaagency'], 'offices_bureaus'));
     }
 
-    // --- MAP BIA Agency (Taxonomy: offices_bureaus) ---
-    if (!empty($p['LARtype'])) {
-      $node->set('field_lar_type', get_term_id_by_name($p['LARtype'], 'field_lar_type'));
-    }
-
-    // --- MAP WEBSITE (Link field: field_website) ---
-    if (!empty($p['website'])) {
+    // --- WEBSITE VALIDATION ---
+    // ArcGIS data often has "N/A" or "None" which will crash a Drupal Link field
+    if (!empty($p['website']) && filter_var($p['website'], FILTER_VALIDATE_URL)) {
         $node->set('field_website', [
             'uri' => $p['website'],
             'title' => 'Website',
         ]);
     }
 
-    // --- MAP Alaska Subsistence Region ---
-    if (!empty($p['alaskasubsistenceregion'])) {
-      $node->set('field_alaska_subsistence_region', get_term_id_by_name($p['alaskasubsistenceregion'], 'field_alaska_subsistence_region'));
+    if (!empty($p['blmregion'])) {
+      $node->set('field_bureau_of_land_management', get_term_id_by_name($p['blmregion'], 'field_bureau_of_land_management'));
     }
 
+    if (!empty($p['fwsregion'])) {
+      $node->set('field_fws_regions', get_term_id_by_name($p['fwsregion'], 'field_fws_regions'));
+    }
 
-    // $node->set('field_leader_name', $p['firstname'] ?? '');
-
+    // --- TEXT FIELD MAPPINGS ---
     $node->set('field_organization', $p['organization'] ?? '');
     $node->set('field_aka', $p['aka'] ?? '');
     $node->set('field_notes', $p['notes'] ?? '');
-
-    // --- CONTACT & ADDRESS ---
-    $node->set('field_suffix', $p['suffix'] ?? '');
     $node->set('field_first_name', $p['firstname'] ?? '');
     $node->set('field_last_name',  $p['lastname'] ?? '');
-    $node->set('field_email',      $p['email'] ?? '');
+    // --- MULTI-VALUE EMAIL MAPPING ---
+    if (!empty($p['email'])) {
+        // Clean the string: replace semicolons with commas, then split by comma
+        $raw_emails = str_replace(';', ',', $p['email']);
+        $email_array = explode(',', $raw_emails);
+        
+        $cleaned_emails = [];
+        foreach ($email_array as $email) {
+            $email = trim($email);
+            // Only add if it's a valid email format
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $cleaned_emails[] = ['value' => $email];
+            }
+        }
+
+        if (!empty($cleaned_emails)) {
+            $node->set('field_email', $cleaned_emails);
+        }
+    }
     $node->set('field_phone',      $p['phone'] ?? '');
-    $node->set('field_mailing_city', $p['mailingaddresscity'] ?? '');
-    $node->set('field_mailing_zip',  $p['mailingaddresszipcode'] ?? '');
-    $node->set('field_fax',  $p['fax'] ?? '');
 
     $node->save();
+    
+    // Memory Management
     \Drupal::entityTypeManager()->getStorage('node')->resetCache([$node->id()]);
+    $count++;
+
+    if ($count % 50 == 0) {
+      echo "Processed $count tribes...\n";
+      gc_collect_cycles(); // Forces PHP to clean up memory
+    }
   }
 }
 
-echo "\nSUCCESS: 587 tribes updated. Tribe taxonomy terms created.\n";
+echo "\nSUCCESS: $count tribes updated. Sync complete.\n";

@@ -2,6 +2,73 @@
 
 All notable changes to the AI module are documented here. While this document is Markdown, the individual release notes are written in HTML.
 
+## [1.2.6] - 2026-01-21
+<p>Issues resolved since <a href="https://www.drupal.org/project/ai/releases/1.2.5">1.2.5</a>: 17</p>
+<h3>Contributors</h3>
+<a href="https://www.drupal.org/u/marcus_johansson">marcus_johansson</a> (17),
+<a href="https://www.drupal.org/u/robloach">robloach</a> (2),
+<a href="https://www.drupal.org/u/bbruno">bbruno</a> (4),
+<a href="https://www.drupal.org/u/dan2k3k4">dan2k3k4</a> (3),
+<a href="https://www.drupal.org/u/breidert">breidert</a> (1),
+<a href="https://www.drupal.org/u/yannickoo">yannickoo</a> (1),
+<a href="https://www.drupal.org/u/unqunq">unqunq</a> (1),
+<a href="https://www.drupal.org/u/a.dmitriiev">a.dmitriiev</a> (3),
+<a href="https://www.drupal.org/u/fago">fago</a> (2),
+<a href="https://www.drupal.org/u/hrishikesh-dalal">hrishikesh-dalal</a> (1),
+<a href="https://www.drupal.org/u/csakiistvan">csakiistvan</a> (2),
+<a href="https://www.drupal.org/u/yautja_cetanu">yautja_cetanu</a> (1),
+<a href="https://www.drupal.org/u/kristen pol">kristen pol</a> (3),
+<a href="https://www.drupal.org/u/valthebald">valthebald</a> (1),
+<a href="https://www.drupal.org/u/punamshelke">punamshelke</a> (1),
+<a href="https://www.drupal.org/u/b_sharpe">b_sharpe</a> (2),
+<a href="https://www.drupal.org/u/gxleano">gxleano</a> (2),
+<a href="https://www.drupal.org/u/scott_euser">scott_euser</a> (1),
+<a href="https://www.drupal.org/u/socialnicheguru">socialnicheguru</a> (1),
+<a href="https://www.drupal.org/u/andrewbelcher">andrewbelcher</a> (1),
+<a href="https://www.drupal.org/u/pameeela">pameeela</a> (1),
+<a href="https://www.drupal.org/u/jibran">jibran</a> (1),
+<a href="https://www.drupal.org/u/danrod">danrod</a> (1),
+<a href="https://www.drupal.org/u/hmdnawaz">hmdnawaz</a> (1),
+<a href="https://www.drupal.org/u/superfedya">superfedya</a> (1),
+<a href="https://www.drupal.org/u/arisha">arisha</a> (1),
+<a href="https://www.drupal.org/u/abhisekmazumdar">abhisekmazumdar</a> (2),
+<a href="https://www.drupal.org/u/sirclickalot">sirclickalot</a> (1),
+<a href="https://www.drupal.org/u/svendecabooter">svendecabooter</a> (1),
+<a href="https://www.drupal.org/u/anjaliprasannan">anjaliprasannan</a> (1),
+<a href="https://www.drupal.org/u/petar_basic">petar_basic</a> (1)
+<h3>Tasks</h3>
+<ul>
+<li>[#3568213]</li>
+<li>[#3554510]</li>
+<li>[#3566184]</li>
+<li>[#3543112]</li>
+<li>[#3566310]</li>
+</ul>
+<h3>Bugs</h3>
+<ul>
+<li>[#3568574]</li>
+<li>[#3567784]</li>
+<li>[#3568008]</li>
+<li>[#3562615]</li>
+<li>[#3555808]</li>
+<li>[#3567649]</li>
+<li>[#3567164]</li>
+<li>[#3554543]</li>
+<li>[#3556871]</li>
+<li>[#3562971]</li>
+<li>[#3566171]</li>
+</ul>
+<h3>Planning</h3>
+<ul>
+<li>[#3558687]</li>
+</ul>
+<h3>Organizations</h3>
+FreelyGive (17), 1xINTERNET (8), amazee.io (3), DigitalTrotter (1), drunomics (2), Itty Bitty Byte (3), Salsa Digital (3), Dropsolid (3), ImageX (2), Factorial GmbH (2), Soapbox (1), Acquia (1), Technocrat (1), OPTASY (1), Zoocha (1), Sven Decabooter (1), EntityOne (1), Dynamate (1)
+<h3>Stats</h3>
+<p><strong>Amount of contributors: </strong>31</p>
+<p><strong>Amount of organizations: </strong>18</p>
+<p><strong>Amount of issues: </strong>17</p>
+
 ## [1.2.5] - 2026-01-07
 
 <p>Issues resolved since <a href="https://www.drupal.org/project/ai/releases/1.2.4" rel="nofollow">1.2.4</a>: 10</p>

@@ -1,0 +1,197 @@
+/**
+ * @file
+ * Global CSS utilities for AI module components.
+ *
+ * Uses Drupal core CSS custom properties for consistency across admin themes.
+ * All classes prefixed with 'ai-' to prevent conflicts.
+ */
+
+/* ==========================================================================
+   Typography Utilities
+   ========================================================================== */
+
+/**
+ * Font size utilities matching Drupal CSS variable names.
+ */
+.ai-font-size-s {
+  font-size: var(--font-size-s);
+}
+
+.ai-font-size-xs {
+  font-size: var(--font-size-xs);
+}
+
+.ai-font-size-xxs {
+  font-size: var(--font-size-xxs);
+}
+
+/**
+ * Color utility for muted/secondary text.
+ */
+.ai-text-muted {
+  color: var(--color-text-light);
+}
+
+/**
+ * Semantic class for description text.
+ * Combines font-size, muted color, and optimized text wrapping for helper text.
+ */
+.ai-description {
+  font-size: var(--font-size-xs);
+  line-height: 1.25;
+  color: var(--color-text-light);
+  hyphens: none;
+  text-wrap: balance;
+}
+
+/**
+ * Heading size overrides.
+ * Use these to visually resize headings while keeping semantic HTML.
+ * Maps to Drupal core --font-size-h* variables.
+ */
+.ai-heading-h1 {
+  font-size: var(--font-size-h1);
+}
+
+.ai-heading-h2 {
+  font-size: var(--font-size-h2);
+}
+
+.ai-heading-h3 {
+  font-size: var(--font-size-h3);
+}
+
+.ai-heading-h4 {
+  font-size: var(--font-size-h4);
+}
+
+.ai-heading-h5 {
+  font-size: var(--font-size-h5);
+}
+
+.ai-heading-h6 {
+  font-size: var(--font-size-h6);
+}
+
+/**
+ * Providers cell in additional capabilities table.
+ */
+.ai-providers-cell {
+  font-size: var(--font-size-s);
+}
+
+/**
+ * Select element width utilities.
+ * Uses select.class for specificity over theme styles while remaining class-based.
+ */
+select.ai-select,
+select.ai-select--narrow,
+select.ai-select--wide {
+  max-width: 200px;
+}
+
+select.ai-select--narrow {
+  max-width: 150px;
+}
+
+select.ai-select--wide {
+  max-width: 300px;
+}
+
+/* ==========================================================================
+   Icon Links (IconButton pattern)
+   ========================================================================== */
+
+/**
+ * Container for info link icons.
+ * Displays icons inline (row) with left alignment so icons stack vertically
+ * when looking down the column, even when only one icon is present.
+ */
+.ai-info-cell {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--gin-spacing-xxs, 0.25rem);
+}
+
+.ai-messages-cell {
+  margin-top: 1rem;
+}
+
+/**
+ * Base styles for icon-only info links.
+ * Follows Primer IconButton pattern with subtle default border:
+ * - Faint border by default for visibility
+ * - Background appears on hover/active
+ * - Clear focus ring for keyboard navigation
+ *
+ * Icon size matches Gin toolbar icons (20px optical).
+ * Uses Gin CSS variables with fallbacks for cross-theme compatibility.
+ */
+.ai-info-link {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0.3125rem;
+  color: var(--gin-icon-color, var(--color-text-light));
+  text-decoration: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 1.25rem 1.25rem;
+  border: 1px solid var(--color-gray-200, rgba(0, 0, 0, 0.08));
+  border-radius: var(--gin-border-m, 0.5rem);
+  transition: background-color 0.15s var(--gin-easing, cubic-bezier(0.19, 1, 0.22, 1)),
+              border-color 0.15s var(--gin-easing, cubic-bezier(0.19, 1, 0.22, 1));
+  cursor: pointer;
+}
+
+/**
+ * Provider info link - plugs icon.
+ */
+.ai-info-link--provider {
+  background-image: url('../icons/plugs.svg');
+}
+
+/**
+ * Model info link - cube icon.
+ */
+.ai-info-link--model {
+  background-image: url('../icons/cube.svg');
+}
+
+/**
+ * Hover state - subtle background appears.
+ * Uses semi-transparent gray for theme compatibility.
+ */
+.ai-info-link:hover {
+  background-color: var(--color-gray-100, rgba(0, 0, 0, 0.06));
+  border-color: var(--color-gray-200, rgba(0, 0, 0, 0.08));
+}
+
+/**
+ * Focus state - visible focus ring for keyboard navigation.
+ * Uses focus-visible for keyboard-only focus indication.
+ */
+.ai-info-link:focus {
+  outline: none;
+}
+
+.ai-info-link:focus-visible {
+  background-color: var(--color-gray-100, rgba(0, 0, 0, 0.06));
+  outline: 2px solid var(--gin-color-focus, var(--color-focus, #007dfacc));
+  outline-offset: 2px;
+}
+
+/**
+ * Active/pressed state - darker background for tactile feedback.
+ */
+.ai-info-link:active {
+  background-color: var(--color-gray-200, rgba(0, 0, 0, 0.12));
+  border-color: var(--color-gray-300, rgba(0, 0, 0, 0.15));
+}
+

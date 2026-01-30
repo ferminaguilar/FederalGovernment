@@ -39,3 +39,8 @@ chat_history_element:
   css:
     theme:
       assets/css/chat_history_element.css: {}
+
+ai_global:
+  css:
+    component:
+      assets/css/ai_global.css: {}

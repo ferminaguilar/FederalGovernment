@@ -4,12 +4,20 @@
     {
       "label": "Start Drupal Server",
       "type": "shell",
-      "command": "php -S 0.0.0.0:8080 .ht.router.php",
+      "command": "php -S 0.0.0.0:8080 -d opcache.enable=1 -d opcache.jit_buffer_size=100M .ht.router.php",
       "options": {
         "cwd": "${workspaceFolder}/web"
       },
       "isBackground": true,
       "problemMatcher": []
+    },
+    {
+      "label": "Sync BIA Tribes from ArcGIS",
+      "type": "shell",
+      // We point to the specific file location and the Drupal root (-r)
+      "command": "drush -r ${workspaceFolder}/web php:script ${workspaceFolder}/sync_tribes_from_arcgis.php",
+      "problemMatcher": [],
+      "group": "build"
     }
   ]
 }

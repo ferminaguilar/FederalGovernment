@@ -4,7 +4,7 @@ type: module
 core_version_requirement: ^10.3 || ^11
 package: Geofield
 
-# Information added by Drupal.org packaging script on 2026-01-11
-version: '10.3.2'
+# Information added by Drupal.org packaging script on 2026-01-28
+version: '10.3.3'
 project: 'geofield'
-datestamp: 1768121743
+datestamp: 1769627929
