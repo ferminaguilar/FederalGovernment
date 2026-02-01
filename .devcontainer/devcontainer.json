@@ -12,5 +12,8 @@
     "visibility": "public"
   }
 },
-"postCreateCommand": "git config --global --add safe.directory /workspaces/FederalGovernment && composer install && chmod +x setup.sh && ./setup.sh"
+"postCreateCommand": "git config --global --add safe.directory /workspaces/FederalGovernment && composer install && chmod +x setup.sh && ./setup.sh",
+"features": {
+    "ghcr.io/devcontainers/features/node:1": {}
+}
 }

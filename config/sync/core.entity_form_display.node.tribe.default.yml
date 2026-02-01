@@ -19,8 +19,6 @@ dependencies:
     - field.field.node.tribe.field_job_title
     - field.field.node.tribe.field_lar_type
     - field.field.node.tribe.field_last_name
-    - field.field.node.tribe.field_latitude
-    - field.field.node.tribe.field_longitude
     - field.field.node.tribe.field_mailing_city
     - field.field.node.tribe.field_mailing_state
     - field.field.node.tribe.field_mailing_street_po_box
@@ -55,10 +53,13 @@ third_party_settings:
         - field_physical_state
         - field_physical_zip
         - field_geoloc
+        - field_phone
+        - field_fax
+        - field_website
       label: 'Physical Address'
       region: content
-      parent_name: ''
-      weight: 34
+      parent_name: group_address
+      weight: 33
       format_type: fieldset
       format_settings:
         classes: ''
@@ -75,14 +76,96 @@ third_party_settings:
         - field_mailing_zip
       label: 'Mailing Address'
       region: content
-      parent_name: ''
-      weight: 35
+      parent_name: group_address
+      weight: 34
       format_type: fieldset
       format_settings:
         classes: ''
         show_empty_fields: false
         id: ''
         label_as_html: false
+        description: ''
+        required_fields: true
+    group_tribes:
+      children:
+        - group_leader
+        - group_address
+        - group_region
+      label: Tribes
+      region: content
+      parent_name: ''
+      weight: 2
+      format_type: tabs
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        direction: vertical
+        width_breakpoint: 640
+    group_address:
+      children:
+        - group_physical_address
+        - group_mailing_address
+      label: Address
+      region: content
+      parent_name: group_tribes
+      weight: 5
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        formatter: closed
+        description: ''
+        required_fields: true
+    group_leader:
+      children:
+        - field_suffix
+        - field_first_name
+        - field_last_name
+        - field_organization
+        - field_job_title
+        - field_election_date
+        - field_next_election
+        - field_email
+      label: Leader
+      region: content
+      parent_name: group_tribes
+      weight: 4
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        formatter: closed
+        description: ''
+        required_fields: true
+    group_region:
+      children:
+        - field_tribe
+        - field_aka
+        - field_bia_region
+        - field_alaska_subsistence_region
+        - field_lar_type
+        - field_bia_agency
+        - field_ancsa_region
+        - field_fws_regions
+        - field_nps_unified_regions
+        - field_bureau_of_land_management
+      label: Region
+      region: content
+      parent_name: group_tribes
+      weight: 6
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        formatter: closed
         description: ''
         required_fields: true
 id: node.tribe.default
@@ -92,13 +175,13 @@ mode: default
 content:
   created:
     type: datetime_timestamp
-    weight: 5
+    weight: 7
     region: content
     settings: {  }
     third_party_settings: {  }
   field_aka:
     type: string_textfield
-    weight: 26
+    weight: 4
     region: content
     settings:
       size: 60
@@ -106,7 +189,7 @@ content:
     third_party_settings: {  }
   field_alaska_subsistence_region:
     type: entity_reference_autocomplete
-    weight: 13
+    weight: 6
     region: content
     settings:
       match_operator: CONTAINS
@@ -116,7 +199,7 @@ content:
     third_party_settings: {  }
   field_ancsa_region:
     type: entity_reference_autocomplete
-    weight: 28
+    weight: 9
     region: content
     settings:
       match_operator: CONTAINS
@@ -126,23 +209,13 @@ content:
     third_party_settings: {  }
   field_arcgis_id:
     type: string_textfield
-    weight: 40
+    weight: 4
     region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
   field_bia_agency:
-    type: entity_reference_autocomplete
-    weight: 9
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_bia_region:
     type: entity_reference_autocomplete
     weight: 8
     region: content
@@ -152,9 +225,19 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  field_bia_region:
+    type: entity_reference_autocomplete
+    weight: 5
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_bureau_of_land_management:
     type: entity_reference_autocomplete
-    weight: 33
+    weight: 12
     region: content
     settings:
       match_operator: CONTAINS
@@ -164,13 +247,13 @@ content:
     third_party_settings: {  }
   field_election_date:
     type: datetime_default
-    weight: 14
+    weight: 25
     region: content
     settings: {  }
     third_party_settings: {  }
   field_email:
     type: email_default
-    weight: 25
+    weight: 27
     region: content
     settings:
       placeholder: ''
@@ -178,7 +261,7 @@ content:
     third_party_settings: {  }
   field_fax:
     type: string_textfield
-    weight: 29
+    weight: 41
     region: content
     settings:
       size: 60
@@ -186,7 +269,7 @@ content:
     third_party_settings: {  }
   field_first_name:
     type: string_textfield
-    weight: 3
+    weight: 21
     region: content
     settings:
       size: 60
@@ -194,7 +277,7 @@ content:
     third_party_settings: {  }
   field_fws_regions:
     type: entity_reference_autocomplete
-    weight: 31
+    weight: 10
     region: content
     settings:
       match_operator: CONTAINS
@@ -211,7 +294,7 @@ content:
     third_party_settings: {  }
   field_job_title:
     type: string_textfield
-    weight: 21
+    weight: 24
     region: content
     settings:
       size: 60
@@ -219,7 +302,7 @@ content:
     third_party_settings: {  }
   field_lar_type:
     type: entity_reference_autocomplete
-    weight: 27
+    weight: 7
     region: content
     settings:
       match_operator: CONTAINS
@@ -229,24 +312,10 @@ content:
     third_party_settings: {  }
   field_last_name:
     type: string_textfield
-    weight: 19
+    weight: 22
     region: content
     settings:
       size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_latitude:
-    type: number
-    weight: 16
-    region: content
-    settings:
-      placeholder: ''
-    third_party_settings: {  }
-  field_longitude:
-    type: number
-    weight: 17
-    region: content
-    settings:
       placeholder: ''
     third_party_settings: {  }
   field_mailing_city:
@@ -259,7 +328,7 @@ content:
     third_party_settings: {  }
   field_mailing_state:
     type: entity_reference_autocomplete
-    weight: 42
+    weight: 38
     region: content
     settings:
       match_operator: CONTAINS
@@ -285,13 +354,13 @@ content:
     third_party_settings: {  }
   field_next_election:
     type: datetime_default
-    weight: 24
+    weight: 26
     region: content
     settings: {  }
     third_party_settings: {  }
   field_notes:
     type: text_textfield
-    weight: 30
+    weight: 3
     region: content
     settings:
       size: 60
@@ -299,7 +368,7 @@ content:
     third_party_settings: {  }
   field_nps_unified_regions:
     type: entity_reference_autocomplete
-    weight: 32
+    weight: 11
     region: content
     settings:
       match_operator: CONTAINS
@@ -316,7 +385,7 @@ content:
     third_party_settings: {  }
   field_organization:
     type: string_textfield
-    weight: 22
+    weight: 23
     region: content
     settings:
       size: 60
@@ -324,7 +393,7 @@ content:
     third_party_settings: {  }
   field_phone:
     type: string_textfield
-    weight: 18
+    weight: 40
     region: content
     settings:
       size: 60
@@ -340,7 +409,7 @@ content:
     third_party_settings: {  }
   field_physical_state:
     type: entity_reference_autocomplete
-    weight: 41
+    weight: 37
     region: content
     settings:
       match_operator: CONTAINS
@@ -374,7 +443,7 @@ content:
     third_party_settings: {  }
   field_tribe:
     type: entity_reference_autocomplete
-    weight: 2
+    weight: 3
     region: content
     settings:
       match_operator: CONTAINS
@@ -384,7 +453,7 @@ content:
     third_party_settings: {  }
   field_website:
     type: link_default
-    weight: 15
+    weight: 42
     region: content
     settings:
       placeholder_url: ''
@@ -392,18 +461,18 @@ content:
     third_party_settings: {  }
   path:
     type: path
-    weight: 6
+    weight: 5
     region: content
     settings: {  }
     third_party_settings: {  }
   simple_sitemap:
-    weight: 11
+    weight: 9
     region: content
     settings: {  }
     third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 7
+    weight: 8
     region: content
     settings:
       display_label: true
@@ -418,7 +487,7 @@ content:
     third_party_settings: {  }
   uid:
     type: entity_reference_autocomplete
-    weight: 4
+    weight: 6
     region: content
     settings:
       match_operator: CONTAINS

@@ -1,0 +1,5 @@
+name: 'Tribe ArcGIS Sync'
+type: module
+description: 'Automatically syncs Tribe data from ArcGIS FeatureServer via Cron.'
+package: Custom
+core_version_requirement: ^10 || ^11

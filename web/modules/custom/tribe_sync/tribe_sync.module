@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Implements hook_cron().
+ */
+function tribe_sync_cron() {
+  // We check a state variable to ensure it only runs once every 24 hours
+  $last_run = \Drupal::state()->get('tribe_sync.last_run', 0);
+  $request_time = \Drupal::time()->getRequestTime();
+
+  // 86400 seconds = 24 hours
+  if (($request_time - $last_run) > 86400) {
+    // We can call the logic from your existing script here
+    // For simplicity, we can just include the script file
+    $script_path = DRUPAL_ROOT . '/../sync_tribes_from_arcgis.php';
+    
+    if (file_exists($script_path)) {
+      require_once $script_path;
+      
+      // Log the success to Drupal's watchdog
+      \Drupal::logger('tribe_sync')->info('ArcGIS Tribe Sync completed successfully via Cron.');
+      
+      // Update the last run time
+      \Drupal::state()->set('tribe_sync.last_run', $request_time);
+    } else {
+      \Drupal::logger('tribe_sync')->error('ArcGIS Sync failed: Script file not found at @path', ['@path' => $script_path]);
+    }
+  }
+}

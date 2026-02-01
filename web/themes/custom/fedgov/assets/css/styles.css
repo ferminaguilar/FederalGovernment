@@ -1,0 +1,33 @@
+/*# sourceMappingURL=styles.css.map */
+/* Base marker structure using USWDS spacing units */
+[class^="tribe-marker-"] {
+  width: 24px;
+  height: 24px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: block;
+  border: 1px solid #ffffff; /* USWDS 'white' */
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Specific Regional Colors using USWDS Hex codes */
+.tribe-marker-alaska { background-color: #005ea2; }
+.tribe-marker-pacific { background-color: #2e8540; }
+.tribe-marker-western { background-color: #ffbe2e; }
+.tribe-marker-midwest { background-color: #ff8d33; }
+.tribe-marker-eastern { background-color: #b50909; }
+.tribe-marker-great-plains { background-color: #0081a1; }
+.tribe-marker-southern-plains { background-color: #41236d; }
+.tribe-marker-rocky-mountain { background-color: #5b616b; } /* USWDS Cool Gray 50 */
+
+/* Adjusting the inner content to remain upright if needed */
+[class^="tribe-marker-"]::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: white;
+  position: absolute;
+  border-radius: 50%;
+  top: 7px;
+  left: 7px;
+}
