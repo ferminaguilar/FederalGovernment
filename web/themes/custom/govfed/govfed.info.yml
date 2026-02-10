@@ -1,10 +1,10 @@
 type: theme
 base theme: uswds_base
 
-name: 'USWDS Base Sub-Theme'
+name: 'FedGov Theme'
 description: 'Uses the USWDS Base and requires download of the USWDS assets'
 package: 'USWDS Base'
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^10 || ^11
 logo: 'logo.png'
 screenshot: 'screenshot.png'
 

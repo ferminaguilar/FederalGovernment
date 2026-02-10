@@ -1,0 +1,22 @@
+uuid: 6c3ed2c2-fe6f-47b2-899b-bd3d916eb530
+langcode: en
+status: true
+dependencies:
+  module:
+    - help
+  theme:
+    - govfed
+_core:
+  default_config_hash: VfPFqqxfkomud5CO8DUijw85QIl9GIxh_nIxLOYESxg
+id: govfed_help
+theme: govfed
+region: header_top
+weight: 0
+provider: null
+plugin: help_block
+settings:
+  id: help_block
+  label: Help
+  label_display: '0'
+  provider: help
+visibility: {  }

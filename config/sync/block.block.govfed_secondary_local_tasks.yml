@@ -1,0 +1,22 @@
+uuid: 99d843b3-095d-4360-9e6e-2475851cad93
+langcode: en
+status: true
+dependencies:
+  theme:
+    - govfed
+_core:
+  default_config_hash: ydSxdq7R66I8UMC460rOzlfzvlUL4VRbdwc6z9DWaUI
+id: govfed_secondary_local_tasks
+theme: govfed
+region: highlighted
+weight: -2
+provider: null
+plugin: local_tasks_block
+settings:
+  id: local_tasks_block
+  label: 'Secondary tabs'
+  label_display: '0'
+  provider: core
+  primary: false
+  secondary: true
+visibility: {  }

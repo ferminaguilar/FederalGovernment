@@ -1,0 +1,29 @@
+uuid: 6a525f97-9be2-47eb-b047-5c6042471eb1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_office_or_bureau
+    - node.type.leader
+    - taxonomy.vocabulary.offices_bureaus
+id: node.leader.field_office_or_bureau
+field_name: field_office_or_bureau
+entity_type: node
+bundle: leader
+label: 'Office or Bureau'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      offices_bureaus: offices_bureaus
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

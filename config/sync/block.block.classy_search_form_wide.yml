@@ -1,0 +1,23 @@
+uuid: 878d3fef-6502-44e5-9efb-9afbc50649cc
+langcode: en
+status: true
+dependencies:
+  module:
+    - search
+  theme:
+    - classy
+_core:
+  default_config_hash: pbbed0hdqGDF-_QWVVTWRAwgDIotFuAvWH5mWUZu0fA
+id: classy_search_form_wide
+theme: classy
+region: secondary_menu
+weight: -5
+provider: null
+plugin: search_form_block
+settings:
+  id: search_form_block
+  label: 'Search form (wide)'
+  label_display: '0'
+  provider: search
+  page_id: null
+visibility: {  }

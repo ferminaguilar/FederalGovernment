@@ -1,0 +1,46 @@
+uuid: 6cc82e77-3b87-4662-b6e5-9e013f54b9b7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.leader.field_bio
+    - field.field.node.leader.field_office_or_bureau
+    - field.field.node.leader.field_profile_picture
+    - node.type.leader
+  module:
+    - user
+id: node.leader.default
+targetEntityType: node
+bundle: leader
+mode: default
+content:
+  field_bio:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  field_office_or_bureau:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_profile_picture:
+    type: entity_reference_entity_view
+    label: above
+    settings:
+      view_mode: default
+      link: false
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

@@ -1,0 +1,31 @@
+uuid: a22d1ba3-1845-40a7-897a-9d615aaccf3f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.media.leader_profile_picture.field_media_image_1
+    - image.style.large
+    - media.type.leader_profile_picture
+  module:
+    - image
+id: media.leader_profile_picture.default
+targetEntityType: media
+bundle: leader_profile_picture
+mode: default
+content:
+  field_media_image_1:
+    type: image
+    label: visually_hidden
+    settings:
+      image_link: ''
+      image_style: large
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  created: true
+  name: true
+  thumbnail: true
+  uid: true

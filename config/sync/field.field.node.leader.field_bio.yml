@@ -1,0 +1,19 @@
+uuid: 40c768d7-c5dd-4e97-b054-1f6396478efa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_bio
+    - node.type.leader
+id: node.leader.field_bio
+field_name: field_bio
+entity_type: node
+bundle: leader
+label: Bio
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

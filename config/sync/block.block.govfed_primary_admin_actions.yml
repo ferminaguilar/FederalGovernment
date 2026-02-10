@@ -1,0 +1,20 @@
+uuid: ebc34594-6e4a-4f75-bc02-33e888b4c56c
+langcode: en
+status: true
+dependencies:
+  theme:
+    - govfed
+_core:
+  default_config_hash: Q9_2whdOj1YIomfvsIfopROW4FT_X5pY0DjdOiOaQ5U
+id: govfed_primary_admin_actions
+theme: govfed
+region: highlighted
+weight: -5
+provider: null
+plugin: local_actions_block
+settings:
+  id: local_actions_block
+  label: 'Primary admin actions'
+  label_display: '0'
+  provider: core
+visibility: {  }

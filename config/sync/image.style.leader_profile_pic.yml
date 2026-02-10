@@ -1,0 +1,15 @@
+uuid: 3b2254c0-291a-48c4-b7af-e15c1d12c0c9
+langcode: en
+status: true
+dependencies: {  }
+name: leader_profile_pic
+label: 'Leader Profile Pic'
+effects:
+  3c86364c-9145-4d5d-861f-8e741b8c0afb:
+    uuid: 3c86364c-9145-4d5d-861f-8e741b8c0afb
+    id: image_crop
+    weight: 1
+    data:
+      width: 500
+      height: 500
+      anchor: center-center

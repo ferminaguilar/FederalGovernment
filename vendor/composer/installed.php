@@ -3,7 +3,7 @@
         'name' => 'drupal/recommended-project',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'a5e6a9082b7f23bac2a0b8adf25cff0537a121ec',
+        'reference' => '385ede08f774c6dbee8105dccada0f630dbbc08a',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -487,6 +487,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'drupal/media_entity_file_replace' => array(
+            'pretty_version' => '1.3.0',
+            'version' => '1.3.0.0',
+            'reference' => '8.x-1.3',
+            'type' => 'drupal-module',
+            'install_path' => __DIR__ . '/../../web/modules/contrib/media_entity_file_replace',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'drupal/migrate_plus' => array(
             'pretty_version' => '6.0.10',
             'version' => '6.0.10.0',
@@ -517,7 +526,7 @@
         'drupal/recommended-project' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'a5e6a9082b7f23bac2a0b8adf25cff0537a121ec',
+            'reference' => '385ede08f774c6dbee8105dccada0f630dbbc08a',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

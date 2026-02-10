@@ -1,0 +1,32 @@
+uuid: 9d8ab700-fe55-4760-ac6d-317c6755ca32
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.media.media_library
+    - field.field.media.leader_profile_picture.field_media_image_1
+    - image.style.medium
+    - media.type.leader_profile_picture
+  module:
+    - image
+id: media.leader_profile_picture.media_library
+targetEntityType: media
+bundle: leader_profile_picture
+mode: media_library
+content:
+  thumbnail:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: medium
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  created: true
+  field_media_image_1: true
+  name: true
+  uid: true
