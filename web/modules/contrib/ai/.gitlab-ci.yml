@@ -58,6 +58,8 @@ phpunit (previous major):
 js_build:
   stage: build
   image: node:20.14.0-alpine
+  only:
+    - /^[0-9]+\.[0-9]+\.x$/
   variables:
     GIT_STRATEGY: fetch
     GIT_CHECKOUT: "true"

@@ -79,7 +79,7 @@ Asset Library API
 - Florent Torregrosa 'grimreaper' https://www.drupal.org/u/grimreaper
 
 Authentication and Authorization
-- ?
+- Lucas Hedding 'heddn' https://www.drupal.org/u/heddn
 
 Automated Cron
 - ?
@@ -154,7 +154,7 @@ Content Moderation
 - ?
 
 Content Translation
-- ?
+- Christian López Espínola 'penyaskito' https://www.drupal.org/u/penyaskito
 
 Contextual
 - Lee Rowlands 'larowlan' https://www.drupal.org/u/larowlan
@@ -237,7 +237,7 @@ Help
 - Andrey Postnikov 'andypost' https://www.drupal.org/u/andypost
 
 Image
-- ?
+- Lucas Hedding 'heddn' https://www.drupal.org/u/heddn
 
 Inline Form Errors
 - ?
@@ -258,7 +258,7 @@ JSON:API
 - Wim Leers 'Wim Leers' https://www.drupal.org/u/wim-leers
 
 Language
-- ?
+- Christian López Espínola 'penyaskito' https://www.drupal.org/u/penyaskito
 
 Layout Builder
 - Ted Bowman 'tedbow' https://www.drupal.org/u/tedbow
@@ -294,7 +294,7 @@ Menu Link Content
 - Peter Wolanin 'pwolanin' https://www.drupal.org/u/pwolanin
 
 Menu UI
-- ?
+- Stephen Mustgrave 'smustgrave' https://www.drupal.org/u/smustgrave
 
 Migrate
 - Benji Fisher 'benjifisher' https://www.drupal.org/u/benjifisher
@@ -440,7 +440,7 @@ Views
 - Len Swaneveld 'Lendude' https://www.drupal.org/u/lendude
 
 Workflows
-- ?
+- Andrei Mateescu 'amateescu' https://www.drupal.org/u/amateescu
 
 Workspaces
 - Andrei Mateescu 'amateescu' https://www.drupal.org/u/amateescu

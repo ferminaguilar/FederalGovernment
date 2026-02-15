@@ -25,6 +25,7 @@ function ai_chatbot_theme(): array {
       'variables' => [
         'message' => [],
         'username' => 'Chatbot',
+        'role' => 'assistant',
         'timestamp' => '',
         'bot_image' => '',
         'user' => '',

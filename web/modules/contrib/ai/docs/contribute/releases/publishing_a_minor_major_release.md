@@ -19,4 +19,5 @@ This document outlines the steps the Publishing Manager needs to take to publish
 9. Click Save to publish the release.
 
 ## Communicate the Release
-1. Once the release is published, communicate the release to [Paul Johnson](https://www.drupal.org/u/pdjohnson) and the marketing team on Slack under #ai-initiative-marketing.
+1. Ensure the release is officially published on Drupal.org
+2. [Communicate the release on Slack](communicating_a_release.md)

@@ -7,7 +7,7 @@ dependencies:
   - leaflet:leaflet
   - drupal:views
 
-# Information added by Drupal.org packaging script on 2026-01-10
-version: '10.4.1'
+# Information added by Drupal.org packaging script on 2026-02-05
+version: '10.4.2'
 project: 'leaflet'
-datestamp: 1768084103
+datestamp: 1770328877

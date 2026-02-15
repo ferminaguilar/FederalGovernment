@@ -330,7 +330,7 @@ class AiPromptForm extends EntityForm {
     // If we are creating via the form element, we may have to select a prompt
     // type.
     if ($this->requestStack) {
-      $prompt_types = $this->requestStack->getCurrentRequest()->get('prompt_types');
+      $prompt_types = $this->requestStack->getCurrentRequest()->query->get('prompt_types');
       if ($prompt_types && count($prompt_types) === 1) {
         $type = reset($prompt_types);
         $form_state->setValue('type', $type);

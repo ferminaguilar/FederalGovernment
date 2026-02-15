@@ -441,7 +441,7 @@ abstract class FieldWidgetActionBase extends PluginBase implements FieldWidgetAc
     }
     $response->addCommand(new OpenModalDialogCommand($this->t('Suggestions'), $message, [
       'width' => '80%',
-      'dialogClass' => 'ui-dialog-fwa-suggestions',
+      'classes' => ['ui-dialog' => 'ui-dialog-fwa-suggestions'],
     ]));
     return $response;
   }

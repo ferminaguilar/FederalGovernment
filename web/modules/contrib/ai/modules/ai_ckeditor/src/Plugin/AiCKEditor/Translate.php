@@ -99,9 +99,7 @@ final class Translate extends AiCKEditorPluginBase {
       ],
     ];
 
-    $options = $this->aiProviderManager->getSimpleProviderModelOptions('chat');
-    array_shift($options);
-    array_splice($options, 0, 1);
+    $options = $this->aiProviderManager->getSimpleProviderModelOptions('chat', FALSE);
     $form['provider'] = [
       '#type' => 'select',
       "#empty_option" => $this->t('-- Default from AI module (chat) --'),

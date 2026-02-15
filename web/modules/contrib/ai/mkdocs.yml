@@ -89,6 +89,7 @@ nav:
     - Contribute Bug Reports: contribute/bug_finding.md
     - Contribute Testings:
       - Getting Started: contribute/testing.md
+      - Full Patch Test: contribute/testing/full_patch_test.md
       - Mock Provider Calls: contribute/testing/spoof_provider.md
     - Contribute Features: contribute/features.md
     - Developer Information: contribute/developer_information.md

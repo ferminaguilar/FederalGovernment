@@ -22,11 +22,33 @@
   z-index: calc(var(--admin-toolbar-z-index-top-bar, 505) + 1);
   pointer-events: none;
 }
-body.ai-chatbot-opened .block-ai-deepchat-block {
-  opacity: 1;
-  width: var(--toolbar-chatbot-width);
-  pointer-events: all;
-  z-index: calc(var(--admin-toolbar-z-index-admin-toolbar-control-bar, 505) + 1);
+
+body.ai-chatbot-opened {
+  /* Prevent the Site Header of Olivero (and the toolbar) overlapping the chat – 
+   * when the chat is in the Header region.
+   */
+  & .toolbar-oriented {
+    & .toolbar-bar {
+      z-index: 1;
+    }
+  }
+  & .site-header__initial {
+    z-index: unset;
+  }
+
+  /* Prevent the Site Header of Olivero (and the toolbar) overlapping the chat –
+   * when the chat is in a region in the main section.
+   */
+  & .layout-main-wrapper {
+    z-index: unset;
+  }
+  
+  & .block-ai-deepchat-block {
+    opacity: 1;
+    width: var(--toolbar-chatbot-width);
+    pointer-events: all;
+    z-index: calc(var(--admin-toolbar-z-index-admin-toolbar-control-bar, 505) + 1);
+  }
 }
 
 .block-ai-deepchat-block deep-chat {
@@ -71,6 +93,7 @@ body.ai-chatbot-opened .block-ai-deepchat-block {
   border-radius: 6px;
   display: flex;
   border: 0px;
+  cursor: pointer;
 }
 .sidebar-header--icon::before {
   mask-size: 18px;

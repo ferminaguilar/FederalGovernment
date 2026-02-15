@@ -4,7 +4,7 @@ description: Adds a provider that is not set up for testing.
 package: Testing
 core_version_requirement: ^10.3 || ^11
 
-# Information added by Drupal.org packaging script on 2026-01-27
-version: '1.2.7'
+# Information added by Drupal.org packaging script on 2026-02-04
+version: '1.2.8'
 project: 'ai'
-datestamp: 1769504658
+datestamp: 1770217611

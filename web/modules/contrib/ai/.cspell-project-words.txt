@@ -176,6 +176,7 @@ Pinecone
 pinecone
 Pippi
 placesholders
+pdjohnson
 precode
 precodenum
 prenum
@@ -342,4 +343,7 @@ wouters
 yautja
 zoocha
 topbar
+updb
+Lebensstandard
+Affluance
 litellm

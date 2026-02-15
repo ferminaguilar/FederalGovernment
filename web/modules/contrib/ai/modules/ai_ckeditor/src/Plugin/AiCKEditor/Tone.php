@@ -73,9 +73,7 @@ final class Tone extends AiCKEditorPluginBase {
       '#default_value' => $this->configuration['use_description'] ?? FALSE,
     ];
 
-    $options = $this->aiProviderManager->getSimpleProviderModelOptions('chat');
-    array_shift($options);
-    array_splice($options, 0, 1);
+    $options = $this->aiProviderManager->getSimpleProviderModelOptions('chat', FALSE);
     $form['provider'] = [
       '#type' => 'select',
       "#empty_option" => $this->t('-- Default from AI module (chat) --'),
