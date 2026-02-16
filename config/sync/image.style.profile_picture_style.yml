@@ -1,0 +1,15 @@
+uuid: a602609e-b359-4e74-9992-216310a83e68
+langcode: en
+status: true
+dependencies: {  }
+name: profile_picture_style
+label: 'Profile Picture Style'
+effects:
+  b1e599be-ed80-4312-98e5-f84fd6d4bd65:
+    uuid: b1e599be-ed80-4312-98e5-f84fd6d4bd65
+    id: image_scale
+    weight: 1
+    data:
+      width: 720
+      height: 720
+      upscale: false
