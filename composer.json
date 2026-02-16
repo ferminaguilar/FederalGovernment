@@ -26,6 +26,7 @@
         "drupal/core-recipe-unpack": "^11.2",
         "drupal/core-recommended": "^11.2",
         "drupal/entity_reference_revisions": "^1.13",
+        "drupal/entity_share": "^3.13",
         "drupal/entity_usage": "^2.0@beta",
         "drupal/field_group": "^4.0",
         "drupal/gin": "^5.0",
