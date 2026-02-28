@@ -20,7 +20,7 @@ The full list of providers available.
 | [LiteLLM](https://www.drupal.org/project/ai_provider_litellm) | ☑ | | ☑ | ☑ | ☑ | ☑ | ☑ |
 | [LMStudio](https://www.drupal.org/project/ai_provider_lmstudio) | ☑ | | ☑ | |
 | [Milvus](https://www.drupal.org/project/ai_vdb_provider_milvus) | | ☑ |
-| [Mistral](https://www.drupal.org/project/ai_provider_mistral) | ☑ |
+| [Mistral](https://www.drupal.org/project/ai_provider_mistral) | ☑ | | ☑ | ☑ |
 | [Ollama](https://www.drupal.org/project/ai_provider_ollama) | ☑ | | ☑ |
 | [OpenAI](https://www.drupal.org/project/ai_provider_openai) | ☑ | | ☑ | ☑ | ☑ | ☑ | ☑ | | | | | ☑ |
 | [Pinecone](https://www.drupal.org/project/ai_vdb_provider_pinecone) | | ☑ |

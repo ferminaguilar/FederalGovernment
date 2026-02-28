@@ -18,7 +18,7 @@ variables:
   OPT_IN_TEST_PREVIOUS_MAJOR: 1
   OPT_IN_TEST_PREVIOUS_MINOR: 1
   OPT_IN_TEST_NEXT_MINOR: 1
-  OPT_IN_TEST_NEXT_MAJOR: 1
+  OPT_IN_TEST_NEXT_MAJOR: 0
   OPT_IN_TEST_MAX_PHP: 1
   # Use runtests.sh which gives better output.
   _PHPUNIT_CONCURRENT: 1
@@ -26,7 +26,7 @@ variables:
   SKIP_ESLINT: 1
   SKIP_STYLELINT: 1   # Until fixed in gitlab templates.
   # showdown.js is full of emoji words.
-  _CSPELL_IGNORE_PATHS: "'assets/js/chat_history_element.js', 'modules/*/tests/resources/ai_test/requests/*/*.yml', 'modules/ai_api_explorer/css', 'modules/ai_api_explorer/js', 'modules/ai_chatbot/js', 'modules/ai_chatbot/deepchat', 'modules/ai_chatbot/css', 'modules/ai_automators/tests/config', '.cspell-project-words.txt', 'grumphp.yml"
+  _CSPELL_IGNORE_PATHS: "'assets/js/ai_chat_history_element.js', 'modules/*/tests/resources/ai_test/requests/*/*.yml', 'modules/ai_api_explorer/css', 'modules/ai_api_explorer/js', 'modules/ai_chatbot/js', 'modules/ai_chatbot/deepchat', 'modules/ai_chatbot/css', 'modules/ai_automators/tests/config', '.cspell-project-words.txt', 'grumphp.yml"
   COMPOSER_IGNORE_PLATFORM_REQS: 'ext-ffi'
 
 phpunit (previous major):

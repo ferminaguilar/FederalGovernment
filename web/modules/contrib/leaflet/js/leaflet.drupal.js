@@ -824,9 +824,8 @@
       marker_title = feature.tooltip.value.replace(/<[^>]*>/g, '').trim();
     }
     return {
-      // Define the title (as mouse hover tooltip) only in case the Leaflet Tooltip is not defined.
       title: marker_title ?? "",
-      className: feature.icon.className ? feature.icon.className.replaceAll(",", "") : '',
+      className: feature.icon && feature.icon.className ? feature.icon.className.replaceAll(",", "") : '',
       alt: marker_title ?? "",
       group_label: feature.group_label ?? '',
     };
@@ -843,19 +842,8 @@
   Drupal.Leaflet.prototype.create_point = function(feature) {
 
     const latLng = new L.LatLng(feature.lat, feature.lon);
-    let lMarker;
-    // Assign the marker title value depending if a Marker simple title or a
-    // Leaflet tooltip was set.
-    let marker_title = '';
-    if (feature.title) {
-      marker_title = feature.title.replace(/<[^>]*>/g, '').trim()
-    }
-    else if (feature.tooltip && feature.tooltip.value) {
-      marker_title = feature.tooltip.value.replace(/<[^>]*>/g, '').trim();
-    }
     let options = this.create_geometry_base_options(feature);
-
-    lMarker = new L.Marker(latLng, options);
+    let lMarker = new L.Marker(latLng, options);
 
     if (feature.icon) {
       if (feature.icon.iconType && feature.icon.iconType === 'html' && feature.icon.html) {

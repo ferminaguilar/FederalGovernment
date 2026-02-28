@@ -133,3 +133,36 @@ function ai_logging_update_10305() {
     }
   }
 }
+
+/**
+ * Change AI logs view default sort from 'created' to 'id' (descending).
+ */
+function ai_logging_update_10306() {
+  $config = \Drupal::configFactory()->getEditable('views.view.ai_logs');
+  if ($config->isNew()) {
+    return;
+  }
+  $sorts = $config->get('display.default.display_options.sorts');
+  if ($sorts && isset($sorts['created'])) {
+    unset($sorts['created']);
+    $sorts['id'] = [
+      'id' => 'id',
+      'table' => 'ai_log',
+      'field' => 'id',
+      'relationship' => 'none',
+      'group_type' => 'group',
+      'admin_label' => '',
+      'entity_type' => 'ai_log',
+      'entity_field' => 'id',
+      'plugin_id' => 'standard',
+      'order' => 'DESC',
+      'expose' => [
+        'label' => '',
+        'field_identifier' => '',
+      ],
+      'exposed' => FALSE,
+    ];
+    $config->set('display.default.display_options.sorts', $sorts);
+    $config->save();
+  }
+}

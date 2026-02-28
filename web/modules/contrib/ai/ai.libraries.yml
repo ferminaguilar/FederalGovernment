@@ -33,14 +33,19 @@ tools_library_form_element:
 
 chat_history_element:
   js:
-    assets/js/chat_history_element.js: {}
+    assets/js/ai_chat_history_element.js: {}
   dependencies:
     - core/once
   css:
     theme:
-      assets/css/chat_history_element.css: {}
+      assets/css/ai_chat_history_element.css: {}
 
 ai_global:
   css:
     component:
       assets/css/ai_global.css: {}
+
+ai_settings_form:
+  css:
+    component:
+      assets/css/ai_settings_form.css: {}

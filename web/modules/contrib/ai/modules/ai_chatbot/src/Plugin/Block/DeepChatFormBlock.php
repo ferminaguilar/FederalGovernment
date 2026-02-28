@@ -160,7 +160,7 @@ class DeepChatFormBlock extends BlockBase implements ContainerFactoryPluginInter
       'placement' => 'toolbar',
       'show_structured_results' => FALSE,
       'collapse_minimal' => FALSE,
-      'style_file' => 'toolbar.yml',
+      'style_file' => 'module:ai_chatbot:toolbar.yml',
       'show_copy_icon' => TRUE,
       'verbose_mode' => TRUE,
     ];

@@ -1,6 +1,0 @@
-global-styling:
-  css:
-    theme:
-      assets/css/uswds.css: {}
-  js:
-    assets/js/uswds.min.js: {}

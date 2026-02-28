@@ -1264,10 +1264,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
       case '#rendered_view_fields':
         // Normal rendering via view/row fields
         // (with labels options, formatters, classes, etc.).
-        $render_row = [
-          "markup" => $this->view->rowPlugin->render($result),
-        ];
-        // Render popup content, ensuring backward compatibility
+        $render_row = $this->view->rowPlugin->render($result);
         $popup_content = $this->renderer->renderInIsolation($render_row);
         break;
 

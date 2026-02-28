@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ai_api_explorer\Plugin\AiApiExplorer;
 
+use Drupal\ai\OperationType\GenericType\DocumentFile;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
@@ -26,7 +27,7 @@ use Drupal\ai_api_explorer\Attribute\AiApiExplorer;
 use Drupal\ai_api_explorer\ExplorerHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Drupal\ai\Response\AiStreamedResponse;
 
 /**
  * Plugin implementation of the ai_api_explorer.
@@ -277,17 +278,23 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
             $role = $value;
             $message = $values['message_' . $index];
             // Load the file.
-            $image = "";
+            $attachment = "";
             if (isset($files['files']['image_' . $index])) {
-              $raw_file = file_get_contents($files['files']['image_' . $index]->getPathname());
-              $image = new ImageFile($raw_file, $files['files']['image_' . $index]->getClientMimeType(), $files['files']['image_' . $index]->getClientOriginalName());
+              $file = $files['files']['image_' . $index];
+              $raw_file = file_get_contents($file->getPathname());
+              if (str_starts_with($file->getClientMimeType(), 'image')) {
+                $attachment = new ImageFile($raw_file, $file->getClientMimeType(), $file->getClientOriginalName());
+              }
+              elseif ($file->getClientMimeType() === 'application/pdf') {
+                $attachment = new DocumentFile($raw_file, $file->getClientMimeType(), $file->getClientOriginalName());
+              }
             }
             if ($role && $message) {
-              $images = [];
-              if ($image) {
-                $images[] = $image;
+              $attachments = [];
+              if ($attachment) {
+                $attachments[] = $attachment;
               }
-              $messages[] = new ChatMessage($role, $message, $images);
+              $messages[] = new ChatMessage($role, $message, $attachments);
             }
           }
         }
@@ -380,18 +387,16 @@ final class ChatGenerator extends AiApiExplorerPluginBase {
         return $form['middle'];
       }
       elseif ($response instanceof StreamedChatMessageIteratorInterface) {
-        $http_response = new StreamedResponse();
+        $http_response = new AiStreamedResponse();
         $http_response->setCallback(function () use ($response, $code) {
           foreach ($response as $key => $chat_message) {
             if ($chat_message->getRole() && !$key) {
               echo '<h4>Role: ' . $chat_message->getRole() . "</h4><p>";
             }
             echo $chat_message->getText();
-            ob_flush();
             flush();
           }
           echo $this->renderer->render($code);
-          ob_flush();
           flush();
         });
         $form_state->setResponse($http_response);

@@ -27,7 +27,7 @@ regions:
   footer: 'Primary Footer'
   footer_secondary: 'Secondary Footer'
 
-# Information added by Drupal.org packaging script on 2025-11-07
-version: '3.2.2'
+# Information added by Drupal.org packaging script on 2026-02-19
+version: '3.2.3'
 project: 'uswds'
-datestamp: 1762528490
+datestamp: 1771518485

@@ -139,7 +139,7 @@ class ToolsFunctionInput implements ToolsFunctionInputInterface {
     $function = [
       'name' => $this->name,
       'description' => $this->description,
-      'parameters' => new \stdClass(),
+      'parameters' => NULL,
     ];
     if (!empty($properties)) {
       $function['parameters'] = [

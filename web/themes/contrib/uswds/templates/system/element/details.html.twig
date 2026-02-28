@@ -16,7 +16,14 @@
  * @ingroup themeable
  */
 #}
-<ul class="usa-accordion usa-accordion--bordered add-list-reset" {{ attributes }}>
+{%
+  set classes = [
+  'usa-accordion',
+  'usa-accordion--bordered',
+  'add-list-reset',
+]
+%}
+<ul{{ attributes.addClass(classes) }}>
   {%
     set summary_classes = [
       required ? 'js-form-required',

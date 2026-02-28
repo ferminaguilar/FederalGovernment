@@ -9,7 +9,6 @@
         "openai-php/client": ">=v0.10.1"
     },
     "require-dev": {
-        "drupal/eca": "^2.0",
         "drupal/field_validation": "^3.0@beta",
         "drupal/search_api": "^1.x-dev",
         "drupal/search_api_solr": "^4.0",

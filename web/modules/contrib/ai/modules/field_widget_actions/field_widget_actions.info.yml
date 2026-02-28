@@ -5,7 +5,7 @@ core_version_requirement: ^10.3 || ^11.1
 lifecycle: deprecated
 lifecycle_link: https://www.drupal.org/project/ai/issues/3552904
 
-# Information added by Drupal.org packaging script on 2026-02-04
-version: '1.2.8'
+# Information added by Drupal.org packaging script on 2026-02-25
+version: '1.2.10'
 project: 'ai'
-datestamp: 1770217611
+datestamp: 1772031358

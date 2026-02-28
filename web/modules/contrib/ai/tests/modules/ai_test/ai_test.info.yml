@@ -7,7 +7,7 @@ core_version_requirement: ^10.4 || ^11
 dependencies:
   - ai:ai
 
-# Information added by Drupal.org packaging script on 2026-02-04
-version: '1.2.8'
+# Information added by Drupal.org packaging script on 2026-02-25
+version: '1.2.10'
 project: 'ai'
-datestamp: 1770217611
+datestamp: 1772031358
