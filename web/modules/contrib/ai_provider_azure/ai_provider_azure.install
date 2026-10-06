@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Azure AI Provider module.
+ */
+
+/**
+ * Set the model name of configured Azure models from their model ID.
+ */
+function ai_provider_azure_update_10001(): string {
+  $config = \Drupal::configFactory()->getEditable('ai.settings');
+  $models = $config->get('models') ?? [];
+  if (empty($models['azure'])) {
+    return (string) t('No Azure models are configured, nothing to update.');
+  }
+
+  $updated = 0;
+  foreach ($models['azure'] as $operation_type => $operation_models) {
+    foreach ($operation_models as $model_id => $model) {
+      // The model ID was previously sent as the model in the payloads, so it
+      // holds the name that Azure expects. Keep using it until the site owner
+      // changes it on the model form.
+      if (empty($model['model_name'])) {
+        $models['azure'][$operation_type][$model_id]['model_name'] = $model['model_id'] ?? $model_id;
+        $updated++;
+      }
+    }
+  }
+
+  if ($updated) {
+    $config->set('models', $models)->save();
+  }
+
+  return (string) \Drupal::translation()->formatPlural($updated,
+    'Set the model name for 1 Azure model.',
+    'Set the model name for @count Azure models.'
+  );
+}

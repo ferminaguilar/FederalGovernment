@@ -49,6 +49,32 @@ function entity_usage_entity_presave(EntityInterface $entity): void {
 }
 
 /**
+ * Implements hook_entity_operation().
+ */
+function entity_usage_entity_operation(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL): array {
+  $entity_type_id = $entity->getEntityTypeId();
+  $config = \Drupal::config('entity_usage.settings');
+  $cacheability?->addCacheableDependency($config);
+  if (!in_array($entity_type_id, $config->get('local_task_enabled_entity_types') ?: [], TRUE)) {
+    return [];
+  }
+
+  $operations = [];
+  $url = Url::fromRoute("entity.$entity_type_id.entity_usage", [$entity_type_id => $entity->id()]);
+  $access = $url->access(NULL, TRUE);
+  $cacheability?->addCacheableDependency($access);
+  if ($access->isAllowed()) {
+    $operations['entity-usage'] = [
+      'title' => t('Usage'),
+      'weight' => 50,
+      'url' => $url,
+    ];
+  }
+
+  return $operations;
+}
+
+/**
  * Implements hook_entity_insert().
  */
 function entity_usage_entity_insert(EntityInterface $entity): void {
@@ -151,8 +177,8 @@ function entity_usage_form_alter(array &$form, FormStateInterface $form_state, s
   // As we now depend on usage data these forms are uncacheable.
   $metadata = $metadata->setCacheMaxAge(0);
   $metadata->applyTo($form);
-  $usage_data = \Drupal::service('entity_usage.usage')->listSources($entity);
-  if (empty($usage_data)) {
+  // If there are no usages, there is nothing to do.
+  if (empty(\Drupal::service('entity_usage.usage')->listSources($entity, TRUE, 1))) {
     return;
   }
 

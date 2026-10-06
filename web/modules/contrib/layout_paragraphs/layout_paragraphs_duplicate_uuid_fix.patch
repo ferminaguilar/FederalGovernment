@@ -1,0 +1,111 @@
+diff --git a/src/LayoutParagraphsLayout.php b/src/LayoutParagraphsLayout.php
+--- a/src/LayoutParagraphsLayout.php
++++ b/src/LayoutParagraphsLayout.php
+@@ -314,10 +314,22 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
+   public function setComponent(ParagraphInterface $paragraph) {
+     $delta = $this->getComponentDeltaByUuid($paragraph->uuid());
+     if ($delta > -1) {
+-      $this->paragraphsReferenceField[$delta]->entity = $paragraph;
++      // Use setValue() with a structured array including target_id and
++      // target_revision_id to prevent onChange('entity') from firing. Direct
++      // assignment ($item->entity = $paragraph) triggers __set() which calls
++      // onChange('entity'), potentially nulling out target_id and causing
++      // existing paragraphs to be treated as new (duplicate UUID INSERT).
++      $this->paragraphsReferenceField[$delta]->setValue([
++        'entity' => $paragraph,
++        'target_id' => $paragraph->id(),
++        'target_revision_id' => $paragraph->getRevisionId(),
++      ], FALSE);
+     }
+     else {
+-      $this->paragraphsReferenceField[] = $paragraph;
++      // Only append if no existing entity in the field shares this UUID.
++      // This prevents duplicate paragraphs caused by tempstore sync issues
++      // between Mercury Editor and Layout Paragraphs.
++      $dominated = FALSE;
++      foreach ($this->paragraphsReferenceField as $item) {
++        if (isset($item->entity) && $item->entity->uuid() === $paragraph->uuid()) {
++          $dominated = TRUE;
++          break;
++        }
++      }
++      if (!$dominated) {
++        $this->paragraphsReferenceField[] = $paragraph;
++      }
+     }
+     return $this;
+   }
+@@ -347,9 +359,16 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
+         $component->setSettings([
+           'parent_uuid' => $ordered_item['parentUuid'],
+           'region' => $ordered_item['region'],
+         ]);
+-        $reordered_items[] = [
+-          'entity' => $component->getEntity(),
++        $entity = $component->getEntity();
++        // Include target_id and target_revision_id alongside the entity to
++        // prevent EntityReferenceRevisionsItem::setValue() from triggering
++        // onChange('entity'), which can null out target_id and cause existing
++        // paragraphs to be treated as new (duplicate UUID INSERT errors).
++        $reordered_items[] = [
++          'entity' => $entity,
++          'target_id' => $entity->id(),
++          'target_revision_id' => $entity->getRevisionId(),
+         ];
+       }
+     }
+
+diff --git a/src/Plugin/Field/FieldWidget/LayoutParagraphsWidget.php b/src/Plugin/Field/FieldWidget/LayoutParagraphsWidget.php
+--- a/src/Plugin/Field/FieldWidget/LayoutParagraphsWidget.php
++++ b/src/Plugin/Field/FieldWidget/LayoutParagraphsWidget.php
+@@ -330,7 +330,14 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
+           }
+         }
+-        $items[$delta]->entity = $paragraph;
++        // Use setValue() with a structured array including target_id and
++        // target_revision_id to prevent onChange('entity') from firing. Direct
++        // assignment ($item->entity = $paragraph) triggers __set() which calls
++        // onChange('entity'), potentially nulling out target_id and causing
++        // existing paragraphs to be treated as new (duplicate UUID INSERT).
++        $items[$delta]->setValue([
++          'entity' => $paragraph,
++          'target_id' => $paragraph->id(),
++          'target_revision_id' => $paragraph->getRevisionId(),
++        ], FALSE);
+       }
+     }
+     $this->layoutParagraphsLayout->setParagraphsReferenceField($items);
+@@ -349,9 +356,26 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
+     if (!empty($layout_paragraphs_storage_key)) {
+       $this->layoutParagraphsLayout = $this->tempstore->getWithStorageKey($layout_paragraphs_storage_key);
+       $values = [];
++      $seen_uuids = [];
+       foreach ($this->layoutParagraphsLayout->getParagraphsReferenceField() as $item) {
+         if ($item->entity) {
+           $entity = $item->entity;
++          // Skip duplicate paragraphs (same UUID) to prevent integrity
++          // constraint violations during save.
++          $uuid = $entity->uuid();
++          if (isset($seen_uuids[$uuid])) {
++            continue;
++          }
++          $seen_uuids[$uuid] = TRUE;
+           // Set each paragraph langcode if we are not translating.
+           if (!$this->isTranslating($form_state)) {
+             $langcode_key = $entity->getEntityType()->getKey('langcode');
+             $entity->set($langcode_key, $items->getLangcode());
+           }
++          // Ensure existing paragraphs are not treated as new during save.
++          if ($entity->id()) {
++            $entity->enforceIsNew(FALSE);
++          }
+           $entity->setNeedsSave(TRUE);
+-          $values[] = $entity;
++          $values[] = [
++            'entity' => $entity,
++            'target_id' => $entity->id(),
++            'target_revision_id' => $entity->getRevisionId(),
++          ];
+         }
+       }
+       $form_state->setValue($path, $values);

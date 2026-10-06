@@ -141,7 +141,7 @@ class GeofieldProximityField extends NumericField {
       return $this->sourcePlugin->getProximity($values->{$this->aliases['latitude']}, $values->{$this->aliases['longitude']});
     }
     catch (\Exception $e) {
-      $this->getLogger('geofield')->error($e->getMessage());
+      $this->getLogger('geofield')->warning($e->getMessage());
       return NULL;
     }
 

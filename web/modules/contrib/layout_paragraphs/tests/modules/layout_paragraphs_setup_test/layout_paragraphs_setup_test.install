@@ -1,0 +1,127 @@
+<?php
+
+/**
+ * @file
+ * Installation hooks for Layout Paragraphs Setup Test module.
+ */
+
+use Drupal\node\Entity\NodeType;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\paragraphs\Entity\ParagraphsType;
+
+/**
+ * Implements hook_install().
+ */
+function layout_paragraphs_setup_test_install() {
+
+  // Create the test content type.
+  $test_node_type = NodeType::load('lp_test_ct');
+  if (!$test_node_type) {
+    $type = NodeType::create([
+      'id' => 'lp_test_ct',
+      'type' => 'lp_test_ct',
+      'name' => 'Layout Paragraphs Test Content Type',
+      'description' => 'A content type for testing Layout Paragraphs.',
+      'display_submitted' => FALSE,
+    ]);
+    $type->save();
+  }
+
+  // Create and configure a Layout Paragraphs section paragraph type.
+  $paragraphs_type = ParagraphsType::load('lp_test_section');
+  if (!$paragraphs_type) {
+
+    $layoutPluginManager = \Drupal::service('plugin.manager.core.layout');
+    $layoutDefinitions = $layoutPluginManager->getDefinitions();
+    $default_layouts = array_filter($layoutDefinitions, function ($definition) {
+      return $definition->get('provider') == 'layout_discovery';
+    });
+    $layout_keys = array_map(function ($definition) {
+      return $definition->id();
+    }, $default_layouts);
+    $layout_labels = array_map(function ($definition) {
+      return $definition->getLabel()->__toString();
+    }, $default_layouts);
+    $available_layouts = array_combine($layout_keys, $layout_labels);
+
+    $paragraphs_type = ParagraphsType::create([
+      'id' => 'lp_test_section',
+      'label' => 'Section',
+      'enabled_behaviors' => [
+        'layout_paragraphs',
+      ],
+      'behavior_plugins' => [
+        'layout_paragraphs' => [
+          'enabled' => TRUE,
+          'available_layouts' => $available_layouts,
+        ],
+      ],
+    ]);
+    $paragraphs_type->save();
+  }
+
+  // Create and configure the text component.
+  $paragraphs_type = ParagraphsType::load('lp_test_text');
+  if (!$paragraphs_type) {
+    $paragraphs_type = ParagraphsType::create([
+      'id' => 'lp_test_text',
+      'label' => 'Text',
+    ]);
+    $paragraphs_type->save();
+
+    $field_storage = FieldStorageConfig::loadByName('paragraph', 'field_lp_test_text');
+    if (!$field_storage) {
+      // Add a text field.
+      $field_storage = FieldStorageConfig::create([
+        'field_name' => 'field_lp_test_text',
+        'entity_type' => 'paragraph',
+        'type' => 'text_long',
+        'cardinality' => '1',
+      ]);
+      $field_storage->save();
+    }
+    $field_config = FieldConfig::loadByName('paragraph', 'lp_test_text', 'field_lp_test_text');
+    if (!$field_config) {
+      $field = FieldConfig::create([
+        'field_storage' => $field_storage,
+        'bundle' => 'lp_test_text',
+        'label' => 'Text',
+      ]);
+      $field->save();
+    }
+
+    $form_display = \Drupal::service('entity_display.repository')->getFormDisplay('paragraph', 'lp_test_text');
+    $form_display = $form_display->setComponent('field_lp_test_text', ['type' => 'text_textfield']);
+    $form_display->save();
+
+    $view_display = \Drupal::service('entity_display.repository')->getViewDisplay('paragraph', 'lp_test_text');
+    $view_display->setComponent('field_lp_test_text', ['type' => 'text_default', 'label' => 'hidden']);
+    $view_display->save();
+  }
+
+  // Create a second component type so the component chooser dialog appears.
+  // Layout Paragraphs skips the chooser if there's only one component type.
+  $paragraphs_type = ParagraphsType::load('lp_test_simple');
+  if (!$paragraphs_type) {
+    $paragraphs_type = ParagraphsType::create([
+      'id' => 'lp_test_simple',
+      'label' => 'Simple',
+    ]);
+    $paragraphs_type->save();
+  }
+
+  // Also create it for our test content type.
+  layout_paragraphs_setup_test_make_paragraph_field(
+    'node',
+    'lp_test_ct',
+    'field_lp_test_content',
+    'Content',
+    [
+      'target_bundles' => NULL,
+      'negate' => TRUE,
+    ],
+    'layout_paragraphs',
+    'layout_paragraphs'
+  );
+}

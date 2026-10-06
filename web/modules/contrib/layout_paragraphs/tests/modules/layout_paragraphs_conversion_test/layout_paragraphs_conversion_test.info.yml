@@ -1,0 +1,13 @@
+name: Layout Paragraphs Conversion Test
+description: Provides a test conversion plugin for Layout Paragraphs conversion tests.
+core_version_requirement: ^10 || ~11
+package: Layout Paragraphs
+type: module
+dependencies:
+  - layout_paragraphs:layout_paragraphs
+  - paragraphs:paragraphs
+
+# Information added by Drupal.org packaging script on 2026-08-12
+version: '3.0.0-beta4'
+project: 'layout_paragraphs'
+datestamp: 1786566921

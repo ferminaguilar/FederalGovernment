@@ -9,8 +9,9 @@
  * themes Bartik, Seven, Claro and/or Umami.
  */
 
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\classy\Hook\ClassyHooks;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\views\Form\ViewsForm;
 
 /**
  * Implements hook_preprocess_links__media_library_menu().
@@ -21,33 +22,23 @@ use Drupal\views\Form\ViewsForm;
  * @todo Do this in the relevant template once
  *   https://www.drupal.org/project/drupal/issues/3088856 is resolved.
  */
+#[LegacyHook]
 function classy_preprocess_links__media_library_menu(array &$variables) {
-  foreach ($variables['links'] as &$link) {
-    $link['link']['#options']['attributes']['class'][] = 'media-library-menu__link';
-  }
+  ClassyHooks::preprocessLinksMediaLibraryMenu($variables);
 }
 
 /**
  * Implements hook_form_alter().
  */
+#[LegacyHook]
 function classy_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
-  $form_object = $form_state->getFormObject();
-  if ($form_object instanceof ViewsForm && strpos($form_object->getBaseFormId(), 'views_form_media_library') === 0) {
-    $form['#attributes']['class'][] = 'media-library-views-form';
-  }
+  ClassyHooks::formAlter($form, $form_state, $form_id);
 }
 
 /**
  * Implements hook_preprocess_image_widget().
  */
+#[LegacyHook]
 function classy_preprocess_image_widget(array &$variables) {
-  $data = &$variables['data'];
-
-  // This prevents image widget templates from rendering preview container HTML
-  // to users that do not have permission to access these previews.
-  // @todo revisit in https://drupal.org/node/953034
-  // @todo revisit in https://drupal.org/node/3114318
-  if (isset($data['preview']['#access']) && $data['preview']['#access'] === FALSE) {
-    unset($data['preview']);
-  }
+  ClassyHooks::preprocessImageWidget($variables);
 }

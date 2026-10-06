@@ -45,7 +45,7 @@ class AttributeClassDiscovery implements DiscoveryInterface {
   /**
    * Constructs a new instance.
    *
-   * @param string[] $pluginNamespaces
+   * @param array<string, list<string>> $pluginNamespaces
    *   (optional) An array of namespace that may contain plugin implementations.
    *   Defaults to an empty array.
    * @param string $pluginDefinitionAttributeName
@@ -207,10 +207,6 @@ class AttributeClassDiscovery implements DiscoveryInterface {
     }
     spl_autoload_unregister([$autoloader, 'loadClass']);
 
-    // Plugin discovery is a memory expensive process due to reflection and the
-    // number of files involved. Collect cycles at the end of discovery to be as
-    // efficient as possible.
-    gc_collect_cycles();
     return $definitions;
   }
 

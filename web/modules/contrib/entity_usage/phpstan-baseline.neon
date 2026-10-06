@@ -1,6 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
+			rawMessage: 'Parameter #1 $mode of method Drupal\Core\Database\StatementInterface::fetchAll() expects Drupal\Core\Database\Statement\FetchAs|null, int given.'
+			identifier: argument.type
+			count: 1
+			path: src/EntityUsageBatchManager.php
+
+		-
 			rawMessage: 'Method Drupal\entity_usage\EntityUsageTrackManager::processDefinition() has parameter $definition with no type specified.'
 			identifier: missingType.parameter
 			count: 1
@@ -53,12 +59,6 @@ parameters:
 			path: src/Plugin/EntityUsage/Track/DynamicEntityReference.php
 
 		-
-			rawMessage: 'PHPDoc tag @var for variable $item contains generic class Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem but does not specify its types: T'
-			identifier: missingType.generics
-			count: 1
-			path: src/Plugin/EntityUsage/Track/DynamicEntityReference.php
-
-		-
 			rawMessage: 'Parameter #1 $field of method Drupal\entity_usage\Plugin\EntityUsage\Track\DynamicEntityReference::doGetTargetEntities() expects Drupal\Core\Field\FieldItemListInterface, Drupal\Core\TypedData\TraversableTypedDataInterface|null given.'
 			identifier: argument.type
 			count: 1
@@ -72,12 +72,6 @@ parameters:
 
 		-
 			rawMessage: 'Method Drupal\entity_usage\Plugin\EntityUsage\Track\EntityReference::getTargetEntitiesFromField() has parameter $field with generic interface Drupal\Core\Field\FieldItemListInterface but does not specify its types: T'
-			identifier: missingType.generics
-			count: 1
-			path: src/Plugin/EntityUsage/Track/EntityReference.php
-
-		-
-			rawMessage: 'PHPDoc tag @var for variable $item contains generic class Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem but does not specify its types: T'
 			identifier: missingType.generics
 			count: 1
 			path: src/Plugin/EntityUsage/Track/EntityReference.php

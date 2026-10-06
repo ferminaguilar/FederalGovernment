@@ -17,7 +17,7 @@
         <li class="usa-pagination__item usa-pagination__arrow">
           <a href="{{ items.previous.href }}" aria-label="{{ 'Previous page'|t }}"{{ items.previous.attributes.addClass('usa-pagination__link', 'usa-pagination__previous-page')|without('href', 'title', 'rel', 'aria-label') }}>
             <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="{{ uswds_images }}sprite.svg#navigate_before"></use>
+              <use href="{{ uswds_images }}sprite.svg#navigate_before"></use>
             </svg>
             <span class="usa-pagination__link-text"> {{ 'Previous'|t }} </span>
           </a>
@@ -35,7 +35,7 @@
           <a href="{{ items.next.href }}" aria-label="{{ 'Next page'|t }}"{{ items.next.attributes.addClass('usa-pagination__link', 'usa-pagination__next-page')|without('href', 'title', 'rel', 'aria-label') }}>
             <span class="usa-pagination__link-text"> {{ 'Next'|t }} </span>
             <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="{{ uswds_images }}sprite.svg#navigate_next"></use>
+              <use href="{{ uswds_images }}sprite.svg#navigate_next"></use>
             </svg>
           </a>
         </li>

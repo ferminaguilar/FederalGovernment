@@ -57,7 +57,6 @@ function uswds_base_preprocess_page(&$variables) {
   if (theme_get_setting('uswds_government_banner')) {
     $variables['government_banner'] = [
       '#theme' => 'government_banner',
-      '#image_base' => $variables['active_theme_path'] . '/package/dist/img',
     ];
   }
 

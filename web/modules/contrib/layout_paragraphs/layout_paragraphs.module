@@ -72,6 +72,7 @@ function layout_paragraphs_theme() {
         'edit_access' => FALSE,
         'duplicate_access' => FALSE,
         'delete_access' => FALSE,
+        'convert_access' => FALSE,
       ],
     ],
     'layout_paragraphs_insert_component_btn' => [
@@ -234,6 +235,25 @@ function layout_paragraphs_preprocess_layout_paragraphs_builder_controls(&$varia
       ],
       '#access' => $variables['duplicate_access'],
       '#weight' => 65,
+    ],
+    'convert_link' => [
+      '#type' => 'link',
+      '#url' => Url::fromRoute('layout_paragraphs.builder.convert_item', [
+        'layout_paragraphs_layout' => $layout->id(),
+        'component_uuid' => $entity->uuid(),
+      ]),
+      '#title' => t('Convert'),
+      '#attributes' => [
+        'class' => [
+          'lpb-convert',
+          'use-ajax',
+        ],
+        'data-dialog-type' => 'dialog',
+        'data-dialog-options' => Json::encode(Dialog::dialogSettings($layout)),
+        'title' => t('Convert'),
+      ],
+      '#access' => $variables['convert_access'],
+      '#weight' => 67,
     ],
     'delete_link' => [
       '#type' => 'link',

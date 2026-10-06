@@ -165,9 +165,6 @@
 
   function onComponentFocus(event) {
     const element = event.target;
-    if (element === activeComponent) {
-      return;
-    }
     if (
       element.getAttribute('data-uuid') !==
       activeComponent?.getAttribute('data-uuid')
@@ -243,24 +240,39 @@
   }
 
   /**
-   * Attaches UI elements to $container.
-   * @param {jQuery} $container
+   * Attaches UI elements to a container.
+   *
+   * @param {Element} container
    *   The container.
    * @param {Object} settings
    *   The settings object.
    */
-  function attachUiElements($container, settings) {
-    const id = $container.attr('data-lpb-ui-id');
-    const lpbBuilderSettings = settings.lpBuilder || {};
-    const uiElements = lpbBuilderSettings.uiElements || {};
-    const containerUiElements = uiElements[id] || [];
-    Object.values(containerUiElements).forEach((uiElement) => {
-      const { element, method } = uiElement;
-      $container[method]($(element).addClass('js-lpb-ui'));
+  function attachUiElements(container, settings) {
+    const id = container.dataset.lpbUiId;
+    const uiElements = settings.lpBuilder?.uiElements?.[id] ?? [];
+
+    if (!uiElements || uiElements.length === 0) {
+      return;
+    }
+
+    Object.values(uiElements).forEach(({ element, method }) => {
+      const template = document.createElement('template');
+      template.innerHTML = element.trim();
+
+      const domElement = template.content.firstElementChild;
+
+      if (!domElement || typeof container[method] !== 'function') {
+        return;
+      }
+
+      domElement.classList.add('js-lpb-ui');
+      container[method](domElement);
     });
+
+    // Attach core ajax behaviors for the newly added UI elements.
+    Drupal.behaviors.AJAX.attach(container, settings);
     setUiElementVisibility();
   }
-
   /**
    * Repositions open dialogs when their height changes to exceed viewport.
    *
@@ -754,10 +766,8 @@
       const jsUiElements = once('lpb-ui-elements', '[data-has-js-ui-element]');
       if (jsUiElements.length) {
         jsUiElements.forEach((el) => {
-          attachUiElements($(el), settings);
+          attachUiElements(el, settings);
         });
-        // Since we've attached UI elements, we need to reattach behaviors.
-        return Drupal.attachBehaviors(context, settings);
       }
 
       // Initialize Sortable.js for drag-and-drop.

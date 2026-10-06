@@ -18,6 +18,7 @@ use Drupal\layout_paragraphs\Utility\Dialog;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\WorkspaceSafeFormInterface;
 use Drupal\paragraphs\ParagraphInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\layout_paragraphs\Contracts\ComponentFormInterface;
@@ -30,7 +31,7 @@ use Drupal\layout_paragraphs\LayoutParagraphsLayoutTempstoreRepository;
  *
  * Base form for Layout Paragraphs component forms.
  */
-abstract class ComponentFormBase extends FormBase implements ComponentFormInterface {
+abstract class ComponentFormBase extends FormBase implements ComponentFormInterface, WorkspaceSafeFormInterface {
 
   use AjaxFormHelperTrait;
   use LayoutParagraphsLayoutRefreshTrait;

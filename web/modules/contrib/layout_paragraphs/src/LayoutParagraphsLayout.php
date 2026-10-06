@@ -314,10 +314,31 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
   public function setComponent(ParagraphInterface $paragraph) {
     $delta = $this->getComponentDeltaByUuid($paragraph->uuid());
     if ($delta > -1) {
-      $this->paragraphsReferenceField[$delta]->entity = $paragraph;
+      // Use setValue() with a structured array including target_id and
+      // target_revision_id to prevent onChange('entity') from firing. Direct
+      // assignment ($item->entity = $paragraph) triggers __set() which calls
+      // onChange('entity'), potentially nulling out target_id and causing
+      // existing paragraphs to be treated as new (duplicate UUID INSERT).
+      $this->paragraphsReferenceField[$delta]->setValue([
+        'entity' => $paragraph,
+        'target_id' => $paragraph->id(),
+        'target_revision_id' => $paragraph->getRevisionId(),
+      ], FALSE);
     }
     else {
-      $this->paragraphsReferenceField[] = $paragraph;
+      // Only append if no existing entity in the field shares this UUID.
+      // This prevents duplicate paragraphs caused by tempstore sync issues
+      // between Mercury Editor and Layout Paragraphs.
+      $dominated = FALSE;
+      foreach ($this->paragraphsReferenceField as $item) {
+        if (isset($item->entity) && $item->entity->uuid() === $paragraph->uuid()) {
+          $dominated = TRUE;
+          break;
+        }
+      }
+      if (!$dominated) {
+        $this->paragraphsReferenceField[] = $paragraph;
+      }
     }
     return $this;
   }
@@ -340,8 +361,15 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
           'parent_uuid' => $ordered_item['parentUuid'],
           'region' => $ordered_item['region'],
         ]);
+        $entity = $component->getEntity();
+        // Include target_id and target_revision_id alongside the entity to
+        // prevent EntityReferenceRevisionsItem::setValue() from triggering
+        // onChange('entity'), which can null out target_id and cause existing
+        // paragraphs to be treated as new (duplicate UUID INSERT errors).
         $reordered_items[] = [
-          'entity' => $component->getEntity(),
+          'entity' => $entity,
+          'target_id' => $entity->id(),
+          'target_revision_id' => $entity->getRevisionId(),
         ];
       }
     }

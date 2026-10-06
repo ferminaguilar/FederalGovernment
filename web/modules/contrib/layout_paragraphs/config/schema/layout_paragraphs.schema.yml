@@ -123,6 +123,9 @@ field.widget.settings.layout_paragraphs:
     empty_message:
       type: string
       label: 'Placeholder message to display when field is empty'
+    conversion:
+      type: boolean
+      label: 'Allow paragraph conversion'
 
 paragraphs.behavior.settings.layout_paragraphs:
   type: paragraphs.behavior.settings_base

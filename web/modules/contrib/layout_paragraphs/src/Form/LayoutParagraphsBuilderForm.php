@@ -15,6 +15,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\WorkspaceSafeFormInterface;
 use Drupal\layout_paragraphs\Ajax\LayoutParagraphsEventCommand;
 use Drupal\layout_paragraphs\LayoutParagraphsLayout;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -26,7 +27,7 @@ use Drupal\layout_paragraphs\LayoutParagraphsLayoutTempstoreRepository;
  * Builds a Layout Paragraphs Builder form with save / cancel buttons
  * for saving the host entity.
  */
-class LayoutParagraphsBuilderForm extends FormBase {
+class LayoutParagraphsBuilderForm extends FormBase implements WorkspaceSafeFormInterface {
 
   /**
    * A layout paragraphs layout object.

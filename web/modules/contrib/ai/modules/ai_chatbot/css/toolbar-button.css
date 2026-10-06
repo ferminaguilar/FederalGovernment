@@ -31,6 +31,13 @@
 }
 
 .toolbar .toolbar-bar .toolbar-tab.ai-chatbot-toolbar-tab .toolbar-item.toolbar-icon-ai-chatbot:before {
-  mask-image: url(../assets/ai-icon.svg);
-  -webkit-mask-image: url(../assets/ai-icon.svg);
+  content: ' ';
+  mask-image: url('../assets/ai-icon.svg');
+  background-color: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center center;
+  mask-size: contain;
+}
+.toolbar .toolbar-bar .toolbar-tab.ai-chatbot-toolbar-tab .toolbar-item.toolbar-icon-ai-chatbot:is(:hover, :focus-visible):before {
+  mask-image: url('../assets/ai-icon-gradient.svg');
 }

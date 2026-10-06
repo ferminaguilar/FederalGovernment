@@ -37,7 +37,7 @@
         <li class="usa-pagination__item usa-pagination__arrow">
           <a href="{{ items.first.href }}" class="usa-pagination__link usa-pagination__previous-page" aria-label="{{ 'First page'|t }}" {{ items.first.attributes|without('href', 'title') }}>
             <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="{{ uswds_images }}sprite.svg#navigate_before"></use>
+              <use href="{{ uswds_images }}sprite.svg#navigate_before"></use>
             </svg>
             <span class="usa-pagination__link-text"> {{' First'|t }} </span>
           </a>
@@ -48,7 +48,7 @@
         <li class="usa-pagination__item usa-pagination__arrow">
           <a href="{{ items.previous.href }}" class="usa-pagination__link usa-pagination__previous-page" aria-label="{{ 'Previous page'|t }}" {{ items.previous.attributes|without('href', 'title') }}>
             <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="{{ uswds_images }}sprite.svg#navigate_before"></use>
+              <use href="{{ uswds_images }}sprite.svg#navigate_before"></use>
             </svg>
             <span class="usa-pagination__link-text"> {{' Previous'|t }} </span>
           </a>
@@ -82,7 +82,7 @@
           <a href="{{ items.next.href }}" class="usa-pagination__link usa-pagination__next-page" aria-label="{{ 'Next page'|t }}" {{ items.next.attributes|without('href', 'title') }}>
             <span class="usa-pagination__link-text"> {{ 'Next'|t }} </span>
             <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="{{ uswds_images }}sprite.svg#navigate_next"></use>
+              <use href="{{ uswds_images }}sprite.svg#navigate_next"></use>
             </svg>
           </a>
         </li>
@@ -93,7 +93,7 @@
           <a href="{{ items.last.href }}" class="usa-pagination__link usa-pagination__next-page" aria-label="{{ 'Last page'|t }}" {{ items.last.attributes|without('href', 'title') }}>
             <span class="usa-pagination__link-text"> {{ 'Last'|t }} </span>
             <svg class="usa-icon" aria-hidden="true" role="img">
-              <use xlink:href="{{ uswds_images }}sprite.svg#navigate_next"></use>
+              <use href="{{ uswds_images }}sprite.svg#navigate_next"></use>
             </svg>
           </a>
         </li>

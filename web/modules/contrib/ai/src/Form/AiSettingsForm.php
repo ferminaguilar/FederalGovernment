@@ -16,7 +16,8 @@ use Drupal\Component\Serialization\Yaml;
 use Drupal\Core\Url;
 use Drupal\ai\AiProviderPluginManager;
 use Drupal\ai\AiVdbProviderPluginManager;
-use Drupal\ai\Enum\AiModelCapability;
+use Drupal\ai\Utility\PseudoOperationTypes;
+use Drupal\Core\Site\Settings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -59,38 +60,6 @@ class AiSettingsForm extends ConfigFormBase {
    * @var array|null
    */
   protected $vdbProviderRegistry = NULL;
-
-  /**
-   * The hard coded selections to add for filtering purposes.
-   *
-   * @var array
-   */
-  protected $hardcodedSelections = [
-    [
-      'id' => 'chat_with_image_vision',
-      'actual_type' => 'chat',
-      'label' => 'Chat with Image Vision',
-      'filter' => [AiModelCapability::ChatWithImageVision],
-    ],
-    [
-      'id' => 'chat_with_complex_json',
-      'actual_type' => 'chat',
-      'label' => 'Chat with Complex JSON',
-      'filter' => [AiModelCapability::ChatJsonOutput],
-    ],
-    [
-      'id' => 'chat_with_structured_response',
-      'actual_type' => 'chat',
-      'label' => 'Chat with Structured Response',
-      'filter' => [AiModelCapability::ChatStructuredResponse],
-    ],
-    [
-      'id' => 'chat_with_tools',
-      'actual_type' => 'chat',
-      'label' => 'Chat with Tools/Function Calling',
-      'filter' => [AiModelCapability::ChatTools],
-    ],
-  ];
 
   /**
    * Constructor.
@@ -157,10 +126,7 @@ class AiSettingsForm extends ConfigFormBase {
       $this->messenger()->addWarning($this->t('Choose at least one AI provider module from those listed on the AI module homepage, add to your project, install and configure it. Then update the AI Settings on this page.'));
     }
 
-    $operation_types = array_merge(
-      $this->providerManager->getOperationTypes(),
-      $this->hardcodedSelections
-    );
+    $operation_types = $this->getOperationTypes();
 
     // Check if we're simulating no JavaScript or if a non-JS button
     // was clicked.
@@ -198,6 +164,59 @@ class AiSettingsForm extends ConfigFormBase {
       $is_nojs_submit,
       $config
     );
+
+    $form['advanced_settings'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced Settings'),
+      '#open' => FALSE,
+      '#weight' => 25,
+    ];
+
+    // Add HTTP timeout configuration.
+    $form['advanced_settings']['request_timeout'] = [
+      '#type' => 'number',
+      '#title' => $this->t('HTTP Request Timeout'),
+      '#description' => $this->t('Timeout in seconds for HTTP requests to AI providers. Longer timeouts may be needed for complex operations like translations or thinking models. Default is 60 seconds.'),
+      '#default_value' => $config->get('request_timeout') ?: 60,
+      '#min' => 1,
+      '#max' => 3600,
+      '#required' => TRUE,
+    ];
+
+    // A details field that has allowed hosts for generated content.
+    $form['advanced_settings']['allowed_host_wrapper'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Generated Content External Link Security'),
+      '#description' => $this->t('Protect against prompt injection attacks that trick AI into sending sensitive data to third-party sites via hidden links or images. Relative paths are always allowed; links to your own site are only allowed if its domain is added to the Trusted Domains below.'),
+      '#open' => FALSE,
+      '#weight' => 20,
+    ];
+
+    $form['advanced_settings']['allowed_host_wrapper']['allowed_hosts'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Trusted Domains'),
+      '#default_value' => implode("\n", $this->normalizeAllowedHosts($config->get('allowed_hosts'))),
+      '#description' => $this->t('Enter one domain per line. Links and images to trusted domains are not filtered. Examples: `example.com`, `docs.example.com`. Use `*.example.com` to allow all subdomains. Links and images pointing to unlisted domains will be handled according to the setting below.'),
+    ];
+
+    $option = $config->get('allowed_hosts_rewrite_links') ? 'rewrite' : 'delete';
+    if (!empty(Settings::get('ai_output')['full_trust_mode'])) {
+      $option = 'full_trust';
+    }
+
+    $form['advanced_settings']['allowed_host_wrapper']['allowed_hosts_rewrite_links'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Untrusted AI Generated Links & Images'),
+      '#default_value' => $option,
+      '#options' => [
+        'rewrite' => $this->t('Replace Links & Delete Images'),
+        'delete' => $this->t('Delete Images & Links'),
+        'full_trust' => $this->t('Full Trust Mode (must be enabled in settings.php)'),
+      ],
+      '#description' => $this->t('<ul><li><strong>Replace Links & Delete Images</strong> displays the full URL as visible text, so users can see the destination and any URL parameters. Images from untrusted domains are removed.</li>
+<li><strong>Delete Images & Links</strong> removes all links and images from untrusted domains.</li>
+<li><strong>Full Trust Mode</strong> allows all links and images. Can only be enabled in settings.php.</li></ul>'),
+    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -957,6 +976,16 @@ class AiSettingsForm extends ConfigFormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
 
+    // Validate that allowed hosts are properly formatted.
+    $allowed_hosts_input = $form_state->getValue('allowed_hosts');
+    $allowed_hosts = array_filter(array_map('trim', explode("\n", $allowed_hosts_input)));
+    foreach ($allowed_hosts as $host) {
+      // Basic validation for host format.
+      if (!preg_match('/^(\*\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/', $host)) {
+        $form_state->setErrorByName('allowed_hosts', $this->t('The host %host is not a valid host format.', ['%host' => $host]));
+      }
+    }
+
     // Skip validation if we're just selecting a provider (non-JS flow).
     $triggering_element = $form_state->getTriggeringElement();
     if ($triggering_element && !empty($triggering_element['#name']) &&
@@ -965,8 +994,7 @@ class AiSettingsForm extends ConfigFormBase {
     }
 
     $values = $form_state->getValues();
-    $operation_types = array_merge($this->providerManager->getOperationTypes(), $this->hardcodedSelections);
-    foreach ($operation_types as $operation_type) {
+    foreach ($this->getOperationTypes() as $operation_type) {
       // We only want to ensure a model is selected for each operation that
       // has a default.
       if (empty($values['operation__' . $operation_type['id']])) {
@@ -997,16 +1025,24 @@ class AiSettingsForm extends ConfigFormBase {
     }
 
     // Set the default providers array.
+    $valid_operation_types = array_fill_keys(
+      array_map(static fn(array $operation_type): string => $operation_type['id'], $this->getOperationTypes()),
+      TRUE
+    );
     $default_providers = [];
     foreach ($form_state->getValues() as $key => $value) {
       if (strpos($key, 'operation__') === 0) {
         $operation_type = substr($key, 11);
-        if (empty($value)) {
+        if (!isset($valid_operation_types[$operation_type]) || $value === '' || $value === NULL) {
+          continue;
+        }
+        $model_id = $form_state->getValue('model__' . $operation_type);
+        if ($model_id === '' || $model_id === NULL) {
           continue;
         }
         $default_providers[$operation_type] = [
-          'provider_id' => $value,
-          'model_id' => $form_state->getValue('model__' . $operation_type),
+          'provider_id' => (string) $value,
+          'model_id' => (string) $model_id,
         ];
       }
     }
@@ -1015,9 +1051,40 @@ class AiSettingsForm extends ConfigFormBase {
     $this->config(static::CONFIG_NAME)
       ->set('default_providers', $default_providers)
       ->set('default_vdb_provider', $form_state->getValue('vdb_table')['vdb']['provider']['default_vdb_provider'] ?? '')
+      ->set('request_timeout', (int) $form_state->getValue('request_timeout'))
+      ->set('allowed_hosts', array_filter(array_map('trim', explode("\n", $form_state->getValue('allowed_hosts')))))
+      ->set('allowed_hosts_rewrite_links', $form_state->getValue('allowed_hosts_rewrite_links') == 'rewrite' ? TRUE : FALSE)
       ->save();
 
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Normalizes allowed hosts config values to a clean list of host strings.
+   *
+   * @param mixed $allowed_hosts
+   *   The raw allowed hosts config value.
+   *
+   * @return string[]
+   *   A cleaned host list.
+   */
+  protected function normalizeAllowedHosts(mixed $allowed_hosts): array {
+    if (is_string($allowed_hosts)) {
+      $allowed_hosts = [$allowed_hosts];
+    }
+    if (!is_array($allowed_hosts)) {
+      return [];
+    }
+
+    $normalized_hosts = array_map(
+      static fn($host): string => trim((string) $host),
+      $allowed_hosts
+    );
+
+    return array_values(array_filter(
+      $normalized_hosts,
+      static fn(string $host): bool => $host !== ''
+    ));
   }
 
   /**
@@ -1112,10 +1179,9 @@ class AiSettingsForm extends ConfigFormBase {
     $provider = $this->providerManager->createInstance($provider_id);
 
     // Get the operation type definition and filters.
-    $operation_types = array_merge($this->providerManager->getOperationTypes(), $this->hardcodedSelections);
     $operation_type_definition = NULL;
     $filters = [];
-    foreach ($operation_types as $type) {
+    foreach ($this->getOperationTypes() as $type) {
       if ($type['id'] === $operation_type) {
         $operation_type_definition = $type;
         $filters = $type['filter'] ?? [];
@@ -1267,7 +1333,7 @@ class AiSettingsForm extends ConfigFormBase {
         '#attributes' => [
           'target' => '_blank',
           'rel' => 'noopener noreferrer',
-          'title' => $provider_title,
+          'data-ai-tooltip' => $provider_title,
           'class' => ['ai-icon-button', 'ai-icon--provider'],
         ],
       ];
@@ -1289,7 +1355,7 @@ class AiSettingsForm extends ConfigFormBase {
         '#attributes' => [
           'target' => '_blank',
           'rel' => 'noopener noreferrer',
-          'title' => $model_title,
+          'data-ai-tooltip' => $model_title,
           'class' => ['ai-icon-button', 'ai-icon--model'],
         ],
       ];
@@ -1333,6 +1399,16 @@ class AiSettingsForm extends ConfigFormBase {
     }
 
     return $this->{$type};
+  }
+
+  /**
+   * Gets the operation types used in AI settings.
+   *
+   * @return array
+   *   The operation types, including pseudo operation types.
+   */
+  public function getOperationTypes(): array {
+    return array_merge($this->providerManager->getOperationTypes(), PseudoOperationTypes::getDefaultPseudoOperationTypes());
   }
 
 }

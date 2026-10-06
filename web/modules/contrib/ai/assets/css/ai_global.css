@@ -239,6 +239,18 @@ select.ai-select--wide {
   background-image: url('../icons/file.svg');
 }
 
+.ai-icon--trash {
+  background-image: url('../icons/trash.svg');
+}
+
+.ai-icon--thumbs-up {
+  background-image: url('../icons/thumbs-up.svg');
+}
+
+.ai-icon--thumbs-down {
+  background-image: url('../icons/thumbs-down.svg');
+}
+
 /* ==========================================================================
    Pills
    ========================================================================== */
@@ -277,4 +289,22 @@ select.ai-select--wide {
 .ai-pill.warning {
   color: var(--gin-status-warning-text, var(--messages-fg-color));
   background: var(--gin-status-warning-bg, var(--messages--warning-color));
+}
+
+/* 
+ * Popover Tooltip 
+ */
+ .ai-tooltip {
+  margin: 0px;
+  inset: auto;
+  position-area: bottom right;
+  /* Prefer right; flip to left when no space. */
+  position-try-fallbacks: flip-inline;
+  border: 1px solid var(--gin-border-color, var(--color-gray-100, #dbdbdb));
+  padding: var(--gin-spacing-xxs, 4px) var(--gin-spacing-xs, 8px);
+  color: var(--gin-color-text-light, var(--color-gray-800, #55565b));
+  font-size: var(--font-size-xs);
+  border-radius: var(--gin-border-s, 6px);
+  box-shadow: 2px 4px 8px var(--gin-color-primary-light, rgba(0, 0, 0, 0.15));
+  max-width: 16rem;
 }

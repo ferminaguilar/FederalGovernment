@@ -4,3 +4,9 @@ dall
 moderations
 dalle
 ratelimit
+ddev
+docroot
+drush
+phpcs
+phpstan
+subclassing

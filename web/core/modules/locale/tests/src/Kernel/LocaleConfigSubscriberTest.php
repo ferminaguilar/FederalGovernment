@@ -201,6 +201,25 @@ class LocaleConfigSubscriberTest extends KernelTestBase {
   }
 
   /**
+   * Tests that unchanged translations are not re-saved.
+   *
+   * Verifies that updateConfigTranslations() skips saving config overrides
+   * when the computed translation data is identical to the existing override.
+   */
+  public function testUnchangedTranslationNotResaved(): void {
+    $config_name = 'locale_test.translation';
+
+    // After setUp(), the German override already exists. Calling
+    // updateConfigTranslations() again without changes should not re-save it.
+    $this->localeConfigManager->reset();
+    $count = $this->localeConfigManager->updateConfigTranslations([$config_name], ['de']);
+    $this->assertSame(0, $count, 'Unchanged config translation should not be re-saved.');
+
+    // Verify the override is still intact.
+    $this->assertConfigOverride($config_name, 'test', 'German test', 'de');
+  }
+
+  /**
    * Sets up a configuration string without a translation.
    *
    * The actual configuration is already available by installing locale_test
@@ -247,7 +266,7 @@ class LocaleConfigSubscriberTest extends KernelTestBase {
   protected function setUpTranslation($config_name, $key, $source, $translation, $langcode, $is_active = FALSE): void {
     // Create source and translation strings for the configuration value and add
     // the configuration name as a location. This would be performed by
-    // locale_translate_batch_import() invoking
+    // \Drupal\locale\LocaleImportBatch::batchImport() invoking
     // LocaleConfigManager::updateConfigTranslations() normally.
     $this->localeConfigManager->reset();
     $this->localeConfigManager

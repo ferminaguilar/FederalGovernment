@@ -17,9 +17,7 @@ function uswds_base_theme($existing, $type, $theme, $path) {
   return [
     'government_banner' => [
       'path' => $path . '/templates/uswds',
-      'variables' => [
-        'image_base' => [],
-      ],
+      'variables' => [],
     ],
     'details_layout_builder' => [
       'base hook' => 'details',

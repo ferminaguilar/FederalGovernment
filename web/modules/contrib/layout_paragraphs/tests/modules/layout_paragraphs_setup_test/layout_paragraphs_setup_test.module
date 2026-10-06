@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * @file
+ * Module hooks for Layout Paragraphs Setup Test module.
+ */
+
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Creates a paragraph field for the provided entity type and bundle.
+ *
+ * @param string $entity_type
+ *   The entity type to which the field will be added.
+ * @param string $bundle
+ *   The bundle to which the field will be added.
+ * @param string $field_name
+ *   The machine name of the field to be created.
+ * @param string $field_label
+ *   The human-readable label of the field to be created.
+ * @param array $handler_settings
+ *   (optional) An associative array of handler settings for the field.
+ * @param string $widget
+ *   (optional) The field widget type for the field. Defaults to 'paragraphs'.
+ * @param string $formatter
+ *   (optional) The field formatter type for the field.
+ *   Defaults to 'entity_reference_revisions_entity_view'.
+ * @param array $extra_settings
+ *   (optional) An associative array of additional settings for the field.
+ *   These settings will be merged with both the formatter and widget settings
+ *   for the field.
+ */
+function layout_paragraphs_setup_test_make_paragraph_field(
+  $entity_type,
+  $bundle,
+  $field_name,
+  $field_label,
+  $handler_settings = [],
+  $widget = 'paragraphs',
+  $formatter = 'entity_reference_revisions_entity_view',
+  $extra_settings = [],
+) {
+
+  if (empty($handler_settings)) {
+    $handler_settings = [
+      'target_bundles' => NULL,
+      'negate' => TRUE,
+    ];
+  }
+  $field_storage = FieldStorageConfig::loadByName($entity_type, $field_name);
+  if (!$field_storage) {
+    // Add a paragraphs field.
+    $field_storage = FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'type' => 'entity_reference_revisions',
+      'cardinality' => '-1',
+      'settings' => [
+        'target_type' => 'paragraph',
+      ],
+    ]);
+    $field_storage->save();
+  }
+  $field_config = FieldConfig::loadByName($entity_type, $bundle, $field_name);
+  if (!$field_config) {
+    $field = FieldConfig::create([
+      'field_storage' => $field_storage,
+      'bundle' => $bundle,
+      'label' => $field_label,
+      'settings' => [
+        'handler' => 'default:paragraph',
+        'handler_settings' => $handler_settings,
+      ],
+    ]);
+    $field->save();
+  }
+
+  $form_display = \Drupal::service('entity_display.repository')->getFormDisplay($entity_type, $bundle);
+  $form_display->setComponent($field_name, ['type' => $widget] + $extra_settings);
+  $form_display->save();
+
+  $view_display = \Drupal::service('entity_display.repository')->getViewDisplay($entity_type, $bundle);
+  $view_display->setComponent($field_name, ['type' => $formatter, 'label' => 'hidden'] + $extra_settings);
+  $view_display->save();
+}

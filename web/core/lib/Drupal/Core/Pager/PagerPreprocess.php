@@ -51,7 +51,7 @@ class PagerPreprocess {
 
     $link_attributes = [];
 
-    if ($this->requestStack->getCurrentRequest()?->get(MainContentViewSubscriber::WRAPPER_FORMAT) === 'drupal_modal') {
+    if ($this->requestStack->getCurrentRequest()?->query->get(MainContentViewSubscriber::WRAPPER_FORMAT) === 'drupal_modal') {
       $link_attributes = [
         'class' => ['use-ajax'],
         'data-dialog-type' => 'modal',
@@ -160,7 +160,7 @@ class PagerPreprocess {
       }
 
       $items['last'] = [];
-      $items['last']['attributes'] = new Attribute();
+      $items['last']['attributes'] = new Attribute($link_attributes);
       $options = [
         'query' => $this->pagerManager->getUpdatedParameters($parameters, $element, $pager_max - 1),
       ];

@@ -300,18 +300,30 @@ providers:
     module: 'ai_provider_huggingface'
     project_url: 'https://www.drupal.org/project/ai_provider_huggingface'
     info_url: 'https://huggingface.co/pricing'
-    updated: '2026-01-20'
+    updated: '2026-03-12'
     capabilities:
       - chat
       - embeddings
       - image_classification
+      - summarize
+      - object_detection
+
+  browser:
+    label: 'Browser (Local AI)'
+    module: 'ai_provider_browser'
+    project_url: 'https://www.drupal.org/project/ai_provider_browser'
+    info_url: 'https://developer.chrome.com/docs/ai'
+    updated: '2026-03-12'
+    capabilities:
+      - summarize
+      - translate_text
 
   litellm:
     label: 'LiteLLM'
     module: 'ai_provider_litellm'
     project_url: 'https://www.drupal.org/project/ai_provider_litellm'
     info_url: 'https://docs.litellm.ai/'
-    updated: '2026-01-20'
+    updated: '2026-03-12'
     capabilities:
       - audio_to_audio
       - chat
@@ -322,6 +334,7 @@ providers:
       - embeddings
       - image_and_audio_to_video
       - moderation
+      - rerank
       - text_to_image
       - text_to_speech
 

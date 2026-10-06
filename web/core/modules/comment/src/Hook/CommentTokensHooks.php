@@ -146,7 +146,8 @@ class CommentTokensHooks {
             break;
 
           case 'homepage':
-            $replacements[$original] = UrlHelper::stripDangerousProtocols($comment->getHomepage());
+            $homepage = $comment->getHomepage();
+            $replacements[$original] = $homepage ? UrlHelper::stripDangerousProtocols($homepage) : '';
             break;
 
           case 'title':
@@ -154,8 +155,7 @@ class CommentTokensHooks {
             break;
 
           case 'body':
-            // "processed" returns a \Drupal\Component\Render\MarkupInterface
-            // via check_markup().
+            // "processed" returns a \Drupal\Component\Render\MarkupInterface.
             $replacements[$original] = $comment->comment_body->processed;
             break;
 

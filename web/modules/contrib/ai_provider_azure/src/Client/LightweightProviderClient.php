@@ -50,6 +50,18 @@ class LightweightProviderClient {
   protected bool $connectionExceptions = TRUE;
 
   /**
+   * Whether the endpoint is used exactly as configured.
+   *
+   * When TRUE, sub-clients post directly to the configured endpoint
+   * without appending a REST path tail (e.g. '/embeddings'), because the
+   * endpoint did not match the shape that tail-stripping-and-re-adding
+   * assumes (see AzureProvider::createVariablesFromEndpoint()).
+   *
+   * @var bool
+   */
+  protected bool $literal = FALSE;
+
+  /**
    * Constructs a new LightweightProviderClient object.
    */
   public function __construct() {
@@ -181,6 +193,17 @@ class LightweightProviderClient {
   }
 
   /**
+   * Sets whether the endpoint is used exactly as configured.
+   *
+   * @param bool $literal
+   *   TRUE to post directly to the configured endpoint without appending
+   *   a REST path tail.
+   */
+  public function withLiteralEndpoint(bool $literal) {
+    $this->literal = $literal;
+  }
+
+  /**
    * Mimics make, by returning itself.
    *
    * @return \Drupal\ai_provider_azure\Client\LightweightProviderClient
@@ -207,7 +230,37 @@ class LightweightProviderClient {
    *   The embeddings client.
    */
   public function embeddings() {
-    return new EmbeddingsClient($this->client, $this->headers, $this->queryString, $this->baseUri, $this->statusExceptions, $this->connectionExceptions);
+    return new EmbeddingsClient($this->client, $this->headers, $this->queryString, $this->baseUri, $this->statusExceptions, $this->connectionExceptions, $this->literal);
+  }
+
+  /**
+   * Returns a responses client.
+   *
+   * @return \Drupal\ai_provider_azure\Client\ResponsesClient
+   *   The responses client.
+   */
+  public function responses() {
+    return new ResponsesClient($this->client, $this->headers, $this->queryString, $this->baseUri, $this->statusExceptions, $this->connectionExceptions, TRUE);
+  }
+
+  /**
+   * Returns an images client.
+   *
+   * @return \Drupal\ai_provider_azure\Client\ImagesClient
+   *   The images client.
+   */
+  public function images() {
+    return new ImagesClient($this->client, $this->headers, $this->queryString, $this->baseUri, $this->statusExceptions, $this->connectionExceptions, TRUE);
+  }
+
+  /**
+   * Returns an audio client.
+   *
+   * @return \Drupal\ai_provider_azure\Client\AudioClient
+   *   The audio client.
+   */
+  public function audio() {
+    return new AudioClient($this->client, $this->headers, $this->queryString, $this->baseUri, $this->statusExceptions, $this->connectionExceptions, TRUE);
   }
 
 }

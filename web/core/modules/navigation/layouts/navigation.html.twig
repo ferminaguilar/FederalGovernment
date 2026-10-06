@@ -25,7 +25,7 @@
 }}>
   <div class="admin-toolbar-control-bar__content">
     {% include 'navigation:toolbar-button' with {
-      attributes: create_attribute({'aria-expanded': 'false', 'aria-controls': 'admin-toolbar', 'type': 'button'}),
+      attributes: create_attribute({'data-drupal-selector': 'admin-toolbar-mobile-trigger', 'aria-expanded': 'false', 'aria-controls': 'admin-toolbar', 'type': 'button'}),
       icon: { icon_id: 'burger' },
       text: 'Expand sidebar'|t,
       modifiers: ['small-offset'],
@@ -45,7 +45,9 @@
   {# This lil' div will get the Drupal.displace() attributes added to it via JS. #}
   <div class="admin-toolbar__displace-placeholder"></div>
 
-  <nav class="admin-toolbar__scroll-wrapper" aria-label="{{ 'Administrative sidebar'|t }}">
+  {% set nav_id = 'admin-toolbar__scroll-wrapper-' ~ random() %}
+  <nav class="admin-toolbar__scroll-wrapper" aria-labelledby="{{ nav_id }}">
+    <h2 id="{{ nav_id }}" class="visually-hidden">{{ 'Administrative sidebar'|t }}</h2>
     {% set title_menu = 'admin-toolbar-title'|clean_unique_id %}
     {# @todo - We should get rid of this ID below. #}
     <div{{ region_attributes.content
@@ -57,12 +59,11 @@
         {% if not settings.hide_logo %}
           <a class="admin-toolbar__logo" href="{{ path('<front>') }}">
             {% if settings.logo_path is not null %}
-              <img alt="{{ 'Navigation logo'|t }}" src="{{ settings.logo_path }}" loading="eager" width="{{ settings.logo_width|default(40) }}" height="{{ settings.logo_height|default(40) }}">
+              <img src="{{ file_url(settings.logo_path) }}" loading="eager" width="{{ settings.logo_width|default(40) }}" height="{{ settings.logo_height|default(40) }}" role="presentation" aria-hidden="true" focusable="false">
             {% else %}
-              {% include '@navigation/logo.svg.twig' with {
-                label: 'Navigation logo'|t
-              } only %}
+              {% include '@navigation/logo.svg.twig' only %}
             {% endif %}
+            <span class="visually-hidden">{{ 'Home page'|t }}</span>
           </a>
         {% endif %}
         {% include 'navigation:toolbar-button' with {
@@ -71,9 +72,10 @@
           icon: { icon_id: 'arrow-left' },
           text: 'Back'|t,
         } only %}
+        {# The close button should be in the tab sequence. Therefore, `tabindex` is omitted here. #}
         {% include 'navigation:toolbar-button' with {
           action: 'Collapse sidebar'|t,
-          attributes: create_attribute({ 'aria-controls': 'admin-toolbar', 'tabindex': '-1', 'type': 'button' }),
+          attributes: create_attribute({ 'aria-controls': 'admin-toolbar', 'type': 'button' }),
           extra_classes: ['admin-toolbar__close-button'],
           icon: { icon_id: 'cross' },
         } only %}
@@ -96,7 +98,7 @@
     </div>
   </nav>
 </aside>
-<div class="admin-toolbar-overlay" aria-controls="admin-toolbar" data-drupal-admin-styles></div>
+<div class="admin-toolbar-overlay" admin-toolbar-trigger data-drupal-admin-styles></div>
 <script>
   if (localStorage.getItem('Drupal.navigation.sidebarExpanded') !== 'false' && (window.matchMedia('(min-width: 1024px)').matches)) {
     document.documentElement.setAttribute('data-admin-toolbar', 'expanded');

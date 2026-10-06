@@ -820,13 +820,12 @@
     if (feature.title) {
       marker_title = feature.title.replace(/<[^>]*>/g, '').trim()
     }
-    else if (feature.tooltip && feature.tooltip.value) {
-      marker_title = feature.tooltip.value.replace(/<[^>]*>/g, '').trim();
-    }
     return {
+      // Title only set in case of a Marker simple title.
       title: marker_title ?? "",
       className: feature.icon && feature.icon.className ? feature.icon.className.replaceAll(",", "") : '',
-      alt: marker_title ?? "",
+      // Alt property always set matching Simple Title or Feature Tooltip.
+      alt: feature.tooltip && feature.tooltip.value ? feature.tooltip.value.replace(/<[^>]*>/g, '').trim() : marker_title,
       group_label: feature.group_label ?? '',
     };
   }

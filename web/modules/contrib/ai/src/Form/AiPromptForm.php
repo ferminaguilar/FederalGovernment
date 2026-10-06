@@ -215,12 +215,12 @@ class AiPromptForm extends EntityForm {
       '#theme' => 'status_messages',
       '#message_list' => [
         'warning' => [
-          $this->t('No AI Prompt Types exist. These are normally provided by modules within the AI Ecosystem; however, you can also create your own for use in your own project implementations.'),
+          $this->t('No AI Prompt Types exist yet. Before you can create an AI Prompt, you need to add at least one AI Prompt Type. These are normally provided by modules within the AI Ecosystem; however, you can also create your own for use in your own project implementations.'),
         ],
       ],
     ];
 
-    $link_url = Url::fromRoute('entity.ai_prompt_type.collection');
+    $link_url = Url::fromRoute('entity.ai_prompt_type.add_form');
     $link_url->setOptions([
       'attributes' => [
         'class' => ['button', 'button--primary'],
@@ -228,7 +228,7 @@ class AiPromptForm extends EntityForm {
     ]);
     $form['link'] = [
       '#type' => 'link',
-      '#title' => $this->t('Manage Prompt Types'),
+      '#title' => $this->t('Add AI Prompt Type'),
       '#url' => $link_url,
     ];
 

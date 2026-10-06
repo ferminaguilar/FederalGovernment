@@ -13,6 +13,8 @@ namespace Twig\ExpressionParser\Infix;
 
 use Twig\Error\SyntaxError;
 use Twig\Node\Expression\ArrayExpression;
+use Twig\Node\Expression\Binary\SetBinary;
+use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\Unary\SpreadUnary;
 use Twig\Node\Expression\Variable\ContextVariable;
 use Twig\Node\Expression\Variable\LocalVariable;
@@ -22,11 +24,11 @@ use Twig\Token;
 
 trait ArgumentsTrait
 {
-    private function parseCallableArguments(Parser $parser, int $line, bool $parseOpenParenthesis = true): ArrayExpression
+    private function parseCallableArguments(Parser $parser, int $line, bool $parseOpenParenthesis = true, bool $preserveNames = false): ArrayExpression
     {
         $arguments = new ArrayExpression([], $line);
         foreach ($this->parseNamedArguments($parser, $parseOpenParenthesis) as $k => $n) {
-            $arguments->addElement($n, new LocalVariable($k, $line));
+            $arguments->addElement($n, \is_int($k) || !$preserveNames ? new LocalVariable($k, $line) : new ConstantExpression($k, $line));
         }
 
         return $arguments;
@@ -58,7 +60,10 @@ trait ArgumentsTrait
             }
 
             $name = null;
-            if (($token = $stream->nextIf(Token::OPERATOR_TYPE, '=')) || ($token = $stream->nextIf(Token::PUNCTUATION_TYPE, ':'))) {
+            if ($value instanceof SetBinary) {
+                $name = $value->getNode('left')->getAttribute('name');
+                $value = $value->getNode('right');
+            } elseif (($token = $stream->nextIf(Token::OPERATOR_TYPE, '=')) || ($token = $stream->nextIf(Token::PUNCTUATION_TYPE, ':'))) {
                 if (!$value instanceof ContextVariable) {
                     throw new SyntaxError(\sprintf('A parameter name must be a string, "%s" given.', $value::class), $token->getLine(), $stream->getSourceContext());
                 }

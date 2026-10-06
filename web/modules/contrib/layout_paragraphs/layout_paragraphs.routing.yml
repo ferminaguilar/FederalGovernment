@@ -94,6 +94,18 @@ layout_paragraphs.builder.delete_item:
   requirements:
     _layout_paragraphs_builder_access: 'TRUE'
 
+layout_paragraphs.builder.convert_item:
+  path: '/layout-paragraphs-builder/{layout_paragraphs_layout}/convert/{component_uuid}'
+  defaults:
+    _form: '\Drupal\layout_paragraphs\Form\ConvertComponentForm'
+    operation: 'convert'
+  options:
+    parameters:
+      layout_paragraphs_layout:
+        layout_paragraphs_layout_tempstore: TRUE
+  requirements:
+    _layout_paragraphs_builder_access: 'TRUE'
+
 layout_paragraphs.builder.reorder:
   path: '/layout-paragraphs-builder/{layout_paragraphs_layout}/reorder'
   defaults:

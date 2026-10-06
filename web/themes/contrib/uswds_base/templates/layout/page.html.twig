@@ -166,7 +166,16 @@
         {% endif %}
 
         {% block content %}
-          <div class="usa-layout-docs__main desktop:grid-col-{% if page.sidebar_first or page.sidebar_second %}9{% else %}fill{% endif %}">
+          <div
+            {% if page.sidebar_first and page.sidebar_second %}
+              {% set main_col = "6" %}
+            {% elseif page.sidebar_first or page.sidebar_second %}
+              {% set main_col = "9" %}
+            {% else %}
+              {% set main_col = "fill" %}
+            {% endif %}
+            class="usa-layout-docs__main desktop:grid-col-{{ main_col }}">
+
             {{ page.content }}
           </div>{# /.layout-content #}
         {% endblock %}
@@ -273,8 +282,8 @@
 
                 {% if footer_agency_name %}
                   <div class="mobile-lg:grid-col-auto">
-                    <h3
-                      class="usa-footer__logo-heading">{{ footer_agency_name }}</h3>
+                    <p
+                      class="usa-footer__logo-heading">{{ footer_agency_name }}</p>
                   </div>
                 {% endif %}
 
@@ -338,8 +347,8 @@
                 </div>
                 {% endif %}
                 {% if contact_center %}
-                  <h3
-                    class="usa-footer__contact-heading">{{ contact_center }}</h3>
+                  <p
+                    class="usa-footer__contact-heading">{{ contact_center }}</p>
                 {% endif %}
                 <address class="usa-footer__address">
                   <div class="usa-footer__contact-info grid-row grid-gap">

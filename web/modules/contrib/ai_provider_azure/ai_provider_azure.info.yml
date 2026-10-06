@@ -2,14 +2,14 @@ name: Microsoft Azure AI
 description: This enables the use of Azure AI Studio for the AI module.
 package: AI Providers
 type: module
-core_version_requirement: ^10.3 || ^11
+core_version_requirement: ^10.5 || ^11.2
 configure: ai_provider_azure.settings_form
 
 dependencies:
   - ai:ai
   - key:key
 
-# Information added by Drupal.org packaging script on 2025-10-17
-version: '1.1.0-beta3'
+# Information added by Drupal.org packaging script on 2026-10-01
+version: '1.2.0-beta1'
 project: 'ai_provider_azure'
-datestamp: 1760703403
+datestamp: 1790877539

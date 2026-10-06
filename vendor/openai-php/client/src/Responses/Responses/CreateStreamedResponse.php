@@ -7,6 +7,8 @@ namespace OpenAI\Responses\Responses;
 use OpenAI\Contracts\ResponseContract;
 use OpenAI\Exceptions\UnknownEventException;
 use OpenAI\Responses\Concerns\ArrayAccessible;
+use OpenAI\Responses\Responses\Streaming\ApplyPatchCallOperationDiffDelta;
+use OpenAI\Responses\Responses\Streaming\ApplyPatchCallOperationDiffDone;
 use OpenAI\Responses\Responses\Streaming\CodeInterpreterCall;
 use OpenAI\Responses\Responses\Streaming\CodeInterpreterCodeDelta;
 use OpenAI\Responses\Responses\Streaming\CodeInterpreterCodeDone;
@@ -26,6 +28,7 @@ use OpenAI\Responses\Responses\Streaming\OutputItem;
 use OpenAI\Responses\Responses\Streaming\OutputTextAnnotationAdded;
 use OpenAI\Responses\Responses\Streaming\OutputTextDelta;
 use OpenAI\Responses\Responses\Streaming\OutputTextDone;
+use OpenAI\Responses\Responses\Streaming\RateLimits;
 use OpenAI\Responses\Responses\Streaming\ReasoningSummaryPart;
 use OpenAI\Responses\Responses\Streaming\ReasoningSummaryTextDelta;
 use OpenAI\Responses\Responses\Streaming\ReasoningSummaryTextDone;
@@ -53,7 +56,7 @@ final class CreateStreamedResponse implements ResponseContract
 
     private function __construct(
         public readonly string $event,
-        public readonly Response|OutputItem|ContentPart|OutputTextDelta|OutputTextAnnotationAdded|OutputTextDone|RefusalDelta|RefusalDone|FunctionCallArgumentsDelta|FunctionCallArgumentsDone|FileSearchCall|WebSearchCall|CodeInterpreterCall|CodeInterpreterCodeDelta|CodeInterpreterCodeDone|ReasoningSummaryPart|ReasoningSummaryTextDelta|ReasoningSummaryTextDone|ReasoningTextDelta|ReasoningTextDone|McpListTools|McpListToolsInProgress|McpCall|McpCallArgumentsDelta|McpCallArgumentsDone|ImageGenerationPart|ImageGenerationPartialImage|Error $response,
+        public readonly Response|OutputItem|ContentPart|OutputTextDelta|OutputTextAnnotationAdded|OutputTextDone|RefusalDelta|RefusalDone|FunctionCallArgumentsDelta|FunctionCallArgumentsDone|ApplyPatchCallOperationDiffDelta|ApplyPatchCallOperationDiffDone|FileSearchCall|WebSearchCall|CodeInterpreterCall|CodeInterpreterCodeDelta|CodeInterpreterCodeDone|ReasoningSummaryPart|ReasoningSummaryTextDelta|ReasoningSummaryTextDone|ReasoningTextDelta|ReasoningTextDone|McpListTools|McpListToolsInProgress|McpCall|McpCallArgumentsDelta|McpCallArgumentsDone|ImageGenerationPart|ImageGenerationPartialImage|RateLimits|Error $response,
     ) {}
 
     /**
@@ -83,6 +86,8 @@ final class CreateStreamedResponse implements ResponseContract
             'response.refusal.done' => RefusalDone::from($attributes, $meta), // @phpstan-ignore-line
             'response.function_call_arguments.delta' => FunctionCallArgumentsDelta::from($attributes, $meta), // @phpstan-ignore-line
             'response.function_call_arguments.done' => FunctionCallArgumentsDone::from($attributes, $meta), // @phpstan-ignore-line
+            'response.apply_patch_call_operation_diff.delta' => ApplyPatchCallOperationDiffDelta::from($attributes, $meta), // @phpstan-ignore-line
+            'response.apply_patch_call_operation_diff.done' => ApplyPatchCallOperationDiffDone::from($attributes, $meta), // @phpstan-ignore-line
             'response.file_search_call.in_progress',
             'response.file_search_call.searching',
             'response.file_search_call.completed' => FileSearchCall::from($attributes, $meta), // @phpstan-ignore-line
@@ -115,6 +120,7 @@ final class CreateStreamedResponse implements ResponseContract
             'response.image_generation_call.generating',
             'response.image_generation_call.in_progress' => ImageGenerationPart::from($attributes, $meta), // @phpstan-ignore-line
             'response.image_generation_call.partial_image' => ImageGenerationPartialImage::from($attributes, $meta), // @phpstan-ignore-line
+            'response.rate_limits.updated' => RateLimits::from($attributes, $meta), // @phpstan-ignore-line
             'error' => Error::from($attributes, $meta), // @phpstan-ignore-line
             default => throw new UnknownEventException('Unknown Responses streaming event: '.$event),
         };

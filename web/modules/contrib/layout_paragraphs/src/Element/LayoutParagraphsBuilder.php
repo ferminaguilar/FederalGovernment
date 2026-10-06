@@ -7,6 +7,7 @@ use Drupal\Core\Render\Markup;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\paragraphs\ParagraphInterface;
+use Drupal\paragraphs\ParagraphsConversionManager;
 use Drupal\Core\Access\AccessResultAllowed;
 use Drupal\layout_paragraphs\Utility\Dialog;
 use Drupal\Core\Access\AccessResultForbidden;
@@ -14,11 +15,13 @@ use Drupal\Core\Render\Element\RenderElementBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Layout\LayoutPluginManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\layout_paragraphs\Event\LayoutParagraphsAllowedTypesEvent;
 use Drupal\layout_paragraphs\LayoutParagraphsSection;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\layout_paragraphs\LayoutParagraphsComponent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\layout_paragraphs\LayoutParagraphsLayoutTempstoreRepository;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Defines a render element for building the Layout Builder UI.
@@ -59,11 +62,25 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
   protected $renderer;
 
   /**
+   * The paragraphs conversion manager service.
+   *
+   * @var \Drupal\paragraphs\ParagraphsConversionManager
+   */
+  protected $conversionManager;
+
+  /**
    * The entity type bundle info service.
    *
    * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
    */
   protected $entityTypeBundleInfo;
+
+  /**
+   * The event dispatcher service.
+   *
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
+   */
+  protected $eventDispatcher;
 
   /**
    * Indicates whether the element is in translation mode.
@@ -98,6 +115,8 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
     LayoutPluginManagerInterface $layout_plugin_manager,
     RendererInterface $renderer,
     EntityTypeBundleInfoInterface $entity_type_bundle_info,
+    ParagraphsConversionManager $conversion_manager,
+    EventDispatcherInterface $event_dispatcher,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->tempstore = $tempstore_repository;
@@ -105,6 +124,8 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
     $this->layoutPluginManager = $layout_plugin_manager;
     $this->renderer = $renderer;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
+    $this->conversionManager = $conversion_manager;
+    $this->eventDispatcher = $event_dispatcher;
   }
 
   /**
@@ -120,6 +141,8 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
       $container->get('plugin.manager.core.layout'),
       $container->get('renderer'),
       $container->get('entity_type.bundle.info'),
+      $container->get('plugin.manager.paragraphs.conversion'),
+      $container->get('event_dispatcher'),
     );
   }
 
@@ -160,14 +183,18 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
     if ($this->isTranslating()) {
       $element['#translation_warning'] = $this->translationWarning();
     }
+    $components = $this->layoutParagraphsLayout->getComponents();
+    if ($element_uuid) {
+      $components = $this->getComponentsForUuidRender($components, $element_uuid);
+    }
     // Build a flat list of component build arrays.
-    foreach ($this->layoutParagraphsLayout->getComponents() as $component) {
+    foreach ($components as $component) {
       /** @var \Drupal\layout_paragraphs\LayoutParagraphsComponent $component */
       $element['#components'][$component->getEntity()->uuid()] = $this->buildComponent($component, $preview_view_mode);
     }
 
     // Nest child components inside their respective sections and regions.
-    foreach ($this->layoutParagraphsLayout->getComponents() as $component) {
+    foreach ($components as $component) {
       /** @var \Drupal\layout_paragraphs\LayoutParagraphsComponent $component */
       $uuid = $component->getEntity()->uuid();
       if ($component->isLayout()) {
@@ -176,7 +203,9 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
         foreach (array_keys($element['#components'][$uuid]['regions']) as $region_name) {
           foreach ($section->getComponentsForRegion($region_name) as $child_component) {
             $child_uuid = $child_component->getEntity()->uuid();
-            $element['#components'][$uuid]['regions'][$region_name][$child_uuid] =& $element['#components'][$child_uuid];
+            if (isset($element['#components'][$child_uuid])) {
+              $element['#components'][$uuid]['regions'][$region_name][$child_uuid] =& $element['#components'][$child_uuid];
+            }
           }
         }
         $element['#components'][$uuid]['regions'] = $layout_plugin_instance->build($element['#components'][$uuid]['regions']);
@@ -224,6 +253,48 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
       );
     }
     return $element;
+  }
+
+  /**
+   * Gets the component subset needed to render a single component.
+   *
+   * @param \Drupal\layout_paragraphs\LayoutParagraphsComponent[] $components
+   *   The full component list.
+   * @param string $uuid
+   *   The UUID of the component to render.
+   *
+   * @return \Drupal\layout_paragraphs\LayoutParagraphsComponent[]
+   *   The requested component and descendants, or all components if missing.
+   */
+  protected function getComponentsForUuidRender(array $components, string $uuid) {
+    $components_by_uuid = [];
+    $child_uuids_by_parent = [];
+    foreach ($components as $component) {
+      /** @var \Drupal\layout_paragraphs\LayoutParagraphsComponent $component */
+      $component_uuid = $component->getEntity()->uuid();
+      $components_by_uuid[$component_uuid] = $component;
+      if ($parent_uuid = $component->getParentUuid()) {
+        $child_uuids_by_parent[$parent_uuid][] = $component_uuid;
+      }
+    }
+
+    if (!isset($components_by_uuid[$uuid])) {
+      return $components;
+    }
+
+    $render_uuids = [];
+    $queue = [$uuid];
+    while ($current_uuid = array_shift($queue)) {
+      if (isset($render_uuids[$current_uuid]) || !isset($components_by_uuid[$current_uuid])) {
+        continue;
+      }
+      $render_uuids[$current_uuid] = TRUE;
+      foreach ($child_uuids_by_parent[$current_uuid] ?? [] as $child_uuid) {
+        $queue[] = $child_uuid;
+      }
+    }
+
+    return array_intersect_key($components_by_uuid, $render_uuids);
   }
 
   /**
@@ -279,6 +350,7 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
       '#edit_access' => $this->editAccess($entity),
       '#duplicate_access' => $this->duplicateAccess($entity) && $this->checkCardinality(),
       '#delete_access' => $this->deleteAccess($entity),
+      '#convert_access' => $this->convertAccess($component, $entity),
     ];
     $build['#attached']['drupalSettings']['lpBuilder']['uiElements'][$entity->uuid()] = [];
     $this->addJsUiElement($build, $this->doRender($controls), 'controls', 'prepend');
@@ -539,6 +611,86 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
       return $access->isAllowed();
     }
     return $paragraph->access('create');
+  }
+
+  /**
+   * Returns TRUE if the user can convert the given component.
+   *
+   * Conversion is disabled for layout section components to avoid orphaning
+   * child components, and when the per-field conversion setting is disabled.
+   *
+   * @param \Drupal\layout_paragraphs\LayoutParagraphsComponent $component
+   *   The layout paragraphs component.
+   * @param \Drupal\paragraphs\ParagraphInterface $paragraph
+   *   The paragraph entity.
+   *
+   * @return bool
+   *   TRUE if conversion is permitted.
+   */
+  protected function convertAccess(LayoutParagraphsComponent $component, ParagraphInterface $paragraph) {
+    if (!$this->layoutParagraphsLayout->getSetting('conversion', TRUE)) {
+      return FALSE;
+    }
+    if ($component->isLayout()) {
+      return FALSE;
+    }
+    if (!$paragraph->access('update')) {
+      return FALSE;
+    }
+    $allowed_types = $this->getAllowedTypes($component);
+    return $this->conversionManager->supportsConversion($paragraph, $allowed_types);
+  }
+
+  /**
+   * Returns the allowed paragraph bundle types for this field.
+   *
+   * Reads the selection handler settings, handles negated bundle restrictions,
+   * and dispatches the LayoutParagraphsAllowedTypesEvent so that modules like
+   * layout_paragraphs_restrictions can further filter the types based on the
+   * component's position context.
+   *
+   * @param \Drupal\layout_paragraphs\LayoutParagraphsComponent $component
+   *   The component for which allowed types are being determined.
+   *
+   * @return array
+   *   An associative array of allowed bundle IDs keyed by bundle machine name.
+   */
+  protected function getAllowedTypes(LayoutParagraphsComponent $component): array {
+    $field = $this->layoutParagraphsLayout->getParagraphsReferenceField();
+    $settings = $field->getSettings()['handler_settings'] ?? [];
+    $all_bundles = $this->entityTypeBundleInfo->getBundleInfo('paragraph');
+    if (!empty($settings['negate']) && $settings['negate'] == '1') {
+      $allowed_bundles = array_diff_key($all_bundles, $settings['target_bundles'] ?? []);
+    }
+    elseif (!empty($settings['target_bundles'])) {
+      $allowed_bundles = array_intersect_key($all_bundles, $settings['target_bundles']);
+    }
+    else {
+      $allowed_bundles = $all_bundles;
+    }
+
+    // Build the types array with is_section metadata, matching the format
+    // expected by LayoutParagraphsAllowedTypesSubscriber.
+    $storage = $this->entityTypeManager->getStorage('paragraphs_type');
+    $types = [];
+    foreach (array_keys($allowed_bundles) as $bundle_id) {
+      /** @var \Drupal\paragraphs\Entity\ParagraphsType $paragraphs_type */
+      $paragraphs_type = $storage->load($bundle_id);
+      if ($paragraphs_type) {
+        $plugins = $paragraphs_type->getEnabledBehaviorPlugins();
+        $types[$bundle_id] = ['is_section' => isset($plugins['layout_paragraphs'])];
+      }
+    }
+
+    $context = [
+      'parent_uuid' => $component->getParentUuid(),
+      'region' => $component->getRegion(),
+      'sibling_uuid' => NULL,
+      'action' => 'convert',
+    ];
+    $event = new LayoutParagraphsAllowedTypesEvent($types, $this->layoutParagraphsLayout, $context);
+    $this->eventDispatcher->dispatch($event, LayoutParagraphsAllowedTypesEvent::EVENT_NAME);
+    return $event->getTypes();
   }
 
   /**

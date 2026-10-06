@@ -54,7 +54,7 @@ class MediaAccessTest extends MediaFunctionalTestBase {
     \Drupal::configFactory()
       ->getEditable('media.settings')
       ->set('standalone_url', TRUE)
-      ->save(TRUE);
+      ->save();
 
     $this->container->get('router.builder')->rebuild();
 
@@ -132,7 +132,7 @@ class MediaAccessTest extends MediaFunctionalTestBase {
     $this->assertCacheContext('user');
     $assert_session->statusCodeEquals(200);
     $this->drupalGet('media/' . $user_media->id() . '/revisions/' . $previous_revision . '/view');
-    $this->assertCacheContext('user.permissions');
+    $this->assertCacheContext('user');
     $assert_session->statusCodeEquals(200);
     $role->revokePermission('view own unpublished media')->save();
     $this->drupalGet('media/' . $user_media->id() . '/revisions/' . $user_media->getRevisionId() . '/view');
@@ -247,7 +247,7 @@ class MediaAccessTest extends MediaFunctionalTestBase {
     \Drupal::configFactory()
       ->getEditable('media.settings')
       ->set('standalone_url', TRUE)
-      ->save(TRUE);
+      ->save();
 
     $this->container->get('router.builder')->rebuild();
 
@@ -288,7 +288,7 @@ class MediaAccessTest extends MediaFunctionalTestBase {
     \Drupal::configFactory()
       ->getEditable('media.settings')
       ->set('standalone_url', TRUE)
-      ->save(TRUE);
+      ->save();
 
     $this->container->get('router.builder')->rebuild();
 
@@ -330,7 +330,7 @@ class MediaAccessTest extends MediaFunctionalTestBase {
     \Drupal::configFactory()
       ->getEditable('media.settings')
       ->set('standalone_url', TRUE)
-      ->save(TRUE);
+      ->save();
 
     $this->container->get('router.builder')->rebuild();
 
@@ -369,7 +369,7 @@ class MediaAccessTest extends MediaFunctionalTestBase {
     \Drupal::configFactory()
       ->getEditable('media.settings')
       ->set('standalone_url', TRUE)
-      ->save(TRUE);
+      ->save();
 
     $this->container->get('router.builder')->rebuild();
 

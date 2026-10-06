@@ -27,13 +27,13 @@ use Drupal\Core\Extension\ThemeSettingsProvider;
  * arrays and rendering.
  *
  * @section sec_twig_theme Twig Templating Engine
- * Drupal 8 uses the templating engine Twig. Twig offers developers a fast,
- * secure, and flexible method for building templates for Drupal 8 sites. Twig
+ * Drupal uses the templating engine Twig. Twig offers developers a fast,
+ * secure, and flexible method for building templates for Drupal sites. Twig
  * also offers substantial usability improvements over PHPTemplate, and does
  * not require front-end developers to know PHP to build and manipulate Drupal
- * 8 themes.
+ * themes.
  *
- * For further information on theming in Drupal 8 see
+ * For further information on theming in Drupal see
  * https://www.drupal.org/docs/develop/theming-drupal
  *
  * For further Twig documentation see
@@ -789,7 +789,7 @@ function hook_theme_suggestions_HOOK_alter(array &$suggestions, array &$variable
  */
 function hook_themes_installed($theme_list): void {
   foreach ($theme_list as $theme) {
-    block_theme_initialize($theme);
+    // ...perform some action based on the $theme.
   }
 }
 
@@ -1374,6 +1374,21 @@ function hook_theme_registry_alter(&$theme_registry) {
  */
 function hook_template_preprocess_default_variables_alter(&$variables) {
   $variables['is_admin'] = \Drupal::currentUser()->hasPermission('access administration pages');
+}
+
+/**
+ * Alter icon pack definitions.
+ *
+ * Allows modules to modify icon pack definitions.
+ *
+ * @param array $icon_packs
+ *   The array of icon pack definitions, keyed by icon pack ID.
+ */
+function hook_icon_pack_alter(array &$icon_packs): void {
+  // Example: Change the label of an icon pack.
+  if (isset($icon_packs['navigation'])) {
+    $icon_packs['navigation']['label'] = 'Custom navigation icons';
+  }
 }
 
 /**

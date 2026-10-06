@@ -11,7 +11,7 @@
 function uswds_base_preprocess_form_element_label(&$variables) {
 
   if (!empty($variables['required'])) {
-    $variables['attributes']['class'][] = 'usa-input-required';
+    $variables['attributes']['class'][] = 'usa-label--required';
   }
 
   if (!empty($variables['element']['#element_type']) && $variables['element']['#element_type'] == 'checkbox') {

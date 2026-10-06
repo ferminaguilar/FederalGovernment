@@ -1,7 +1,6 @@
 ai_provider_azure.settings:
-  type: mapping
+  type: config_object
   label: 'Azure (none) Settings'
   mapping:
-    profile:
-      data:
-        type: string
+    data:
+      type: string

@@ -6,7 +6,7 @@ type: module
 dependencies:
   - layout_paragraphs:layout_paragraphs
 
-# Information added by Drupal.org packaging script on 2025-11-30
-version: '3.0.0-alpha7'
+# Information added by Drupal.org packaging script on 2026-08-12
+version: '3.0.0-beta4'
 project: 'layout_paragraphs'
-datestamp: 1764518298
+datestamp: 1786566921

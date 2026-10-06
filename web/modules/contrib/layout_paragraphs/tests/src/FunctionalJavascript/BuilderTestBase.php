@@ -103,7 +103,7 @@ abstract class BuilderTestBase extends WebDriverTestBase {
       'settings[handler_settings][negate]' => '1',
     ], 'Save settings');
     // Use "Layout Paragraphs" formatter for the content field.
-    $this->drupalGet('admin/structure/types/manage/' . $type_name . '/display');
+    $this->drupalGet('admin/structure/types/manage/' . $type_name . '/display/default');
     $page = $this->getSession()->getPage();
     $page->selectFieldOption('fields[' . $paragraph_field . '][type]', 'layout_paragraphs');
     $this->assertSession()->assertWaitOnAjaxRequest(10000, 'Unable to choose layout paragraphs (fields[' . $paragraph_field . '][type]) field formatter.');
@@ -267,10 +267,15 @@ abstract class BuilderTestBase extends WebDriverTestBase {
 
   /**
    * Enables the frontend builder formatter for a content type and field.
+   *
+   * @param string $type
+   *   The machine name of the content type.
+   * @param string $field
+   *   The machine name of the field.
    */
   protected function useFrontEndBuilderFormatter($type, $field) {
     $this->loginWithPermissions($this->adminPermissions);
-    $this->drupalGet('admin/structure/types/manage/' . $type . '/display');
+    $this->drupalGet('admin/structure/types/manage/' . $type . '/display/default');
     $page = $this->getSession()->getPage();
     $page->selectFieldOption('fields[' . $field . '][type]', 'layout_paragraphs_builder');
     $this->assertSession()->assertWaitOnAjaxRequest(10000, 'Unable to choose layout paragraphs builder (fields[' . $field . '][type]) field formatter.');

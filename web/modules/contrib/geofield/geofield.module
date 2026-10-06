@@ -155,8 +155,8 @@ function geofield_haversine(array $options = []) {
 }
 
 /*
-* Implements hook_field_type_category_info_alter().
-*/
+ * Implements hook_field_type_category_info_alter().
+ */
 function geofield_field_type_category_info_alter(&$definitions) {
   $definitions[FieldTypeCategoryManagerInterface::FALLBACK_CATEGORY]['libraries'][] = 'geofield/geofield-icon';
 }

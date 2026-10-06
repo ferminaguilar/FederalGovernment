@@ -3,7 +3,7 @@ type: theme
 base theme: stable
 description: 'The Classy base theme from Drupal 8/9 moved to contrib.'
 package: Core
-core_version_requirement: ^10.3 || ^11
+core_version_requirement: ^10.3 || ^11 || ^12
 
 libraries:
   - classy/base
@@ -33,7 +33,7 @@ ckeditor5-stylesheets:
 ckeditor_stylesheets:
   - css/components/media-embed-error.css
 
-# Information added by Drupal.org packaging script on 2025-04-10
-version: '2.0.0'
+# Information added by Drupal.org packaging script on 2026-06-18
+version: '2.0.3'
 project: 'classy'
-datestamp: 1744243953
+datestamp: 1781783473

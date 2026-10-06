@@ -1,0 +1,21 @@
+{
+  "name": "layout_paragraphs_cypress",
+  "version": "1.0.0",
+  "description": "Cypress tests for Layout Paragraphs module",
+  "main": "index.js",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cypress": "^13.6.0",
+    "cypress-iframe": "^1.0.1",
+    "cypress-real-events": "^1.15.0"
+  },
+  "devDependencies": {
+    "@4tw/cypress-drag-drop": "^2.3.0"
+  }
+}

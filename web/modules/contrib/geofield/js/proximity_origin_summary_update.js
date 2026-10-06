@@ -11,13 +11,17 @@
         '.proximity-origin',
       ).forEach(function (e) {
         const self = e;
-        $('.geofield-lat', e).on('change', function(e) {
-          $('.proximity-origin-summary .geofield-lat', self).text($(this).val())
+        $('.geofield-lat', e).on('change', function (e) {
+          $('.proximity-origin-summary .geofield-lat', self).text(
+            $(this).val(),
+          );
         });
-        $('.geofield-lon', e).on('change', function(e) {
-          $('.proximity-origin-summary .geofield-lon', self).text($(this).val())
+        $('.geofield-lon', e).on('change', function (e) {
+          $('.proximity-origin-summary .geofield-lon', self).text(
+            $(this).val(),
+          );
         });
       });
-    }
+    },
   };
 })(jQuery, Drupal, drupalSettings);

@@ -248,13 +248,14 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
       return $this->isTranslating;
     }
 
+    $content_translation = $form_state->get('content_translation');
+    $langcode = $form_state->get('langcode');
     // Support for
     // \Drupal\content_translation\Controller\ContentTranslationController.
-    if (!empty($form_state->get('content_translation'))) {
+    if (!empty($content_translation)) {
       // Adding a translation.
       $this->isTranslating = TRUE;
     }
-    $langcode = $form_state->get('langcode');
     if (isset($langcode) && $host->hasTranslation($langcode) && $host->getTranslation($langcode)->get($default_langcode_key)->value == 0) {
       // Editing a translation.
       $this->isTranslating = TRUE;
@@ -330,7 +331,16 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
             $paragraph = $paragraph->getTranslation($this->langcode);
           }
         }
-        $items[$delta]->entity = $paragraph;
+        // Use setValue() with a structured array including target_id and
+        // target_revision_id to prevent onChange('entity') from firing. Direct
+        // assignment ($item->entity = $paragraph) triggers __set() which calls
+        // onChange('entity'), potentially nulling out target_id and causing
+        // existing paragraphs to be treated as new (duplicate UUID INSERT).
+        $items[$delta]->setValue([
+          'entity' => $paragraph,
+          'target_id' => $paragraph->id(),
+          'target_revision_id' => $paragraph->getRevisionId(),
+        ], FALSE);
       }
     }
     $this->layoutParagraphsLayout->setParagraphsReferenceField($items);
@@ -349,13 +359,25 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
     if (!empty($layout_paragraphs_storage_key)) {
       $this->layoutParagraphsLayout = $this->tempstore->getWithStorageKey($layout_paragraphs_storage_key);
       $values = [];
+      $seen_uuids = [];
       foreach ($this->layoutParagraphsLayout->getParagraphsReferenceField() as $item) {
         if ($item->entity) {
           $entity = $item->entity;
+          // Skip duplicate paragraphs (same UUID) to prevent integrity
+          // constraint violations during save.
+          $uuid = $entity->uuid();
+          if (isset($seen_uuids[$uuid])) {
+            continue;
+          }
+          $seen_uuids[$uuid] = TRUE;
           // Set each paragraph langcode if we are not translating.
           if (!$this->isTranslating($form_state)) {
             $langcode_key = $entity->getEntityType()->getKey('langcode');
             $entity->set($langcode_key, $items->getLangcode());
+          }
+          // Ensure existing paragraphs are not treated as new during save.
+          if ($entity->id()) {
+            $entity->enforceIsNew(FALSE);
           }
           $entity->setNeedsSave(TRUE);
           $values[] = [
@@ -414,6 +436,12 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
       '#title' => $this->t('Placeholder message to display when field is empty'),
       '#default_value' => $this->getSetting('empty_message'),
     ];
+    $element['conversion'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Allow paragraph conversion'),
+      '#description' => $this->t('Allow editors to convert paragraphs using Paragraphs Conversion plugins.'),
+      '#default_value' => $this->getSetting('conversion'),
+    ];
     return $element;
   }
 
@@ -436,6 +464,9 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
     else {
       $summary[] = $this->t('Layouts are optional.');
     }
+    $summary[] = $this->getSetting('conversion')
+      ? $this->t('Paragraph conversion: <b>enabled</b>')
+      : $this->t('Paragraph conversion: <b>disabled</b>');
     return $summary;
   }
 
@@ -454,6 +485,7 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
       'form_display_mode' => 'default',
       'nesting_depth' => 0,
       'require_layouts' => 0,
+      'conversion' => TRUE,
     ];
     return $defaults;
   }

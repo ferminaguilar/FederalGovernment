@@ -68,9 +68,9 @@ class ChatForm extends FormBase {
    *   The route match.
    */
   public function __construct(
-    private readonly EntityTypeManagerInterface $entityTypeManager,
-    private readonly AiAssistantApiRunner $aiAssistantRunner,
-    private readonly RouteMatchInterface $routeMatcher,
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected AiAssistantApiRunner $aiAssistantRunner,
+    protected RouteMatchInterface $routeMatcher,
   ) {
   }
 
@@ -124,7 +124,7 @@ class ChatForm extends FormBase {
     ];
 
     // Make it possible to clear history.
-    if ($this->aiAssistantRunner->getAssistant()->get('allow_history') == 'session_one_thread') {
+    if ($this->aiAssistantRunner->getAssistant()->getChatMemory()?->hasPersistentThread()) {
       $form['clear_history'] = [
         '#type' => 'submit',
         '#value' => $this->t('Clear History'),
@@ -178,7 +178,7 @@ class ChatForm extends FormBase {
           if ($this->getChatConfig($form_state)['show_structured_results']) {
             $structured = $this->aiAssistantRunner->getStructuredResults();
             if ($structured) {
-              $output .= "\n\n<details>\n\n```\n" . Yaml::dump($structured, 10) . "\n```\n\n</details>";
+              $output .= "\n\n<details>\n\n```\n" . Xss::filter(Yaml::dump($structured, 10)) . "\n```\n\n</details>";
             }
           }
           $http_response = new Response($output);
@@ -201,8 +201,8 @@ class ChatForm extends FormBase {
             if ($this->getChatConfig($form_state)['show_structured_results']) {
               $structured = $this->aiAssistantRunner->getStructuredResults();
               if ($structured) {
-                echo "\n\n<details>\n\n```\n" . Yaml::dump($structured, 10) . "\n```\n\n</details>";
-                $full_response .= "\n\n<details>\n\n```\n" . Yaml::dump($structured, 10) . "\n```\n\n</details>";
+                echo "\n\n<details>\n\n```\n" . Xss::filter(Yaml::dump($structured, 10)) . "\n```\n\n</details>";
+                $full_response .= "\n\n<details>\n\n```\n" . Xss::filter(Yaml::dump($structured, 10)) . "\n```\n\n</details>";
                 flush();
               }
             }

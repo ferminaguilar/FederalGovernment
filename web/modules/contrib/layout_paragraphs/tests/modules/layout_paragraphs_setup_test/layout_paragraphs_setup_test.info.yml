@@ -1,0 +1,18 @@
+name: Layout Paragraphs Setup Test
+description: 'Test module for Layout Paragraphs setup and configuration.'
+package: 'Testing'
+type: module
+core_version_requirement: ^9 || ^10 || ^11
+dependencies:
+  - drupal:node
+  - drupal:field
+  - drupal:field_ui
+  - drupal:block
+  - paragraphs:paragraphs
+  - paragraphs:paragraphs_test
+  - layout_paragraphs:layout_paragraphs
+
+# Information added by Drupal.org packaging script on 2026-08-12
+version: '3.0.0-beta4'
+project: 'layout_paragraphs'
+datestamp: 1786566921

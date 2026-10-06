@@ -5,6 +5,11 @@ This document outlines the steps the Preparation Manager needs to take to pre-pu
 1. [Tag the security release](tagging_a_release.md) and push it up to the remote repository
 2. Visit https://git.drupalcode.org/project/ai/-/tags and verify that the tag corresponds to the correct version number and includes all intended changes.
 3. Check the diff between the last release and the new tag to ensure it matches the intended changes.
+4. Verify in the tag branch that the following UIs have been built and committed:
+   - `ui/mdxeditor/dist/assets`
+   - `ui/default-tools-editor/dist/assets`
+   - `ui/json-schema-editor/dist`
+   - `modules/ai_ckeditor/js/build`
 
 ## QA Test
 1. Review the list of issues and merge requests that were intended to be included in the security release.

@@ -82,16 +82,6 @@ text_to_image:
       constraints:
         min: 1
         max: 10
-    response_format:
-      label: 'Response Format'
-      description: 'The format in which the generated images are returned.'
-      type: 'string'
-      default: 'url'
-      required: false
-      constraints:
-        options:
-          - url
-          - b64_json
     size:
       label: 'Size'
       description: 'The size of the images that will be generated.'

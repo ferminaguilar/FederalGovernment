@@ -108,7 +108,7 @@ class EditComponentForm extends ComponentFormBase {
       }
     }
 
-    if (!($old_layout && $new_layout)) {
+    if (empty($old_layout) || empty($new_layout)) {
       return;
     }
 

@@ -19,12 +19,15 @@ use Drupal\views\Plugin\views\ViewsPluginInterface;
 trait LeafletSettingsElementsTrait {
 
   /**
-   * Get maps available for use with Leaflet.
+   * Get available Leaflet Base Maps.
+   *
+   * @return array
+   *   The array definitions of all defined Leaflet Maps.
    */
   protected static function getLeafletMaps() {
     $options = [];
     foreach (leaflet_map_get_info() as $key => $map) {
-      $options[$key] = $map['label'];
+      $options[$key] = $map['label'] ?? $key;
     }
     return $options;
   }
@@ -79,7 +82,7 @@ trait LeafletSettingsElementsTrait {
 
     return [
       'multiple_map' => FALSE,
-      'leaflet_map' => $base_layers['OSM Mapnik'] ? 'OSM Mapnik' : array_shift($base_layers),
+      'leaflet_map' => isset($base_layers['openstreetmap']) ? 'openstreetmap' : array_key_first($base_layers),
       'height' => 400,
       'height_unit' => 'px',
       'hide_empty_map' => FALSE,
@@ -188,13 +191,9 @@ trait LeafletSettingsElementsTrait {
    *   The settings.
    */
   protected function generateMapGeneralSettings(array &$elements, array $settings) {
-
-    $leaflet_map_options = [];
-    foreach (leaflet_map_get_info() as $key => $map) {
-      $leaflet_map_options[$key] = $map['label'];
-    }
-
-    $leaflet_map = $settings['leaflet_map'] ?? $settings['map'];
+    $default_settings = $this::getDefaultSettings();
+    $leaflet_map_options = $this->getLeafletMaps();
+    $leaflet_map_style = array_key_exists($settings['leaflet_map'], $leaflet_map_options) ? $settings['leaflet_map'] : $default_settings['leaflet_map'];
 
     $elements['leaflet_map'] = [
       '#title' => $this->t('Leaflet Map Tiles Layer'),
@@ -203,7 +202,7 @@ trait LeafletSettingsElementsTrait {
       ]),
       '#type' => 'select',
       '#options' => $leaflet_map_options,
-      '#default_value' => $leaflet_map,
+      '#default_value' => $leaflet_map_style,
       '#required' => TRUE,
     ];
 
@@ -636,7 +635,7 @@ trait LeafletSettingsElementsTrait {
     $element['iconSize'] = [
       '#title' => $this->t('Icon Size'),
       '#type' => 'fieldset',
-      '#description' => $this->t("Size of the icon image in pixels (if empty the natural icon image size will be used).<br>Both support <b>Replacement Patterns</b> and should end up into an Integer (positive value)<br>If one value is null it will be derived from the populated one, according to the natural icon image size rate."),
+      '#description' => $this->t("Size of the icon image in pixels (if empty the natural icon image size will be used, which requires looking up the image once per unique icon).<br>Both support <b>Replacement Patterns</b> and should end up into an Integer (positive value)<br>If one value is null it will be derived from the populated one, according to the natural icon image size rate."),
     ];
 
     $element['iconSize']['x'] = [
@@ -677,7 +676,7 @@ trait LeafletSettingsElementsTrait {
     $element['shadowSize'] = [
       '#title' => $this->t('Shadow Size'),
       '#type' => 'fieldset',
-      '#description' => $this->t("Size of the shadow image in pixels (if empty the natural shadow image size will be used). <br>Both support <b>Replacement Patterns</b> and should end up into an Integer (positive value)<br>If one value is null it will be derived from the populated one, according to the natural icon image size rate."),
+      '#description' => $this->t("Size of the shadow image in pixels (if empty the natural shadow image size will be used, which requires looking up the image once per unique image). <br>Both support <b>Replacement Patterns</b> and should end up into an Integer (positive value)<br>If one value is null it will be derived from the populated one, according to the natural icon image size rate."),
     ];
 
     $element['shadowSize']['x'] = [
@@ -748,7 +747,7 @@ trait LeafletSettingsElementsTrait {
     $element['replacement_patterns'] = [
       '#type' => 'details',
       '#title' => 'Replacement patterns',
-      '#description' => $this->t('The following replacement tokens are available for the "Popup Content and the Icon Options":'),
+      '#description' => $this->t('The following Replacement Tokens are available when declared in the following Leaflet settings.'),
     ];
 
     if ($this->moduleHandler->moduleExists('token')) {

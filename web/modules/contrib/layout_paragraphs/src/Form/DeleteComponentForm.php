@@ -7,6 +7,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\WorkspaceSafeFormInterface;
 use Drupal\layout_paragraphs\Ajax\LayoutParagraphsEventCommand;
 use Drupal\layout_paragraphs\Utility\Dialog;
 use Drupal\layout_paragraphs\LayoutParagraphsLayout;
@@ -16,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Defines a form for confirming deletion of a Layout Paragraphs component.
  */
-class DeleteComponentForm extends FormBase {
+class DeleteComponentForm extends FormBase implements WorkspaceSafeFormInterface {
 
   use LayoutParagraphsLayoutRefreshTrait;
 
