@@ -1,0 +1,51 @@
+name: Deploy to Namecheap Hosting
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH to Namecheap
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.FTP_SERVER || secrets.SSH_HOST || 'business53.web-hosting.com' }}
+          username: ${{ secrets.FTP_USERNAME || secrets.SSH_USER || 'fermpgjg' }}
+          password: ${{ secrets.FTP_PASSWORD || secrets.SSH_PASSWORD }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.FTP_PORT || secrets.SSH_PORT || 21098 }}
+          script: |
+            echo "=== 1. Updating Server Repository ==="
+            cd /home/fermpgjg/repositories/govfeds
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd
+            
+            echo "=== 2. Syncing Files to Live Website ==="
+            export DEPLOYPATH=/home/fermpgjg/govfed.us
+            export PATH=/opt/cpanel/ea-php83/root/usr/bin:$HOME/bin:/usr/local/bin:$PATH
+            export COMPOSER_MEMORY_LIMIT=-1
+            chmod 755 $DEPLOYPATH 2>/dev/null || true
+            chmod 755 $DEPLOYPATH/web/sites/default 2>/dev/null || true
+            /bin/rsync -a --chmod=D755,F644 --exclude='.git' --exclude='web/sites/default/files' --exclude='web/sites/default/settings.local.php' ./ $DEPLOYPATH/
+            
+            # Ensure permissions adhere to cPanel/LiteSpeed requirements (Dirs 755, Files 644, Executables 755)
+            chmod 755 $DEPLOYPATH
+            find $DEPLOYPATH -maxdepth 3 -type d -exec chmod 755 {} +
+            find $DEPLOYPATH -maxdepth 3 -type f -exec chmod 644 {} +
+            chmod -R 755 $DEPLOYPATH/vendor/bin 2>/dev/null || true
+            
+            echo "=== 3. Running Drupal Updates & Config Import ==="
+            cd $DEPLOYPATH
+            composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --ignore-platform-reqs
+            rm -rf $DEPLOYPATH/web/sites/default/files/php/twig/* 2>/dev/null || true
+            ./vendor/bin/drush updb -y
+            ./vendor/bin/drush cim -y
+            ./vendor/bin/drush cr
+            
+            echo "=== Deployment Completed Successfully! ==="

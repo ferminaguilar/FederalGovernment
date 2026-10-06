@@ -12,3 +12,10 @@ node_modules/
 
 # Ignore Drupal's generated settings if you want a clean repo
 /web/sites/default/settings.php
+# OS & IDE
+.DS_Store
+*/.DS_Store
+*/**/.DS_Store
+*.code-workspace
+.idea/
+.vscode/

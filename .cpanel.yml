@@ -1,0 +1,17 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/fermpgjg/govfed.us
+    - export PATH=/opt/cpanel/ea-php83/root/usr/bin:$HOME/bin:/usr/local/bin:$PATH
+    - export COMPOSER_MEMORY_LIMIT=-1
+    - /bin/rsync -a --chmod=D755,F644 --exclude='.git' --exclude='web/sites/default/files' --exclude='web/sites/default/settings.local.php' ./ $DEPLOYPATH/
+    - test -f $DEPLOYPATH/web/sites/default/settings.php || cp $DEPLOYPATH/web/sites/default/default.settings.php $DEPLOYPATH/web/sites/default/settings.php
+    - chmod 755 $DEPLOYPATH 2>/dev/null || true
+    - find $DEPLOYPATH -maxdepth 3 -type d -exec chmod 755 {} +
+    - find $DEPLOYPATH -maxdepth 3 -type f -exec chmod 644 {} +
+    - chmod -R 755 $DEPLOYPATH/vendor/bin 2>/dev/null || true
+    - cd $DEPLOYPATH && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --ignore-platform-reqs
+    - rm -rf $DEPLOYPATH/web/sites/default/files/php/twig/* 2>/dev/null || true
+    - cd $DEPLOYPATH && ./vendor/bin/drush updb -y
+    - cd $DEPLOYPATH && ./vendor/bin/drush cim -y
+    - cd $DEPLOYPATH && ./vendor/bin/drush cr
