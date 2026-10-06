@@ -41,6 +41,7 @@
         "drupal/simple_sitemap": "^4.2",
         "drupal/uswds": "^3.2",
         "drupal/uswds_base": "^3.10",
+        "drush/drush": "^13.8",
         "symfony/dotenv": "^7.3"
     },
     "conflict": {
@@ -123,8 +124,5 @@
                 "      composer remove drupal/core-project-message"
             ]
         }
-    },
-    "require-dev": {
-        "drush/drush": "^13.6"
     }
 }
