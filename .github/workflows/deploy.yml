@@ -14,11 +14,11 @@ jobs:
       - name: Deploy via SSH to Namecheap
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.FTP_SERVER || secrets.SSH_HOST || 'business53.web-hosting.com' }}
-          username: ${{ secrets.FTP_USERNAME || secrets.SSH_USER || 'fermpgjg' }}
-          password: ${{ secrets.FTP_PASSWORD || secrets.SSH_PASSWORD }}
+          host: ${{ secrets.SSH_HOST || secrets.FTP_SERVER || 'business53.web-hosting.com' }}
+          username: ${{ secrets.SSH_USER || secrets.FTP_USERNAME || 'fermpgjg' }}
+          password: ${{ secrets.SSH_PASSWORD || secrets.FTP_PASSWORD }}
           key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.FTP_PORT || secrets.SSH_PORT || 21098 }}
+          port: ${{ secrets.SSH_PORT || 21098 }}
           script: |
             echo "=== 1. Updating Server Repository ==="
             cd /home/fermpgjg/repositories/govfeds
