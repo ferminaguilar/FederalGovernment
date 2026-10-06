@@ -19,3 +19,4 @@ node_modules/
 *.code-workspace
 .idea/
 .vscode/
+/web/sites/default/settings.local.php
