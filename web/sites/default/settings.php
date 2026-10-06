@@ -6,17 +6,21 @@ $settings['hash_salt'] = 'db49rLTZQqtm7YuXqWyp0GYE2Q63J/QI0e+ugtQVGtU=';
 $settings['config_sync_directory'] = '../config/sync';
 $settings['skip_permissions_hardening'] = TRUE;
 
-// 2. Database Configuration (Default SQLite)
+// 2. Production Database Configuration (MySQL)
 $databases['default']['default'] = [
-  'database' => $app_root . '/' . $site_path . '/files/.ht.sqlite',
+  'database' => getenv('DB_NAME') ?: 'fermpgjg_drupal11',
+  'username' => getenv('DB_USER') ?: 'fermpgjg_fedgov',
+  'password' => getenv('DB_PASS') ?: 'hestiz-zyrgy4-cyPvyf',
   'prefix' => '',
-  'driver' => 'sqlite',
-  'namespace' => 'Drupal\\sqlite\\Driver\\Database\\sqlite',
-  'autoload' => 'core/modules/sqlite/src/Driver/Database/sqlite/',
-  'journal_mode' => 'WAL',
+  'host' => getenv('DB_HOST') ?: 'localhost',
+  'port' => getenv('DB_PORT') ?: '3306',
+  'driver' => 'mysql',
+  'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
+  'autoload' => 'core/modules/mysql/src/Driver/Database/mysql/',
+  'isolation_level' => 'READ COMMITTED',
 ];
 
-// 3. GitHub Codespaces / Reverse Proxy Support
+// 3. Reverse Proxy & HTTPS Support
 $settings['reverse_proxy'] = TRUE;
 $settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'];
 
@@ -39,12 +43,9 @@ $settings['trusted_host_patterns'] = [
 ];
 
 // 5. Performance/Environment Adjustments
-$settings['cache']['bins']['render'] = 'cache.backend.memory';
-$settings['cache']['bins']['dynamic_page_cache'] = 'cache.backend.memory';
-$settings['cache']['bins']['page'] = 'cache.backend.memory';
 $settings['image_allow_insecure_derivatives'] = TRUE;
 
-// 6. Local Settings Include
+// 6. Local Settings Include (Loads MAMP settings.local.php locally)
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }
