@@ -14,9 +14,8 @@ jobs:
       - name: Deploy via SSH to Namecheap
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST || secrets.FTP_SERVER || 'business53.web-hosting.com' }}
-          username: ${{ secrets.SSH_USER || secrets.FTP_USERNAME || 'fermpgjg' }}
-          password: ${{ secrets.SSH_PASSWORD || secrets.FTP_PASSWORD }}
+          host: ${{ secrets.SSH_HOST || 'business53.web-hosting.com' }}
+          username: ${{ secrets.SSH_USER || 'fermpgjg' }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 21098 }}
           script: |
