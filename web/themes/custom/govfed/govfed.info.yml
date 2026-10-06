@@ -25,4 +25,4 @@ regions:
   footer_secondary: 'Secondary Footer'
 
 libraries:
-  - 'uswds_base_subtheme/assets'
+  - 'govfed/assets'

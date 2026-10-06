@@ -1,3 +1,3 @@
-uswds_base_subtheme.settings:
+govfed.settings:
   type: theme_settings
   label: 'GovFed Base settings'
