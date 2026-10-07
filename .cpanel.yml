@@ -9,8 +9,8 @@ deployment:
     - chmod 755 $DEPLOYPATH 2>/dev/null || true
     - find $DEPLOYPATH -maxdepth 3 -type d -exec chmod 755 {} +
     - find $DEPLOYPATH -maxdepth 3 -type f -exec chmod 644 {} +
-    - chmod -R 755 $DEPLOYPATH/vendor/bin 2>/dev/null || true
     - cd $DEPLOYPATH && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --ignore-platform-reqs
+    - chmod -R 755 $DEPLOYPATH/vendor/bin $DEPLOYPATH/vendor/drush 2>/dev/null || true
     - rm -rf $DEPLOYPATH/web/sites/default/files/php/twig/* 2>/dev/null || true
     - cd $DEPLOYPATH && ./vendor/bin/drush updb -y
     - cd $DEPLOYPATH && ./vendor/bin/drush cim -y
