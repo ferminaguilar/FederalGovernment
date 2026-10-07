@@ -1,0 +1,21 @@
+uuid: a6e1b1c8-c03d-4a0d-a68a-9b21c598635f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_date_only_test
+    - node.type.leader
+  module:
+    - datetime
+id: node.leader.field_date_only_test
+field_name: field_date_only_test
+entity_type: node
+bundle: leader
+label: 'Date Only TEST'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

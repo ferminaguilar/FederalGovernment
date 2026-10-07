@@ -1,0 +1,20 @@
+uuid: 91b3fd1c-e31b-4a5a-b97d-3fb0bc17dbba
+langcode: en
+status: true
+dependencies:
+  module:
+    - datetime
+    - node
+id: node.field_date_only_test
+field_name: field_date_only_test
+entity_type: node
+type: datetime
+settings:
+  datetime_type: date
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

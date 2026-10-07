@@ -4,10 +4,14 @@ status: true
 dependencies:
   config:
     - field.field.node.leader.field_bio
+    - field.field.node.leader.field_date_only_test
+    - field.field.node.leader.field_date_range_test
     - field.field.node.leader.field_office_or_bureau
     - field.field.node.leader.field_profile_picture
     - node.type.leader
   module:
+    - datetime
+    - datetime_range
     - media_library
     - path
 id: node.leader.default
@@ -28,6 +32,18 @@ content:
     settings:
       rows: 5
       placeholder: ''
+    third_party_settings: {  }
+  field_date_only_test:
+    type: datetime_default
+    weight: 124
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_date_range_test:
+    type: daterange_default
+    weight: 125
+    region: content
+    settings: {  }
     third_party_settings: {  }
   field_office_or_bureau:
     type: entity_reference_autocomplete

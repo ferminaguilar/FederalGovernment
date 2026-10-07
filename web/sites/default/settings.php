@@ -49,3 +49,5 @@ $settings['image_allow_insecure_derivatives'] = TRUE;
 if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
   include $app_root . '/' . $site_path . '/settings.local.php';
 }
+
+$settings['enable_html5_validation'] = TRUE;

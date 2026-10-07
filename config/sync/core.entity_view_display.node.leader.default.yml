@@ -4,10 +4,14 @@ status: true
 dependencies:
   config:
     - field.field.node.leader.field_bio
+    - field.field.node.leader.field_date_only_test
+    - field.field.node.leader.field_date_range_test
     - field.field.node.leader.field_office_or_bureau
     - field.field.node.leader.field_profile_picture
     - node.type.leader
   module:
+    - datetime
+    - datetime_range
     - user
 id: node.leader.default
 targetEntityType: node
@@ -20,6 +24,26 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 101
+    region: content
+  field_date_only_test:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: medium
+    third_party_settings: {  }
+    weight: 104
+    region: content
+  field_date_range_test:
+    type: daterange_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: medium
+      from_to: both
+      separator: '-'
+    third_party_settings: {  }
+    weight: 105
     region: content
   field_office_or_bureau:
     type: entity_reference_label

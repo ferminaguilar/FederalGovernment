@@ -11,7 +11,7 @@ _core:
 id: govfed_search_form_narrow
 theme: govfed
 region: primary_menu
-weight: -4
+weight: -5
 provider: null
 plugin: search_form_block
 settings:

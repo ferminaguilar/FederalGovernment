@@ -1,0 +1,21 @@
+uuid: 0a3a5ec4-1d34-42ca-bbcb-9289662f87eb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_date_range_test
+    - node.type.leader
+  module:
+    - datetime_range
+id: node.leader.field_date_range_test
+field_name: field_date_range_test
+entity_type: node
+bundle: leader
+label: 'Date RANGE TEST'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: daterange

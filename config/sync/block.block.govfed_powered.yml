@@ -10,8 +10,8 @@ _core:
   default_config_hash: eYL19CLDyinGTWYQfBD1DswWzglEotE_kHnHx3AxTXM
 id: govfed_powered
 theme: govfed
-region: header_top
-weight: 0
+region: footer_secondary
+weight: -6
 provider: null
 plugin: system_powered_by_block
 settings:
