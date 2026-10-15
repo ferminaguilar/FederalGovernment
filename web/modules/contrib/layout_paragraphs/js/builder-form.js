@@ -18,10 +18,16 @@
         'lpb-component:drop.lpb',
       ].join(' ');
       $(once('lpb-builder-form', '[data-lpb-id]', context)).on(events, (e) => {
-        e.currentTarget
-          .closest('[data-lpb-form-id]')
-          .querySelector('[data-drupal-selector="edit-close"]').value =
-          Drupal.t('Cancel');
+        const form = e.currentTarget.closest('[data-lpb-form-id]');
+        if (!form) {
+          return;
+        }
+        const closeButton = form.querySelector(
+          '[data-drupal-selector="edit-close"]',
+        );
+        if (closeButton) {
+          closeButton.value = Drupal.t('Cancel');
+        }
       });
     },
   };

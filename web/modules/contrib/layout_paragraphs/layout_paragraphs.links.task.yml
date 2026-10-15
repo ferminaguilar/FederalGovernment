@@ -14,3 +14,9 @@ layout_paragraphs.modal_settings:
   title: 'Modal Settings'
   base_route: layout_paragraphs.label_settings
   weight: 200
+
+layout_paragraphs.builder_settings:
+  route_name: layout_paragraphs.builder_settings
+  title: 'Builder Widget'
+  base_route: layout_paragraphs.label_settings
+  weight: 300

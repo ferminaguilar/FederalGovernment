@@ -1,0 +1,12 @@
+name: Layout Paragraphs Translation Access Test
+description: Helper module that forbids updating selected node translations
+core_version_requirement: ^10 || ^11
+type: module
+package: Layout Paragraphs
+dependencies:
+  - drupal:node
+
+# Information added by Drupal.org packaging script on 2026-10-09
+version: '3.0.0'
+project: 'layout_paragraphs'
+datestamp: 1791575584

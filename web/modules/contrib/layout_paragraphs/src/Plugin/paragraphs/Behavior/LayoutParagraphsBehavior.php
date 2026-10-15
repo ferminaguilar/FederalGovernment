@@ -3,6 +3,8 @@
 namespace Drupal\layout_paragraphs\Plugin\paragraphs\Behavior;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\OptGroup;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Layout\LayoutInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -177,9 +179,94 @@ class LayoutParagraphsBehavior extends ParagraphsBehaviorBase {
         '#weight' => 10,
       ];
       $form['config'] += $plugin_form->buildConfigurationForm([], $form_state);
+      $this->discardStaleConfigValues(
+        $form['config'],
+        array_merge($form['#parents'], ['config']),
+        $plugin_instance->defaultConfiguration(),
+        $form_state
+      );
     }
 
     return $form;
+  }
+
+  /**
+   * Drops config values the selected layout does not accept.
+   *
+   * When the layout changes, the submitted input and the #default_value still
+   * hold the previous layout's settings. A value that is not one of the new
+   * layout's #options fails validation, which stops the form from being
+   * rebuilt with the "Move Orphaned Items" element.
+   *
+   * @param array $elements
+   *   The layout configuration form.
+   * @param array $parents
+   *   The parents of $elements, used to address the user input.
+   * @param array $defaults
+   *   The target layout plugin's default configuration.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state object.
+   */
+  protected function discardStaleConfigValues(array &$elements, array $parents, array $defaults, FormStateInterface $form_state) {
+    $input = $form_state->getUserInput();
+    $this->discardStaleConfigValuesRecursive($elements, $parents, $defaults, $input);
+    $form_state->setUserInput($input);
+  }
+
+  /**
+   * Recursive worker for static::discardStaleConfigValues().
+   *
+   * @param array $elements
+   *   The form elements to walk.
+   * @param array $parents
+   *   The parents of $elements.
+   * @param array $defaults
+   *   The target layout plugin's default configuration.
+   * @param array $input
+   *   The user input, altered by reference.
+   */
+  protected function discardStaleConfigValuesRecursive(array &$elements, array $parents, array $defaults, array &$input) {
+    foreach (Element::children($elements) as $key) {
+      $element = &$elements[$key];
+      $path = array_merge($parents, [$key]);
+      if (isset($element['#options'])) {
+        $options = OptGroup::flattenOptions($element['#options']);
+        if (isset($element['#default_value']) && !$this->isAllowedOption($element['#default_value'], $options)) {
+          $element['#default_value'] = array_key_exists($key, $defaults) && $this->isAllowedOption($defaults[$key], $options)
+            ? $defaults[$key]
+            : array_key_first($options);
+        }
+        $submitted = NestedArray::getValue($input, $path, $exists);
+        if ($exists && !$this->isAllowedOption($submitted, $options)) {
+          NestedArray::unsetValue($input, $path);
+        }
+      }
+      $this->discardStaleConfigValuesRecursive($element, $path, $defaults, $input);
+    }
+  }
+
+  /**
+   * Checks a submitted or default value against a set of allowed options.
+   *
+   * @param mixed $value
+   *   The value to check. Arrays - multi-value selects, checkboxes - are
+   *   allowed only when every item is.
+   * @param array $options
+   *   The flattened #options array.
+   *
+   * @return bool
+   *   TRUE if the value is allowed.
+   */
+  protected function isAllowedOption($value, array $options) {
+    if (is_array($value)) {
+      foreach ($value as $item) {
+        if (!$this->isAllowedOption($item, $options)) {
+          return FALSE;
+        }
+      }
+      return TRUE;
+    }
+    return is_scalar($value) && isset($options[$value]);
   }
 
   /**

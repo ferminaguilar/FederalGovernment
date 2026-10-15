@@ -22,6 +22,14 @@ layout_paragraphs.modal_settings:
   requirements:
     _permission: 'administer site configuration'
 
+layout_paragraphs.builder_settings:
+  path: '/admin/config/content/layout_paragraphs/builder'
+  defaults:
+    _form: '\Drupal\layout_paragraphs\Form\LayoutParagraphsBuilderSettingsForm'
+    _title: 'Layout Paragraphs Builder Settings'
+  requirements:
+    _permission: 'administer site configuration'
+
 layout_paragraphs.builder.formatter:
   path: '/layout-paragraphs-builder/formatter/{entity_type}/{entity}/{field_name}/{view_mode}'
   defaults:
@@ -117,5 +125,29 @@ layout_paragraphs.builder.reorder:
         layout_paragraphs_layout_tempstore: TRUE
       paragraph_type:
         type: entity:paragraphs_type
+  requirements:
+    _layout_paragraphs_builder_access: 'TRUE'
+
+layout_paragraphs.builder.save:
+  path: '/layout-paragraphs-builder/{layout_paragraphs_layout}/save'
+  defaults:
+    _form: '\Drupal\layout_paragraphs\Form\SaveLayoutForm'
+    operation: 'update'
+  options:
+    parameters:
+      layout_paragraphs_layout:
+        layout_paragraphs_layout_tempstore: TRUE
+  requirements:
+    _layout_paragraphs_builder_access: 'TRUE'
+
+layout_paragraphs.builder.close:
+  path: '/layout-paragraphs-builder/{layout_paragraphs_layout}/close'
+  defaults:
+    _form: '\Drupal\layout_paragraphs\Form\CloseLayoutForm'
+    operation: 'update'
+  options:
+    parameters:
+      layout_paragraphs_layout:
+        layout_paragraphs_layout_tempstore: TRUE
   requirements:
     _layout_paragraphs_builder_access: 'TRUE'

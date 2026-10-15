@@ -14,6 +14,8 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\layout_paragraphs\Utility\Dialog;
 use Drupal\paragraphs\Entity\ParagraphsType;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\layout_builder\Plugin\Block\FieldBlock;
+use Drupal\layout_paragraphs\Plugin\Block\LayoutParagraphsFieldBlock;
 
 /**
  * Implements hook_help().
@@ -72,6 +74,7 @@ function layout_paragraphs_theme() {
         'edit_access' => FALSE,
         'duplicate_access' => FALSE,
         'delete_access' => FALSE,
+        'move_access' => FALSE,
         'convert_access' => FALSE,
       ],
     ],
@@ -170,6 +173,7 @@ function layout_paragraphs_preprocess_layout_paragraphs_builder_controls(&$varia
         'aria-describedby' => $id . '--tip',
       ],
       '#weight' => 10,
+      '#access' => $variables['move_access'],
     ],
     'label' => [
       '#type' => 'html_tag',
@@ -189,6 +193,7 @@ function layout_paragraphs_preprocess_layout_paragraphs_builder_controls(&$varia
         'title' => t('Move up'),
       ],
       '#weight' => 40,
+      '#access' => $variables['move_access'],
     ],
     'move_down' => [
       '#type' => 'link',
@@ -199,6 +204,7 @@ function layout_paragraphs_preprocess_layout_paragraphs_builder_controls(&$varia
         'title' => t('Move down'),
       ],
       '#weight' => 50,
+      '#access' => $variables['move_access'],
     ],
     'edit_link' => [
       '#type' => 'link',
@@ -268,12 +274,7 @@ function layout_paragraphs_preprocess_layout_paragraphs_builder_controls(&$varia
           'use-ajax',
         ],
         'data-dialog-type' => 'dialog',
-        'data-dialog-options' => Json::encode([
-          'modal' => TRUE,
-          'target' => Dialog::dialogId($layout),
-          'dialogClass' => 'lpb-dialog',
-          'width' => 'auto',
-        ]),
+        'data-dialog-options' => Json::encode(['drupalAutoButtons' => TRUE] + Dialog::dialogSettings($layout)),
         'title' => t('Delete'),
       ],
       '#access' => $variables['delete_access'],
@@ -504,6 +505,30 @@ function _layout_paragraphs_get_paragraphs(ParagraphInterface $paragraph) {
   /** @var \Drupal\Core\Field\EntityReferenceFieldItemList $item_list */
   $item_list = $host->get($field_name);
   return $item_list->referencedEntities();
+}
+
+/**
+ * Implements hook_block_alter().
+ *
+ * Replaces the Layout Builder field block class for the fields the Layout
+ * Paragraphs Builder formatter can be used with.
+ *
+ * @see \Drupal\layout_paragraphs\Plugin\Block\LayoutParagraphsFieldBlock
+ */
+function layout_paragraphs_block_alter(array &$definitions) {
+  $formatter = \Drupal::service('plugin.manager.field.formatter')->getDefinition('layout_paragraphs_builder', FALSE);
+  foreach ($formatter['field_types'] ?? [] as $field_type) {
+    foreach (\Drupal::service('entity_field.manager')->getFieldMapByFieldType($field_type) as $entity_type_id => $fields) {
+      foreach ($fields as $field_name => $field_info) {
+        foreach ($field_info['bundles'] as $bundle) {
+          $id = "field_block:$entity_type_id:$bundle:$field_name";
+          if (($definitions[$id]['class'] ?? NULL) === FieldBlock::class) {
+            $definitions[$id]['class'] = LayoutParagraphsFieldBlock::class;
+          }
+        }
+      }
+    }
+  }
 }
 
 /**

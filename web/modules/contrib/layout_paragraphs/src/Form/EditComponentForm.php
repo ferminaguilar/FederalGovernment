@@ -4,6 +4,7 @@ namespace Drupal\layout_paragraphs\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\layout_paragraphs\LayoutParagraphsLayout;
 use Drupal\layout_paragraphs\Ajax\LayoutParagraphsEventCommand;
@@ -96,10 +97,11 @@ class EditComponentForm extends ComponentFormBase {
         '#type' => 'container',
         '#weight' => 5,
       ];
-      if ($selected_layout = $form_state->getValue([
-        'layout_paragraphs',
-        'layout',
-      ])) {
+      // Form values are not set when another element failed validation.
+      $path = ['layout_paragraphs', 'layout'];
+      $selected_layout = $form_state->getValue($path)
+        ?? NestedArray::getValue($form_state->getUserInput(), $path);
+      if ($selected_layout) {
         $section = $this->layoutParagraphsLayout->getLayoutSection($this->paragraph);
         if ($section && $selected_layout != $section->getLayoutId()) {
           $old_layout = $section->getLayoutId();
@@ -145,7 +147,36 @@ class EditComponentForm extends ComponentFormBase {
     if ($form_state->getValue(['layout_paragraphs', 'move_items'])) {
       $this->moveItemsSubmit($form, $form_state);
     }
+    $this->rescueOrphanedComponents();
     $this->tempstore->set($this->layoutParagraphsLayout);
+  }
+
+  /**
+   * Moves components in regions the section's layout does not have.
+   *
+   * Components the editor did not move with the "Move Orphaned Items" element
+   * go to the layout's default region, since components in a missing region
+   * are not rendered.
+   */
+  protected function rescueOrphanedComponents() {
+    $section = $this->layoutParagraphsLayout->getLayoutSection($this->paragraph);
+    if (!$section) {
+      return;
+    }
+    $layout_id = $section->getLayoutId();
+    $regions = $this->getLayoutRegions($layout_id);
+    if (!$regions) {
+      return;
+    }
+    $default_region = $this->layoutPluginManager
+      ->getDefinition($layout_id)
+      ->getDefaultRegion() ?: array_key_first($regions);
+    foreach ($section->getComponents() as $component) {
+      if (!isset($regions[$component->getRegion()])) {
+        $component->setSettings(['region' => $default_region]);
+        $this->layoutParagraphsLayout->setComponent($component->getEntity());
+      }
+    }
   }
 
   /**

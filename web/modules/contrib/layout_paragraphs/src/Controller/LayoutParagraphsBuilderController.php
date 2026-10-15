@@ -101,6 +101,11 @@ class LayoutParagraphsBuilderController extends ControllerBase {
   /**
    * Access check.
    *
+   * Besides the builder access check, requires update access on the route
+   * entity itself. That is the host translation the builder edits and saves,
+   * while the builder access check sees the default translation when the
+   * reference field is untranslatable.
+   *
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user account.
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
@@ -108,11 +113,13 @@ class LayoutParagraphsBuilderController extends ControllerBase {
    * @param string $field_name
    *   The name of the reference field.
    *
-   * @return \Drupal\Core\Access\AccessResult
+   * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
    */
   public function access(AccountInterface $account, ContentEntityInterface $entity, $field_name) {
-    return $this->layoutParagraphsBuilderAccess->access($account, new LayoutParagraphsLayout($entity->$field_name));
+    return $this->layoutParagraphsBuilderAccess
+      ->access($account, new LayoutParagraphsLayout($entity->$field_name))
+      ->andIf($entity->access('update', $account, TRUE));
   }
 
 }

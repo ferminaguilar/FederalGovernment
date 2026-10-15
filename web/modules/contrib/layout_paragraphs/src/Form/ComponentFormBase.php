@@ -9,6 +9,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Layout\LayoutPluginManagerInterface;
+use Drupal\Core\Render\Element;
 use Drupal\field_group\FormatterHelper;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Form\FormStateInterface;
@@ -20,6 +21,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\WorkspaceSafeFormInterface;
 use Drupal\paragraphs\ParagraphInterface;
+use Drupal\paragraphs\Plugin\Field\FieldWidget\ParagraphsWidget;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\layout_paragraphs\Contracts\ComponentFormInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -91,6 +93,13 @@ abstract class ComponentFormBase extends FormBase implements ComponentFormInterf
    * @var string
    */
   protected $formMode = 'default';
+
+  /**
+   * The form display the component form was built with.
+   *
+   * @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null
+   */
+  protected $formDisplay;
 
   /**
    * {@inheritdoc}
@@ -171,6 +180,7 @@ abstract class ComponentFormBase extends FormBase implements ComponentFormInterf
 
     $this->initFormLangcodes($form_state);
     $display = EntityFormDisplay::collectRenderDisplay($this->paragraph, $form_display_mode);
+    $this->formDisplay = $display;
     $display->buildForm($this->paragraph, $form, $form_state);
     $this->paragraphType = $this->paragraph->getParagraphType();
     $lp_config = $this->config('layout_paragraphs.settings');
@@ -263,6 +273,32 @@ abstract class ComponentFormBase extends FormBase implements ComponentFormInterf
       }
       elseif (function_exists('field_group_form_process')) {
         $form['#process'][] = 'field_group_form_process';
+      }
+    }
+
+    // Untranslatable fields are shared by every translation, so they are
+    // hidden or labeled as such while translating, as in ParagraphsWidget.
+    if (!$this->paragraph->isDefaultTranslation()) {
+      $hide_untranslatable_fields = $this->paragraph->isDefaultTranslationAffectedOnly();
+      foreach (Element::children($form) as $field_name) {
+        if (!$this->paragraph->hasField($field_name)) {
+          continue;
+        }
+        $field_definition = $this->paragraph->getFieldDefinition($field_name);
+        $is_paragraph_field = $field_definition->getType() === 'entity_reference_revisions'
+          && $field_definition->getSetting('target_type') === 'paragraph';
+        if ($field_definition->isTranslatable() || $is_paragraph_field) {
+          continue;
+        }
+        if ($hide_untranslatable_fields) {
+          $form[$field_name]['#access'] = FALSE;
+        }
+        else {
+          $form[$field_name]['widget']['#after_build'][] = [
+            ParagraphsWidget::class,
+            'addTranslatabilityClue',
+          ];
+        }
       }
     }
     return $form;
@@ -642,6 +678,29 @@ abstract class ComponentFormBase extends FormBase implements ComponentFormInterf
    */
   public function setFormMode($view_mode) {
     $this->formMode = $view_mode;
+  }
+
+  /**
+   * Gets the paragraph entity.
+   *
+   * @return \Drupal\paragraphs\ParagraphInterface
+   *   The paragraph entity.
+   */
+  public function getEntity() {
+    return $this->paragraph;
+  }
+
+  /**
+   * Gets the form display the component form was built with.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return \Drupal\Core\Entity\Display\EntityFormDisplayInterface|null
+   *   The form display, or NULL if the form has not been built yet.
+   */
+  public function getFormDisplay(FormStateInterface $form_state) {
+    return $this->formDisplay;
   }
 
 }

@@ -8,7 +8,7 @@ dependencies:
   - ai:ai
   - field_widget_actions:field_widget_actions
 
-# Information added by Drupal.org packaging script on 2026-10-02
-version: '1.5.1'
+# Information added by Drupal.org packaging script on 2026-10-07
+version: '1.5.2'
 project: 'ai_content_suggestions'
-datestamp: 1790965414
+datestamp: 1791397979

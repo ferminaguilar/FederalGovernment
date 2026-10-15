@@ -44,20 +44,61 @@ describe('Layout Paragraphs Duplicate Components Tests', () => {
     // Add a three-column section.
     cy.lpAddSection('layout_threecol_25_50_25', '.lpb-btn--add');
 
-    // Add a component to the first column.
+    // Add multiple components to each column in a known order.
     cy.lpAddTextComponent(
-      'Component in first column.',
+      'First column component 1.',
       '.layout__region--first .lpb-btn--add',
     );
+    cy.lpAddTextComponent(
+      'First column component 2.',
+      '.layout__region--first .lpb-btn--add',
+    );
+    cy.lpAddTextComponent(
+      'Second column component 1.',
+      '.layout__region--second .lpb-btn--add',
+    );
+    cy.lpAddTextComponent(
+      'Second column component 2.',
+      '.layout__region--second .lpb-btn--add',
+    );
+    cy.lpAddTextComponent(
+      'Third column component 1.',
+      '.layout__region--third .lpb-btn--add',
+    );
+    cy.lpAddTextComponent(
+      'Third column component 2.',
+      '.layout__region--third .lpb-btn--add',
+    );
 
-    // The second-column add button may be covered by the region overlay after
-    // the first component was added, so use { force: true }.
-    cy.get('.layout__region--second .lpb-btn--add').first().click({ force: true });
-    cy.get('.lpb-component-list a').contains('Text').click();
-    cy.lpSetCKEditor5Value('field_lp_test_text', 'Component in second column.');
-    cy.get('button.lpb-btn--save:visible').click();
-    cy.contains('Component in second column.').should('be.visible');
-    cy.get('.ajax-progress').should('not.exist');
+    const componentText = ($components) =>
+      [...$components].map((component) =>
+        component
+          .querySelector('.field--name-field-lp-test-text')
+          .textContent.trim(),
+      );
+
+    let firstColumnOrder;
+    let secondColumnOrder;
+    let thirdColumnOrder;
+
+    cy.get('.layout__region--first [data-type="lp_test_text"]').then(
+      ($components) => {
+        firstColumnOrder = componentText($components);
+        expect(firstColumnOrder).to.have.length(2);
+      },
+    );
+    cy.get('.layout__region--second [data-type="lp_test_text"]').then(
+      ($components) => {
+        secondColumnOrder = componentText($components);
+        expect(secondColumnOrder).to.have.length(2);
+      },
+    );
+    cy.get('.layout__region--third [data-type="lp_test_text"]').then(
+      ($components) => {
+        thirdColumnOrder = componentText($components);
+        expect(thirdColumnOrder).to.have.length(2);
+      },
+    );
 
     // Activate the section itself (first component, index 1) and duplicate it.
     cy.lpFindComponent(1);
@@ -67,17 +108,30 @@ describe('Layout Paragraphs Duplicate Components Tests', () => {
     // Save the node.
     cy.lpSavePage();
 
-    // Both nested components should appear twice (once per section copy).
-    cy.get('body').then(($body) => {
-      const html = $body.html();
-      const firstCount = (
-        html.match(/Component in first column\./g) || []
-      ).length;
-      const secondCount = (
-        html.match(/Component in second column\./g) || []
-      ).length;
-      expect(firstCount).to.be.at.least(2);
-      expect(secondCount).to.be.at.least(2);
-    });
+    // Each copied region should preserve its original nested component order.
+    cy.get('.layout__region--first .paragraph--type--lp-test-text').then(
+      ($components) => {
+        expect(componentText($components)).to.deep.equal([
+          ...firstColumnOrder,
+          ...firstColumnOrder,
+        ]);
+      },
+    );
+    cy.get('.layout__region--second .paragraph--type--lp-test-text').then(
+      ($components) => {
+        expect(componentText($components)).to.deep.equal([
+          ...secondColumnOrder,
+          ...secondColumnOrder,
+        ]);
+      },
+    );
+    cy.get('.layout__region--third .paragraph--type--lp-test-text').then(
+      ($components) => {
+        expect(componentText($components)).to.deep.equal([
+          ...thirdColumnOrder,
+          ...thirdColumnOrder,
+        ]);
+      },
+    );
   });
 });

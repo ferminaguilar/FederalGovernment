@@ -7,7 +7,6 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Layout\LayoutPluginManagerInterface;
-use Drupal\paragraphs\ParagraphInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -18,6 +17,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\layout_paragraphs\LayoutParagraphsLayoutTempstoreRepository;
+use Drupal\layout_paragraphs\LayoutParagraphsTranslationHandlerInterface;
 
 /**
  * Layout paragraphs widget.
@@ -126,6 +126,13 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
   protected $contentTranslationManager;
 
   /**
+   * The layout paragraphs translation handler.
+   *
+   * @var \Drupal\layout_paragraphs\LayoutParagraphsTranslationHandlerInterface
+   */
+  protected $translationHandler;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(
@@ -142,6 +149,7 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
     ConfigFactoryInterface $config_factory,
     EntityRepositoryInterface $entity_repository,
     $content_translation_manager,
+    ?LayoutParagraphsTranslationHandlerInterface $translation_handler = NULL,
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
 
@@ -153,6 +161,10 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
     $this->entityRepository = $entity_repository;
     $this->config = $config_factory->get('layout_paragraphs.settings');
     $this->contentTranslationManager = $content_translation_manager;
+    // Subclasses and direct instantiations that predate the translation
+    // handler argument get the handler from the container.
+    // phpcs:ignore DrupalPractice.Objects.GlobalDrupal.GlobalDrupal, Drupal.Commenting.PostStatementComment.Found
+    $this->translationHandler = $translation_handler ?? \Drupal::service('layout_paragraphs.translation_handler'); // @phpstan-ignore globalDrupalDependencyInjection.useDependencyInjection
   }
 
   /**
@@ -172,7 +184,8 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
       $container->get('entity_display.repository'),
       $container->get('config.factory'),
       $container->get('entity.repository'),
-      $container->has('content_translation.manager') ? $container->get('content_translation.manager') : NULL
+      $container->has('content_translation.manager') ? $container->get('content_translation.manager') : NULL,
+      $container->get('layout_paragraphs.translation_handler')
     );
   }
 
@@ -236,30 +249,14 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
     }
     /** @var \Drupal\Core\Entity\ContentEntityInterface $host */
     $host = $this->layoutParagraphsLayout->getEntity();
-    $this->isTranslating = FALSE;
-    if (!$host->isTranslatable()) {
-      return $this->isTranslating;
-    }
-    if (!$host->getEntityType()->hasKey('default_langcode')) {
-      return $this->isTranslating;
-    }
-    $default_langcode_key = $host->getEntityType()->getKey('default_langcode');
-    if (!$host->hasField($default_langcode_key)) {
-      return $this->isTranslating;
-    }
-
-    $content_translation = $form_state->get('content_translation');
-    $langcode = $form_state->get('langcode');
-    // Support for
+    // A content_translation form state value means a
+    // translation is being added through
     // \Drupal\content_translation\Controller\ContentTranslationController.
-    if (!empty($content_translation)) {
-      // Adding a translation.
-      $this->isTranslating = TRUE;
-    }
-    if (isset($langcode) && $host->hasTranslation($langcode) && $host->getTranslation($langcode)->get($default_langcode_key)->value == 0) {
-      // Editing a translation.
-      $this->isTranslating = TRUE;
-    }
+    $this->isTranslating = $this->translationHandler->isTranslating(
+      $host,
+      $form_state->get('langcode'),
+      !empty($form_state->get('content_translation')),
+    );
     return $this->isTranslating;
   }
 
@@ -267,7 +264,8 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
    * Initialize translations for item list.
    *
    * Makes sure all components have a translation for the current
-   * language and creates them if necessary.
+   * language and creates them if necessary. Records the translation mode and
+   * the current language on the layout as well.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
@@ -280,70 +278,27 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
       ->getTranslationFromContext($this->layoutParagraphsLayout->getEntity())
       ->language()
       ->getId();
-    $items = $this->layoutParagraphsLayout->getParagraphsReferenceField();
-    /** @var \Drupal\entity_reference_revisions\Plugin\Field\FieldType\EntityReferenceRevisionsItem $item */
-    foreach ($items as $delta => $item) {
-      if (!empty($item->entity) && $item->entity instanceof ParagraphInterface) {
-        // Now we're sure it's a paragraph:
-        $paragraph = $item->entity;
-        if (!$this->isTranslating($form_state)) {
-          // Set the langcode if we are not translating.
-          $langcode_key = $paragraph->getEntityType()->getKey('langcode');
-          if ($paragraph->get($langcode_key)->value != $this->langcode) {
-            // If a translation in the given language already exists,
-            // switch to that. If there is none yet, update the language.
-            if ($paragraph->hasTranslation($this->langcode)) {
-              $paragraph = $paragraph->getTranslation($this->langcode);
-            }
-            else {
-              $paragraph->set($langcode_key, $this->langcode);
-            }
-          }
-        }
-        else {
-          // Add translation if missing for the target language,
-          // if the paragraph is translatable at all:
-          if ($paragraph->isTranslatable() && !$paragraph->hasTranslation($this->langcode)) {
-            // Get the selected translation of the paragraph entity.
-            $entity_langcode = $paragraph->language()->getId();
-            $source_langcode = $this->sourceLangcode ?? $entity_langcode;
-            // Make sure the source language version is used if available.
-            // Fetching the translation without this check could lead valid
-            // scenario to have no paragraphs items in the source version of
-            // to an exception.
-            if ($paragraph->hasTranslation($source_langcode)) {
-              $paragraph = $paragraph->getTranslation($source_langcode);
-            }
-            // The paragraphs entity has no content translation source field
-            // if no paragraph entity field is translatable,
-            // even if the host is.
-            if ($paragraph->hasField('content_translation_source')) {
-              // Initialize the translation with source language values.
-              $paragraph->addTranslation($this->langcode, $paragraph->toArray());
-              $translation = $paragraph->getTranslation($this->langcode);
-              $this->contentTranslationManager->getTranslationMetadata($translation)
-                ->setSource($paragraph->language()->getId());
-            }
-          }
-          // If any paragraphs type is translatable do not switch.
-          if ($paragraph->isTranslatable() && $paragraph->hasField('content_translation_source')) {
-            // Switch the paragraph to the translation.
-            $paragraph = $paragraph->getTranslation($this->langcode);
-          }
-        }
-        // Use setValue() with a structured array including target_id and
-        // target_revision_id to prevent onChange('entity') from firing. Direct
-        // assignment ($item->entity = $paragraph) triggers __set() which calls
-        // onChange('entity'), potentially nulling out target_id and causing
-        // existing paragraphs to be treated as new (duplicate UUID INSERT).
-        $items[$delta]->setValue([
-          'entity' => $paragraph,
-          'target_id' => $paragraph->id(),
-          'target_revision_id' => $paragraph->getRevisionId(),
-        ], FALSE);
-      }
-    }
-    $this->layoutParagraphsLayout->setParagraphsReferenceField($items);
+    $is_translating = $this->isTranslating($form_state);
+    $this->translationHandler->initTranslations(
+      $this->layoutParagraphsLayout,
+      $is_translating,
+      $this->langcode,
+      $this->sourceLangcode,
+    );
+    // The component routes have nothing but the layout to render the builder
+    // from, so the translation mode is recorded on the layout.
+    $this->layoutParagraphsLayout->setThirdPartySetting(
+      'layout_paragraphs',
+      'is_translating',
+      $is_translating
+    );
+    // The language the components are prepared for, which the frontend
+    // builder's route binding validates a submission against.
+    $this->layoutParagraphsLayout->setThirdPartySetting(
+      'layout_paragraphs',
+      'langcode',
+      $this->langcode
+    );
     $this->tempstore->set($this->layoutParagraphsLayout);
   }
 
@@ -360,32 +315,56 @@ class LayoutParagraphsWidget extends WidgetBase implements ContainerFactoryPlugi
       $this->layoutParagraphsLayout = $this->tempstore->getWithStorageKey($layout_paragraphs_storage_key);
       $values = [];
       $seen_uuids = [];
-      foreach ($this->layoutParagraphsLayout->getParagraphsReferenceField() as $item) {
-        if ($item->entity) {
-          $entity = $item->entity;
-          // Skip duplicate paragraphs (same UUID) to prevent integrity
-          // constraint violations during save.
-          $uuid = $entity->uuid();
-          if (isset($seen_uuids[$uuid])) {
-            continue;
+      // When translating an untranslatable paragraphs field, the layout
+      // structure cannot be changed (see ::layoutChangeAccess()). Rebuild from
+      // the original components and order, reusing the edited paragraph values
+      // from the tempstore, so the untranslatable host field is left unchanged
+      // and EntityUntranslatableFieldsConstraint is not triggered on save.
+      $structure_locked = $this->isTranslating($form_state) && !$this->layoutParagraphsLayout->layoutChangeAccess(FALSE);
+      $components = [];
+      if ($structure_locked) {
+        $edited = [];
+        foreach ($this->layoutParagraphsLayout->getParagraphsReferenceField() as $item) {
+          if ($item->entity) {
+            $edited[$item->entity->uuid()] = $item->entity;
           }
-          $seen_uuids[$uuid] = TRUE;
-          // Set each paragraph langcode if we are not translating.
-          if (!$this->isTranslating($form_state)) {
-            $langcode_key = $entity->getEntityType()->getKey('langcode');
-            $entity->set($langcode_key, $items->getLangcode());
-          }
-          // Ensure existing paragraphs are not treated as new during save.
-          if ($entity->id()) {
-            $entity->enforceIsNew(FALSE);
-          }
-          $entity->setNeedsSave(TRUE);
-          $values[] = [
-            'entity' => $entity,
-            'target_id' => $entity->id(),
-            'target_revision_id' => $entity->getRevisionId(),
-          ];
         }
+        foreach ($items as $item) {
+          if ($item->entity) {
+            $components[] = $edited[$item->entity->uuid()] ?? $item->entity;
+          }
+        }
+      }
+      else {
+        foreach ($this->layoutParagraphsLayout->getParagraphsReferenceField() as $item) {
+          if ($item->entity) {
+            $components[] = $item->entity;
+          }
+        }
+      }
+      foreach ($components as $entity) {
+        // Skip duplicate paragraphs (same UUID) to prevent integrity
+        // constraint violations during save.
+        $uuid = $entity->uuid();
+        if (isset($seen_uuids[$uuid])) {
+          continue;
+        }
+        $seen_uuids[$uuid] = TRUE;
+        // Set each paragraph langcode if we are not translating.
+        if (!$this->isTranslating($form_state)) {
+          $langcode_key = $entity->getEntityType()->getKey('langcode');
+          $entity->set($langcode_key, $items->getLangcode());
+        }
+        // Ensure existing paragraphs are not treated as new during save.
+        if ($entity->id()) {
+          $entity->enforceIsNew(FALSE);
+        }
+        $entity->setNeedsSave(TRUE);
+        $values[] = [
+          'entity' => $entity,
+          'target_id' => $entity->id(),
+          'target_revision_id' => $entity->getRevisionId(),
+        ];
       }
       $form_state->setValue($path, $values);
     }

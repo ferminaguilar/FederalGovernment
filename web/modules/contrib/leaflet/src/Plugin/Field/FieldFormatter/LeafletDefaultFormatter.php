@@ -343,13 +343,13 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
       // Attach tooltip data (value & options).
       if (isset($settings['leaflet_tooltip']) && !empty($settings['leaflet_tooltip']['value'])) {
         $feature['tooltip'] = $settings['leaflet_tooltip'];
-        // Decode any entities because JS will encode them again,
-        // and we don't want double encoding.
+        // The tooltip value is injected as HTML by L.bindTooltip(), so it
+        // must keep the escaping applied by the Token system.
         $feature['tooltip']['value'] = $this->tokenResolvedContent($entity, (string) $settings['leaflet_tooltip']['value'], $tokens, $results);
 
         // Associate dynamic tooltip options (token based).
         if (!empty($settings['leaflet_tooltip']['options'])) {
-          $feature['tooltip']['options'] = $this->tokenResolvedContent($entity, $settings['leaflet_tooltip']['options'], $tokens, $results);
+          $feature['tooltip']['options'] = $this->tokenResolvedContent($entity, $settings['leaflet_tooltip']['options'], $tokens, $results, TRUE);
         }
       }
 
@@ -367,7 +367,7 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
 
         // Associate dynamic popup options (token based).
         if (!empty($settings['leaflet_popup']['options'])) {
-          $feature['popup']['options'] = $this->tokenResolvedContent($entity, $settings['leaflet_popup']['options'], $tokens, $results);
+          $feature['popup']['options'] = $this->tokenResolvedContent($entity, $settings['leaflet_popup']['options'], $tokens, $results, TRUE);
         }
       }
 
@@ -527,27 +527,46 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
    * @param array $tokens
    *   The Tokens list array.
    * @param array $results
-   *   The results array.
+   *   The formatter results render array (passed by reference), to which the
+   *   cacheability metadata and attachments of the resolved content are
+   *   bubbled, as they get lost when the content is converted to a string.
+   * @param bool $is_json_options
+   *   TRUE when the content is a JSON options string (Popup / Tooltip
+   *   options), that is parsed by JSON.parse() client side and never injected
+   *   as HTML. Only in this case HTML entities are decoded, and no fallback
+   *   to the entity label is applied.
    *
-   * @return array
-   *   The result render array.
+   * @return \Drupal\Component\Render\MarkupInterface|string
+   *   The resolved content, safe to be used as HTML (unless $is_json_options).
    */
-  protected function tokenResolvedContent(EntityInterface $entity, string $element_content, array $tokens, array $results) {
+  protected function tokenResolvedContent(EntityInterface $entity, string $element_content, array $tokens, array &$results, bool $is_json_options = FALSE) {
     // Construct the renderable array for popup title / text. As we later
     // convert that to plain text, losing attachments and cacheability, save
     // them to $results.
     $build = [];
     if (!empty($element_content)) {
       $bubbleable_metadata = new BubbleableMetadata();
-      $content = htmlspecialchars_decode(str_replace([
+      $content = str_replace([
         "\n",
         "\r",
       ], "",
-        $this->token->replace($element_content, $tokens, ['clear' => TRUE], $bubbleable_metadata)));
+        (string) $this->token->replace($element_content, $tokens, ['clear' => TRUE], $bubbleable_metadata));
+      // Token::replace() HTML-escapes every plain-text replacement value.
+      // That escaping must be preserved for HTML content (Popup / Tooltip
+      // body), which Leaflet injects as HTML: decoding it would turn user
+      // controlled field values into live markup. Decode only JSON options,
+      // which are parsed client side and never rendered as HTML.
+      if ($is_json_options) {
+        $content = htmlspecialchars_decode($content);
+      }
       $build[] = [
         '#markup' => $content,
       ];
-      $bubbleable_metadata->applyTo($results);
+      // Merge (not overwrite) with the metadata already collected in $results
+      // by previous calls (e.g. tooltip, popup, other field items).
+      BubbleableMetadata::createFromRenderArray($results)
+        ->merge($bubbleable_metadata)
+        ->applyTo($results);
     }
 
     // We need a string for using it inside the popup. Save attachments and
@@ -556,7 +575,18 @@ class LeafletDefaultFormatter extends FormatterBase implements ContainerFactoryP
     $rendered = $this->renderer->executeInRenderContext($render_context, function () use (&$build) {
       return $this->renderer->render($build);
     });
-    $result = !empty($rendered) ? $rendered : $entity->label();
+    if (!empty($rendered)) {
+      $result = $rendered;
+    }
+    // JSON options have no meaningful fallback.
+    elseif ($is_json_options) {
+      $result = '';
+    }
+    // Fall back to the entity label, escaped as plain text: Leaflet renders
+    // the Popup / Tooltip content as HTML.
+    else {
+      $result = Html::escape((string) $entity->label());
+    }
     if (!$render_context->isEmpty()) {
       $render_context->update($results);
     }

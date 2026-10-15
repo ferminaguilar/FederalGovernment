@@ -67,6 +67,47 @@ describe('Layout Paragraphs Translation Tests', () => {
     cy.drush('cr');
   }
 
+  /**
+   * Helper: hide untranslatable fields on the translation forms of lp_test_ct.
+   * With the reference field untranslatable, a translation then cannot change
+   * the layout structure shared by all languages.
+   *
+   * @param {boolean} hide Whether to hide the untranslatable fields.
+   */
+  function hideUntranslatableFields(hide) {
+    phpEval(
+      '\\Drupal::service("content_translation.manager")'
+      + ` ->setBundleTranslationSettings("node", "lp_test_ct", ["untranslatable_fields_hide" => ${hide ? 'TRUE' : 'FALSE'}]);`,
+    );
+    cy.drush('cr');
+  }
+
+  /**
+   * Helper: count the Sortable instances the builder created on the page.
+   */
+  function countSortableInstances() {
+    return cy
+      .window()
+      .then((win) =>
+        [...win.Drupal.LPSortableInstances.instances.values()].reduce(
+          (total, instances) => total + instances.size,
+          0,
+        ),
+      );
+  }
+
+  function assertLayoutLocked(scope) {
+    cy.contains(
+      'You are in translation mode. You cannot add, remove or reorder items while translating.',
+    ).should('exist');
+    cy.get(`${scope} .lpb-edit`).should('exist');
+    cy.get(`${scope} .lpb-drag`).should('not.exist');
+    cy.get(`${scope} .lpb-up`).should('not.exist');
+    cy.get(`${scope} .lpb-down`).should('not.exist');
+    cy.get(`${scope} .lpb-btn--add`).should('not.exist');
+    countSortableInstances().should('equal', 0);
+  }
+
   before(() => {
     cy.drush(
       'en layout_paragraphs_setup_test layout_paragraphs_translations_test content_translation language',
@@ -77,6 +118,7 @@ describe('Layout Paragraphs Translation Tests', () => {
   });
 
   after(() => {
+    hideUntranslatableFields(false);
     cy.drush('entity:delete', ['node', '--bundle=lp_test_ct', '-y']);
     cy.drush('pmu layout_paragraphs_translations_test');
     cy.drush('cr');
@@ -324,6 +366,267 @@ describe('Layout Paragraphs Translation Tests', () => {
           const langs = stdout.trim().split(',').filter(Boolean);
           expect(langs).to.deep.equal(['de']);
         });
+    });
+  });
+
+  it('keeps the symmetric restrictions after editing a component', () => {
+    enableSymmetricTranslations();
+
+    cy.lpCreateTestPage('Symmetric Component Edit Test', 'lp_test_ct');
+    cy.lpAddSection('layout_threecol_25_50_25', '.lpb-btn--add');
+    cy.lpAddTextComponent('Edit me', '.layout__region--first .lpb-btn--add');
+    cy.lpAddTextComponent('Leave me', '.layout__region--third .lpb-btn--add');
+    cy.lpSavePage();
+    cy.drush('cr');
+
+    cy.url().then((url) => {
+      const nid = url.match(/node\/(\d+)/)[1];
+      cy.visit(`/node/${nid}/translations/add/en/de`);
+    });
+    cy.contains(
+      'You are in translation mode. You cannot add or remove items while translating.',
+    ).should('exist');
+    cy.get('.lpb-duplicate').should('not.exist');
+    cy.get('.lpb-delete').should('not.exist');
+
+    cy.lpFindComponent('Edit me');
+    cy.get('a.lpb-edit:visible').click();
+    cy.get('.ck-editor__editable[contenteditable="true"]')
+      .clear()
+      .type('Edit me (de)');
+    cy.get('.lpb-btn--save:visible').click();
+    cy.contains('Edit me (de)').should('be.visible');
+    cy.get('.lpb-edit').should('have.length.at.least', 2);
+    cy.get('.lpb-duplicate').should('not.exist');
+    cy.get('.lpb-delete').should('not.exist');
+  });
+
+  describe('with untranslatable fields hidden', () => {
+    after(() => {
+      hideUntranslatableFields(false);
+    });
+
+    it('locks the layout structure of a symmetric translation', () => {
+      enableSymmetricTranslations();
+      hideUntranslatableFields(true);
+
+      cy.lpCreateTestPage('Locked Layout Test', 'lp_test_ct');
+      cy.lpAddSection('layout_threecol_25_50_25', '.lpb-btn--add');
+      cy.lpAddTextComponent(
+        'Locked first',
+        '.layout__region--first .lpb-btn--add',
+      );
+      cy.lpAddTextComponent(
+        'Locked third',
+        '.layout__region--third .lpb-btn--add',
+      );
+      cy.lpSavePage();
+      cy.drush('cr');
+
+      cy.url().then((url) => {
+        const nid = url.match(/node\/(\d+)/)[1];
+
+        // The original language still changes the structure.
+        cy.visit(`/node/${nid}/edit`);
+        cy.get('.lpb-drag').should('exist');
+        countSortableInstances().should('be.greaterThan', 0);
+
+        cy.visit(`/node/${nid}/translations/add/en/de`);
+        assertLayoutLocked('.lp-builder');
+
+        // Translating a component keeps the lock.
+        cy.lpFindComponent('Locked first');
+        cy.get('a.lpb-edit:visible').click();
+        cy.get('.ck-editor__editable[contenteditable="true"]')
+          .clear()
+          .type('Locked first (de)');
+        cy.get('.lpb-btn--save:visible').click();
+        cy.contains('Locked first (de)').should('be.visible');
+        assertLayoutLocked('.lp-builder');
+      });
+    });
+  });
+
+  describe('at the cardinality limit', () => {
+    after(() => {
+      cy.setFieldCardinality('node.field_lp_test_content', -1);
+    });
+
+    it('keeps the asymmetric warning after the layout is refreshed', () => {
+      enableAsymmetricTranslations();
+
+      cy.lpCreateTestPage('Asymmetric Refresh Test', 'lp_test_ct');
+      cy.lpAddSection('layout_threecol_25_50_25', '.lpb-btn--add');
+      cy.lpAddTextComponent('Refresh first', '.layout__region--first .lpb-btn--add');
+      cy.lpAddTextComponent('Refresh third', '.layout__region--third .lpb-btn--add');
+      cy.lpSavePage();
+
+      cy.setFieldCardinality('node.field_lp_test_content', 3);
+      cy.drush('cr');
+
+      cy.url().then((url) => {
+        const nid = url.match(/node\/(\d+)/)[1];
+        cy.visit(`/node/${nid}/translations/add/en/de`);
+      });
+      cy.contains(
+        'You are in translation mode. Changes will only affect the current language.',
+      ).should('exist');
+      cy.get('.lpb-btn--add').should('not.exist');
+
+      cy.lpFindComponent('Refresh third');
+      cy.get('a.lpb-delete:visible').click();
+      cy.get('button.lpb-btn--confirm-delete').click();
+      cy.contains('Refresh third').should('not.exist');
+
+      cy.get('.lpb-btn--add').should('exist');
+      cy.contains(
+        'You are in translation mode. Changes will only affect the current language.',
+      ).should('exist');
+    });
+  });
+
+  describe('frontend builder', () => {
+    function useFormatter(type) {
+      phpEval(
+        '\\Drupal::service("entity_display.repository")->getViewDisplay("node", "lp_test_ct")'
+        + ` ->setComponent("field_lp_test_content", ["type" => "${type}", "label" => "hidden"])->save();`,
+      );
+      cy.drush('cr');
+    }
+
+    function createPageWithGermanTranslation(title, text) {
+      cy.lpCreateTestPage(title, 'lp_test_ct');
+      cy.lpAddSection('layout_threecol_25_50_25', '.lpb-btn--add');
+      cy.lpAddTextComponent(text, '.layout__region--first .lpb-btn--add');
+      cy.lpSavePage();
+      cy.drush('cr');
+      return cy.url().then((url) => {
+        const nid = url.match(/node\/(\d+)/)[1];
+        cy.visit(`/node/${nid}/translations/add/en/de`);
+        cy.get('input[name="title[0][value]"]').clear().type(`${title} (de)`);
+        cy.lpSavePage();
+        cy.drush('cr');
+        return cy.wrap(nid);
+      });
+    }
+
+    function openFrontendBuilder(path) {
+      cy.visit(path);
+      cy.get('.lpb-enable-button').click();
+      cy.get('.layout-paragraphs-builder-form').should('exist');
+      cy.get('.layout-paragraphs-builder-form .lpb-edit').should('exist');
+    }
+
+    function saveFrontendBuilder() {
+      cy.get(
+        '.layout-paragraphs-builder-form .lpb-form__actions [data-drupal-selector="edit-submit"]',
+      ).click();
+      cy.get('.ui-dialog:visible input[value="Save"]').click();
+      cy.contains('has been updated').should('exist');
+    }
+
+    function assertSymmetricRestrictions() {
+      cy.get('.layout-paragraphs-builder-form .lpb-edit').should('exist');
+      cy.get('.layout-paragraphs-builder-form .lpb-duplicate').should('not.exist');
+      cy.get('.layout-paragraphs-builder-form .lpb-delete').should('not.exist');
+      cy.get('.layout-paragraphs-builder-form .lpb-btn--add').should('not.exist');
+    }
+
+    before(() => {
+      useFormatter('layout_paragraphs_builder');
+    });
+
+    after(() => {
+      useFormatter('layout_paragraphs');
+    });
+
+    it('edits the German translation without changing English (symmetric)', () => {
+      enableSymmetricTranslations();
+
+      createPageWithGermanTranslation('Builder Symmetric Test', 'Builder source').then((nid) => {
+        openFrontendBuilder(`/de/node/${nid}`);
+        cy.contains(
+          'You are in translation mode. You cannot add or remove items while translating.',
+        ).should('exist');
+        assertSymmetricRestrictions();
+
+        cy.lpFindComponent('Builder source');
+        cy.get('a.lpb-edit:visible').click();
+        cy.get('.ck-editor__editable[contenteditable="true"]')
+          .clear()
+          .type('Builder source (de)');
+        cy.get('.lpb-btn--save:visible').click();
+        cy.contains('Builder source (de)').should('be.visible');
+
+        assertSymmetricRestrictions();
+        saveFrontendBuilder();
+
+        phpEval(
+          `$node = \\Drupal::entityTypeManager()->getStorage("node")->load(${nid});`
+          + ' $p = $node->field_lp_test_content->referencedEntities();'
+          + ' $text = array_values(array_filter($p, fn($e) => $e->bundle() == "lp_test_text"))[0];'
+          + ' echo json_encode(array_map(fn($l) => strip_tags($text->getTranslation($l)->field_lp_test_text->value), array_combine(array_keys($text->getTranslationLanguages()), array_keys($text->getTranslationLanguages()))));',
+        )
+          .its('stdout')
+          .then((stdout) => {
+            expect(JSON.parse(stdout.trim())).to.deep.equal({
+              en: 'Builder source',
+              de: 'Builder source (de)',
+            });
+          });
+
+        cy.visit(`/node/${nid}`);
+        cy.contains('Builder source').should('exist');
+        cy.contains('Builder source (de)').should('not.exist');
+        cy.visit(`/de/node/${nid}`);
+        cy.contains('Builder source (de)').should('exist');
+      });
+    });
+
+    it('does not enter translation mode on the original language', () => {
+      enableSymmetricTranslations();
+
+      createPageWithGermanTranslation('Builder Original Test', 'Original source').then((nid) => {
+        openFrontendBuilder(`/node/${nid}`);
+        cy.contains('You are in translation mode.').should('not.exist');
+        cy.get('.layout-paragraphs-builder-form .lpb-delete').should('exist');
+      });
+    });
+
+    it('locks the layout structure of a symmetric translation', () => {
+      enableSymmetricTranslations();
+      hideUntranslatableFields(true);
+
+      createPageWithGermanTranslation(
+        'Builder Locked Test',
+        'Locked source',
+      ).then((nid) => {
+        openFrontendBuilder(`/de/node/${nid}`);
+        assertLayoutLocked('.layout-paragraphs-builder-form');
+      });
+      hideUntranslatableFields(false);
+    });
+
+    it('changes only the German copy (asymmetric)', () => {
+      enableAsymmetricTranslations();
+
+      createPageWithGermanTranslation('Builder Asymmetric Test', 'Asymmetric source').then((nid) => {
+        openFrontendBuilder(`/de/node/${nid}`);
+        cy.contains(
+          'You are in translation mode. Changes will only affect the current language.',
+        ).should('exist');
+
+        cy.lpFindComponent('Asymmetric source');
+        cy.get('a.lpb-delete:visible').click();
+        cy.get('button.lpb-btn--confirm-delete').click();
+        cy.get('.layout-paragraphs-builder-form').contains('Asymmetric source').should('not.exist');
+        saveFrontendBuilder();
+
+        cy.visit(`/de/node/${nid}`);
+        cy.contains('Asymmetric source').should('not.exist');
+        cy.visit(`/node/${nid}`);
+        cy.contains('Asymmetric source').should('exist');
+      });
     });
   });
 });

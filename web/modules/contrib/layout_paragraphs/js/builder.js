@@ -521,6 +521,10 @@
    * @param {Object} settings The builder settings.
    */
   function initSortable(id, containers, settings) {
+    const layoutChangeAllowed = settings?.layout_change_access ?? true;
+    if (!layoutChangeAllowed) {
+      return;
+    }
     containers.forEach((container) => {
       const layoutContainer = container.closest(`[${idAttr}]`);
       Drupal.LPSortableInstances.add(
@@ -705,6 +709,11 @@
     const element =
       document.querySelector(`[data-uuid="${componentUuid}"]`) ||
       document.querySelector(`[data-lpb-id="${layoutId}"]`);
+
+    if (!element) {
+      return;
+    }
+
     dispatch(element, `lpb-${eventName}`, {
       componentUuid,
       layoutId,
@@ -778,7 +787,7 @@
           '.js-lpb-region, .js-lpb-component-list',
           layoutElement,
         );
-        initSortable(id, containers, settings.lpBuilder[id]);
+        initSortable(id, containers, settings.lpBuilder?.[id]);
       });
 
       // Add classes to regions whose components flow horizontally.
@@ -859,6 +868,38 @@
     } else {
       unselectComponents(event);
     }
+  });
+
+  /**
+   * Double-clicking a component edits it directly.
+   */
+  listen(document, 'dblclick', (event) => {
+    if (event.target.closest('.js-lpb-ui')) {
+      return;
+    }
+    const builder = event.target.closest(`[${idAttr}]`);
+    if (
+      !builder ||
+      !drupalSettings.lpBuilder?.[builder.getAttribute(idAttr)]
+        ?.double_click_to_edit
+    ) {
+      return;
+    }
+    const element = event.target.closest('.js-lpb-component');
+    // Scoped to the component's own controls (its first child) so a double
+    // click on a component without edit access doesn't fall through to a
+    // nested child component's "Edit" link instead.
+    const editLink =
+      element && select(':scope > .lpb-controls > .lpb-edit', element);
+    if (!editLink) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    // Clear any text selection the double click may have created.
+    window.getSelection()?.removeAllRanges();
+    selectComponent(element, event);
+    editLink.click();
   });
 
   /**
@@ -988,6 +1029,7 @@
       'lpb-component:update',
       'lpb-component:move',
       'lpb-component:drop',
+      'lpb-component:delete',
     ],
     (event) => {
       event.target.closest(`[${idAttr}]`).classList.add('is-changed');
@@ -1029,7 +1071,8 @@
     if (
       event.target.matches(
         '.form-actions input[type="submit"], .form-actions a',
-      )
+      ) &&
+      !event.target.closest('[data-lpb-form-id], .ui-dialog')
     ) {
       selectAll('.is-changed').forEach((element) => {
         element.classList.remove('is-changed');
@@ -1063,6 +1106,7 @@
   listen(window, 'beforeunload', (event) => {
     if (selectAll('.is-changed').length) {
       event.preventDefault();
+      event.returnValue = '';
     }
   });
 })(jQuery, Drupal, drupalSettings, Drupal.debounce, Sortable, once);

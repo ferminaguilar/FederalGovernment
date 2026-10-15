@@ -373,7 +373,7 @@ trait LeafletSettingsElementsTrait {
       '#type' => 'number',
       '#min' => 0,
       '#max' => 22,
-      '#description' => $this->t('The initial Zoom level for the Map in case of a Single Marker or when Forced (or when empty).<br><u>In case of multiple Markers/Features, the initial Zoom will automatically set so to extend the Map to the boundaries of all of them.</u><br>Admitted values usually range from 0 (the whole world) to 20 - 22, depending on the max zoom supported by the specific Map Tile in use.<br>As a reference consider Zoom 5 for a large country, 10 for a city, 15 for a road or a district.'),
+      '#description' => $this->t('The initial Zoom level for the Map in case of a Single Marker or when Forced (or when empty).<br>In case of multiple Markers/Features, the initial Zoom will automatically set so to extend the Map to the boundaries of all of them.<br>Admitted values usually range from 0 (the whole world) to 20 - 22, depending on the max zoom supported by the specific Map Tile in use.<br>As a reference consider Zoom 5 for a large country, 10 for a city, 15 for a road or a district.'),
       '#default_value' => $map_position_options['zoom'] ?? $this->getDefaultSettings()['map_position']['zoom'],
       '#required' => TRUE,
       '#element_validate' => [[get_class($this), 'zoomLevelValidate']],
@@ -404,7 +404,7 @@ trait LeafletSettingsElementsTrait {
       '#max' => 10,
       '#min' => -10,
       '#step' => 1,
-      '#description' => $this->t('Use this selector (-10 | +10) to <u>zoom in or out on the Initial Zoom level, in case of multiple Markers/Features on the Map</u>.<br>Example: -2 will zoom out, adding padding around the markers, while 2 will zoom in, leaving out peripheral markers.<br>Note: This will still be constrained according with your Max & Min Zoom settings.'),
+      '#description' => $this->t('Use this selector (-10 | +10) to zoom in or out on the Initial Zoom level, in case of multiple Markers/Features on the Map.<br>Example: -2 will zoom out, adding padding around the markers, while 2 will zoom in, leaving out peripheral markers.<br>Note: This will still be constrained according with your Max & Min Zoom settings.'),
       '#default_value' => $map_position_options['zoomFiner'] ?? $this->getDefaultSettings()['map_position']['zoomFiner'],
       '#states' => [
         'invisible' => isset($force_checkbox_selector_widget) ? [
@@ -971,7 +971,7 @@ trait LeafletSettingsElementsTrait {
         '#type' => 'textarea',
         '#title' => $this->t('Popup Options'),
         '#rows' => 3,
-        '#description' => $this->t('An object literal of options, that comply with the Leaflet Popup object definition.<br>The syntax should respect the javascript object notation (json) format.<br>As suggested in the field placeholder, always use double quotes (") both for the indexes and the string values.<br><u>Note: if omitted, the "offset" option will be set on top of the feature icon size.</u><br>Supports <b>Replacement Patterns</b>.'),
+        '#description' => $this->t('An object literal of options, that comply with the Leaflet Popup object definition.<br>The syntax should respect the javascript object notation (json) format.<br>As suggested in the field placeholder, always use double quotes (") both for the indexes and the string values.<br>Note: if omitted, the "offset" option will be set on top of the feature icon size.<br>Supports <b>Replacement Patterns</b>.'),
         '#default_value' => $settings['leaflet_popup']['options'] ?? $default_settings['leaflet_popup']['options'],
         '#placeholder' => $default_settings['leaflet_popup']['options'],
         '#element_validate' => [[get_class($this), 'jsonValidate']],
@@ -1031,7 +1031,7 @@ trait LeafletSettingsElementsTrait {
         '#type' => 'textarea',
         '#rows' => 3,
         '#title' => $this->t('Popup Options'),
-        '#description' => $this->t('An object literal of options, that comply with the Leaflet Popup object definition.<br>The syntax should respect the javascript object notation (json) format.<br>As suggested in the field placeholder, always use double quotes (") both for the indexes and the string values.<br><u>Note: if omitted, the "offset" option will be set on top of the feature icon size.</u><br>Supports <b>Replacement Patterns</b>.'),
+        '#description' => $this->t('An object literal of options, that comply with the Leaflet Popup object definition.<br>The syntax should respect the javascript object notation (json) format.<br>As suggested in the field placeholder, always use double quotes (") both for the indexes and the string values.<br>Note: if omitted, the "offset" option will be set on top of the feature icon size.<br>Supports <b>Replacement Patterns</b>.'),
         '#default_value' => $settings['leaflet_popup']['options'] ?? $default_settings['leaflet_popup']['options'],
         '#placeholder' => $default_settings['leaflet_popup']['options'],
         '#element_validate' => [[get_class($this), 'jsonValidate']],
@@ -1057,7 +1057,7 @@ trait LeafletSettingsElementsTrait {
   protected function setMapMarkerclusterElement(array &$element, array $settings, array $view_fields = []) {
 
     $default_settings = $this::getDefaultSettings();
-    $leaflet_markercluster_submodule_warning = $this->t("<u>Note</u>: This functionality and settings are related to the Leaflet Markercluster submodule, present inside the Leaflet module itself.<br><u>(DON'T USE the external self standing Leaflet Markecluster module).</u>");
+    $leaflet_markercluster_submodule_warning = $this->t("Note: This functionality and settings are related to the Leaflet Markercluster submodule, present inside the Leaflet module itself.<br>(DON'T USE the external self standing Leaflet Markecluster module).");
 
     $element['leaflet_markercluster'] = [
       '#type' => 'fieldset',
@@ -1205,7 +1205,7 @@ trait LeafletSettingsElementsTrait {
           'attributes' => ['target' => 'blank'],
         ])),
       ]),
-      '#description' => $this->t('This enables a "Reset Map View" control to reset the Map to its initial center & zoom state<br><b><u>Warning: </u></b>Due to an issue in the Leaflet library (@see https://github.com/Leaflet/Leaflet/issues/6172) the Map Reset control doesn\'t work correctly in Fitting Bounds of coordinates having mixed positive and negative values of latitude &longitudes.<br>In this case the Map will be Reset to the default set Map Center.'),
+      '#description' => $this->t('This enables a "Reset Map View" control to reset the Map to its initial center & zoom state<br><b>Warning: </b>Due to an issue in the Leaflet library (@see https://github.com/Leaflet/Leaflet/issues/6172) the Map Reset control doesn\'t work correctly in Fitting Bounds of coordinates having mixed positive and negative values of latitude &longitudes.<br>In this case the Map will be Reset to the default set Map Center.'),
       '#default_value' => $settings['reset_map']['control'] ?? $default_settings['reset_map']['control'],
       '#return_value' => 1,
     ];
@@ -1360,7 +1360,7 @@ trait LeafletSettingsElementsTrait {
     ];
 
     if ($this->getPluginId() === 'leaflet_widget_default') {
-      $element['locate']['automatic']['#description'] .= '<br>' . $this->t('<u>NOTE:</u> This will work only in case of Empty Map / New Insert.');
+      $element['locate']['automatic']['#description'] .= '<br>' . $this->t('NOTE: This will work only in case of Empty Map / New Insert.');
     }
 
   }
@@ -1420,7 +1420,7 @@ trait LeafletSettingsElementsTrait {
       $element['geocoder']['access_warning'] = [
         '#type' => 'html_tag',
         '#tag' => 'div',
-        '#value' => $this->t('<strong>Note: </strong>This shows up only to users with permissions to <u>Access Geocoder Api Url Enpoints.</u>'),
+        '#value' => $this->t('<strong>Note: </strong>This shows up only to users with permissions to Access Geocoder Api Url Enpoints.'),
       ];
 
       $element['geocoder']['settings'] = [
@@ -1544,7 +1544,7 @@ trait LeafletSettingsElementsTrait {
         '#type' => 'textarea',
         '#rows' => 4,
         '#title' => $this->t('Geocoder Control Specific Options'),
-        '#description' => $this->t('This settings would override general Geocoder Providers options. (<u>Note: This would work only for Geocoder 2.x branch/version.</u>)<br>An object literal of specific Geocoder options. The syntax should respect the javascript object notation (json) format.<br>As suggested in the field placeholder, always use double quotes (") both for the indexes and the string values.'),
+        '#description' => $this->t('This settings would override general Geocoder Providers options. (Note: This would work only for Geocoder 2.x branch/version.)<br>An object literal of specific Geocoder options. The syntax should respect the javascript object notation (json) format.<br>As suggested in the field placeholder, always use double quotes (") both for the indexes and the string values.'),
         '#default_value' => $settings['geocoder']['settings']['options'] ?? $default_settings['geocoder']['settings']['options'],
         '#placeholder' => '{"googlemaps":{"locale": "it", "region": "it"}, "nominatim":{"locale": "it"}}',
         '#element_validate' => [[get_class($this), 'jsonValidate']],
@@ -1566,7 +1566,7 @@ trait LeafletSettingsElementsTrait {
     }
     else {
       $element['geocoder'] = [
-        '#markup' => $this->t('<strong>Note: </strong>it is possible to enable a <u>Geocoder controller on the Leaflet Map</u> throughout the @geocoder_module_link integration (version higher than 8.x-2.3 and 8.x-3.0-alpha2).', [
+        '#markup' => $this->t('<strong>Note: </strong>it is possible to enable a Geocoder controller on the Leaflet Map throughout the @geocoder_module_link integration (version higher than 8.x-2.3 and 8.x-3.0-alpha2).', [
           '@geocoder_module_link' => $this->link->generate('Geocoder Module', Url::fromUri('https://www.drupal.org/project/geocoder', ['attributes' => ['target' => 'blank']])),
         ]),
       ];
@@ -1592,7 +1592,7 @@ trait LeafletSettingsElementsTrait {
     $element['map_lazy_load']['lazy_load'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Lazy load map'),
-      '#description' => $this->t('If checked, the map will be loaded when it enters the user\'s viewport. This can be useful to reduce unnecessary load time or API calls.<br><u>Note:This will only work with not too old browsers, that support "Intersection Observer API"</u> (link: @intersection_observer_compatibility_link).', [
+      '#description' => $this->t('If checked, the map will be loaded when it enters the user\'s viewport. This can be useful to reduce unnecessary load time or API calls.<br>Note:This will only work with not too old browsers, that support "Intersection Observer API" (link: @intersection_observer_compatibility_link).', [
         '@intersection_observer_compatibility_link' => $intersection_observer_compatibility_link,
       ]),
       '#default_value' => !empty($settings['map_lazy_load']['lazy_load']) ? $settings['map_lazy_load']['lazy_load'] : 0,

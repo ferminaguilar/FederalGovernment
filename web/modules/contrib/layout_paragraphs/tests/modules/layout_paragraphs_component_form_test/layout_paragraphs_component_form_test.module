@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Contains layout_paragraphs_component_form_test module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function layout_paragraphs_component_form_test_form_layout_paragraphs_component_form_alter(array &$form, FormStateInterface $form_state) {
+  $form['#after_build'][] = 'layout_paragraphs_component_form_test_after_build';
+}
+
+/**
+ * Form #after_build callback.
+ *
+ * Looks up the entity and the form display through the form object, the way
+ * modules that alter entity forms do.
+ */
+function layout_paragraphs_component_form_test_after_build(array $form, FormStateInterface $form_state) {
+  $form_object = $form_state->getBuildInfo()['callback_object'];
+  if (!method_exists($form_object, 'getEntity') || !method_exists($form_object, 'getFormDisplay')) {
+    return $form;
+  }
+  $form['lp_component_form_test'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'div',
+    '#value' => $form_object->getEntity()->bundle() . ' ' . $form_object->getFormDisplay($form_state)->id(),
+    '#attributes' => [
+      'class' => ['lp-component-form-test'],
+    ],
+  ];
+  return $form;
+}

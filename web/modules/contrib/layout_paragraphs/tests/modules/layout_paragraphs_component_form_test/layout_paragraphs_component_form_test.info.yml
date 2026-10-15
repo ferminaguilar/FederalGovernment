@@ -1,0 +1,12 @@
+name: Layout Paragraphs Component Form Test
+description: Tests the entity form methods of the component forms
+core_version_requirement: ^9.2 || ^10 || ^11
+type: module
+package: Layout Paragraphs
+dependencies:
+  - layout_paragraphs:layout_paragraphs
+
+# Information added by Drupal.org packaging script on 2026-10-09
+version: '3.0.0'
+project: 'layout_paragraphs'
+datestamp: 1791575584

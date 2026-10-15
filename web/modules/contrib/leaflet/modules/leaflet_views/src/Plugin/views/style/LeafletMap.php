@@ -697,7 +697,7 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
       $form['entity_source'] = [
         '#type' => 'select',
         '#title' => new TranslatableMarkup('Entity Source'),
-        '#description' => new TranslatableMarkup('Select which Entity should be used as Leaflet Mapping base Entity.<br><u>Leave as "View Base Entity" to rely on default Views behaviour, and don\'t specifically needed otherwise</u>.'),
+        '#description' => new TranslatableMarkup('Select which Entity should be used as Leaflet Mapping base Entity.<br>Leave as "View Base Entity" to rely on default Views behaviour, and don\'t specifically needed otherwise.'),
         '#options' => $entity_sources,
         '#default_value' => !empty($this->options['entity_source']) ? $this->options['entity_source'] : '__base_table',
         '#ajax' => [
@@ -1459,10 +1459,8 @@ class LeafletMap extends StylePluginBase implements ContainerFactoryPluginInterf
           break;
 
         default:
-          // Decode every entity because JS will encode them again,
-          // and we don't want double encoding.
           $feature['tooltip']['value'] = array_key_exists($this->options['leaflet_tooltip']['value'], $this->rendered_fields[$result->index]) ?
-            Html::decodeEntities((string) $this->rendered_fields[$result->index][$this->options['leaflet_tooltip']['value']]) : '';
+            (string) $this->rendered_fields[$result->index][$this->options['leaflet_tooltip']['value']] : '';
       }
 
       // Associate dynamic tooltip options (token based).

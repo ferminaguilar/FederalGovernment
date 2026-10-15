@@ -79,6 +79,10 @@ class LayoutParagraphsBuilderAccess implements AccessInterface {
       $access = $access->andIf($access_handler->createAccess($paragraph_type->id(), $account, [], TRUE));
     }
 
+    if ($operation === 'reorder') {
+      $access = $access->andIf($layout_paragraphs_layout->layoutChangeAccess());
+    }
+
     return $access;
   }
 

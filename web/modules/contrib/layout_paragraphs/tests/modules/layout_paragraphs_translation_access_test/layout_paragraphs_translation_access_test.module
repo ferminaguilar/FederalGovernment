@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Forbids updating node translations whose language is listed in state.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_node_access().
+ *
+ * Forbids the update operation on a node translation whose langcode is listed
+ * in the 'layout_paragraphs_translation_access_test.forbidden_langcodes' state
+ * value, and has no opinion otherwise. The result for the update operation is
+ * not cacheable, because it depends on a state value tests change between
+ * requests.
+ */
+function layout_paragraphs_translation_access_test_node_access(NodeInterface $node, $operation, AccountInterface $account) {
+  if ($operation !== 'update') {
+    return AccessResult::neutral();
+  }
+  $forbidden_langcodes = \Drupal::state()->get('layout_paragraphs_translation_access_test.forbidden_langcodes', []);
+  $result = in_array($node->language()->getId(), $forbidden_langcodes, TRUE) ? AccessResult::forbidden() : AccessResult::neutral();
+  return $result->setCacheMaxAge(0);
+}

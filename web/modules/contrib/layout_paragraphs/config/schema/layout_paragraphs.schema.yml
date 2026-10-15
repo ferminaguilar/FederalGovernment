@@ -64,6 +64,15 @@ layout_paragraphs.modal_settings:
       label: 'Modal autoresize'
       description: 'If checked modal forms will automatically resize.'
 
+layout_paragraphs.builder_settings:
+  type: config_object
+  label: 'Layout Paragraphs builder settings'
+  mapping:
+    double_click_to_edit:
+      type: boolean
+      label: 'Double-click to edit'
+      description: 'Open the edit form of a component when it is double-clicked in the builder.'
+
 field.formatter.settings.layout_paragraphs:
   type: mapping
   label: 'Layout Paragraphs format settings'
@@ -100,6 +109,9 @@ field.formatter.settings.layout_paragraphs_builder:
     empty_message:
       type: string
       label: 'Placeholder message to display when field is empty'
+    conversion:
+      type: boolean
+      label: 'Allow paragraph conversion'
 
 field.widget.settings.layout_paragraphs:
   type: mapping

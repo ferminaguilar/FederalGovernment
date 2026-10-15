@@ -44,6 +44,7 @@
 .js-lpb-component {
   position: relative;
   margin: 0 auto;
+  user-select: none;
 }
 .lpb-hover-label {
   z-index: 1000;

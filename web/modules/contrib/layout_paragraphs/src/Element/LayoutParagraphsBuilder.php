@@ -2,25 +2,28 @@
 
 namespace Drupal\layout_paragraphs\Element;
 
-use Drupal\Core\Url;
-use Drupal\Core\Render\Markup;
 use Drupal\Component\Serialization\Json;
-use Drupal\Core\Render\RendererInterface;
-use Drupal\paragraphs\ParagraphInterface;
-use Drupal\paragraphs\ParagraphsConversionManager;
 use Drupal\Core\Access\AccessResultAllowed;
-use Drupal\layout_paragraphs\Utility\Dialog;
 use Drupal\Core\Access\AccessResultForbidden;
-use Drupal\Core\Render\Element\RenderElementBase;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Layout\LayoutPluginManagerInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
-use Drupal\layout_paragraphs\Event\LayoutParagraphsAllowedTypesEvent;
-use Drupal\layout_paragraphs\LayoutParagraphsSection;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Plugin\PreviewAwarePluginInterface;
+use Drupal\Core\Render\Element\RenderElementBase;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Url;
+use Drupal\layout_paragraphs\Event\LayoutParagraphsAllowedTypesEvent;
 use Drupal\layout_paragraphs\LayoutParagraphsComponent;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\layout_paragraphs\LayoutParagraphsLayoutTempstoreRepository;
+use Drupal\layout_paragraphs\LayoutParagraphsSection;
+use Drupal\layout_paragraphs\Utility\Dialog;
+use Drupal\paragraphs\ParagraphInterface;
+use Drupal\paragraphs\ParagraphsConversionManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -83,6 +86,13 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
   protected $eventDispatcher;
 
   /**
+   * The config factory service.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * Indicates whether the element is in translation mode.
    *
    * @var bool
@@ -117,6 +127,7 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
     EntityTypeBundleInfoInterface $entity_type_bundle_info,
     ParagraphsConversionManager $conversion_manager,
     EventDispatcherInterface $event_dispatcher,
+    ConfigFactoryInterface $config_factory,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->tempstore = $tempstore_repository;
@@ -126,6 +137,7 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->conversionManager = $conversion_manager;
     $this->eventDispatcher = $event_dispatcher;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -143,6 +155,7 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
       $container->get('entity_type.bundle.info'),
       $container->get('plugin.manager.paragraphs.conversion'),
       $container->get('event_dispatcher'),
+      $container->get('config.factory'),
     );
   }
 
@@ -152,7 +165,11 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
    * Properties:
    * - #layout_paragraphs_layout: a LayoutParagraphsLayout instance.
    * - #uuid: if provided, the uuid of the single paragraph to render.
-   * - #is_translating: if translating content.
+   * - #is_translating: if translating content. Where the property is not set,
+   *   the translation mode recorded on the layout by the widget or the
+   *   frontend builder form is used, so that a render which has nothing but
+   *   the layout - every render from a component route - applies the same
+   *   translation restrictions. The default is not translating.
    */
   public function getInfo() {
     return [
@@ -173,7 +190,11 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
    */
   public function preRender($element) {
     $this->layoutParagraphsLayout = $this->tempstore->get($element['#layout_paragraphs_layout']);
-    $this->isTranslating = $element['#is_translating'] ?? FALSE;
+    // A render without the #is_translating property falls back to the
+    // translation mode the widget or the frontend builder form recorded on the
+    // layout. A property that is set wins, including when it is FALSE.
+    $this->isTranslating = $element['#is_translating']
+      ?? $this->layoutParagraphsLayout->isTranslating();
     $this->buttonLabels = $this->layoutParagraphsLayout->getSetting('button_labels');
     $element_uuid = $element['#uuid'];
     $preview_view_mode = $this->layoutParagraphsLayout->getSetting('preview_view_mode', 'default');
@@ -200,6 +221,9 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
       if ($component->isLayout()) {
         $section = $this->layoutParagraphsLayout->getLayoutSection($component->getEntity());
         $layout_plugin_instance = $this->layoutPluginInstance($section);
+        if ($layout_plugin_instance instanceof PreviewAwarePluginInterface) {
+          $layout_plugin_instance->setInPreview(TRUE);
+        }
         foreach (array_keys($element['#components'][$uuid]['regions']) as $region_name) {
           foreach ($section->getComponentsForRegion($region_name) as $child_component) {
             $child_uuid = $child_component->getEntity()->uuid();
@@ -233,7 +257,14 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
       'data-lpb-id' => $this->layoutParagraphsLayout->id(),
     ] + ($element['#attributes'] ?? []);
     $element['#attached']['library'] = ['layout_paragraphs/builder'];
-    $element['#attached']['drupalSettings']['lpBuilder'][$this->layoutParagraphsLayout->id()] = $this->layoutParagraphsLayout->getSettings();
+    $builder_settings = $this->configFactory->get('layout_paragraphs.builder_settings');
+    $element['#attached']['drupalSettings']['lpBuilder'][$this->layoutParagraphsLayout->id()] = $this->layoutParagraphsLayout->getSettings() + [
+      'double_click_to_edit' => (bool) $builder_settings->get('double_click_to_edit'),
+      'layout_change_access' => $this->layoutParagraphsLayout->layoutChangeAccess(FALSE),
+    ];
+    CacheableMetadata::createFromRenderArray($element)
+      ->addCacheableDependency($builder_settings)
+      ->applyTo($element);
     $element['#is_empty'] = $this->layoutParagraphsLayout->isEmpty();
     $element['#empty_message'] = $this->layoutParagraphsLayout->getSetting('empty_message', $this->t('Start adding content.'));
     $element['#root_components'] = [];
@@ -320,6 +351,11 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
     $build['#attributes']['data-type'] = $entity->bundle();
     $build['#attributes']['data-lpb-ui-id'] = $entity->uuid() ?? 'new-' . $entity->bundle();
     $build['#attributes']['class'][] = 'js-lpb-component';
+    // Only allow dragging if layout change is allowed.
+    $layoutChangeIsAllowed = $this->layoutParagraphsLayout->layoutChangeAccess(FALSE);
+    if ($layoutChangeIsAllowed) {
+      $build['#attributes']['class'][] = 'js-lpb-component--draggable';
+    }
     $build['#layout_paragraphs_component'] = TRUE;
     if ($entity->isNew()) {
       $build['#attributes']['class'][] = 'is_new';
@@ -350,9 +386,15 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
       '#edit_access' => $this->editAccess($entity),
       '#duplicate_access' => $this->duplicateAccess($entity) && $this->checkCardinality(),
       '#delete_access' => $this->deleteAccess($entity),
+      '#move_access' => $layoutChangeIsAllowed,
       '#convert_access' => $this->convertAccess($component, $entity),
     ];
     $build['#attached']['drupalSettings']['lpBuilder']['uiElements'][$entity->uuid()] = [];
+    if ($component->isLayout()) {
+      foreach (['#edit_access', '#duplicate_access', '#delete_access'] as $k) {
+        $controls[$k] = $controls[$k] && $layoutChangeIsAllowed;
+      }
+    }
     $this->addJsUiElement($build, $this->doRender($controls), 'controls', 'prepend');
 
     if ($this->createAccess() && $this->checkCardinality()) {
@@ -479,6 +521,7 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
         ]),
       ],
       '#url' => Url::fromRoute('layout_paragraphs.builder.choose_component', $route_params, ['query' => $query_params]),
+      '#access' => $this->layoutParagraphsLayout->layoutChangeAccess(),
     ];
   }
 
@@ -528,14 +571,19 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
    *   The translation warning.
    */
   protected function translationWarning() {
-    if ($this->isTranslating()) {
-      if ($this->supportsAsymmetricTranslations()) {
-        return $this->t('You are in translation mode. Changes will only affect the current language.');
-      }
-      else {
-        return $this->t('You are in translation mode. You cannot add or remove items while translating. Reordering items will affect all languages.');
-      }
+    if (!$this->isTranslating()) {
+      return NULL;
     }
+
+    if ($this->supportsAsymmetricTranslations()) {
+      return $this->t('You are in translation mode. Changes will only affect the current language.');
+    }
+
+    if ($this->layoutParagraphsLayout->layoutChangeAccess(FALSE)) {
+      return $this->t('You are in translation mode. You cannot add or remove items while translating. Reordering items will affect all languages.');
+    }
+
+    return $this->t('You are in translation mode. You cannot add, remove or reorder items while translating.');
   }
 
   /**
@@ -714,7 +762,7 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
    *   True if asymmetric translation is supported.
    */
   protected function supportsAsymmetricTranslations() {
-    return $this->layoutParagraphsLayout->getParagraphsReferenceField()->getFieldDefinition()->isTranslatable();
+    return $this->layoutParagraphsLayout->supportsAsymmetricTranslations();
   }
 
   /**
@@ -734,7 +782,7 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
    * @param string $method
    *   The javascript method to use to attach $element to its container.
    */
-  public function addJsUiElement(array &$build, Markup $element, string $key, string $method = 'append') {
+  public function addJsUiElement(array &$build, Markup|string $element, string $key, string $method = 'append') {
     $id = $build['#attributes']['data-lpb-ui-id'];
     $build['#attributes']['data-has-js-ui-element'] = TRUE;
     $build['#attached']['drupalSettings']['lpBuilder']['uiElements'][$id][$key] = [
@@ -749,7 +797,7 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
    * @param array $render_array
    *   The render array to process.
    *
-   * @return \Drupal\Core\Render\Markup
+   * @return \Drupal\Core\Render\Markup|string
    *   The markup object.
    */
   public function doRender(array $render_array) {

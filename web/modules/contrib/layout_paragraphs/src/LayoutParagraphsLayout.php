@@ -2,10 +2,15 @@
 
 namespace Drupal\layout_paragraphs;
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultAllowed;
+use Drupal\Core\Access\AccessResultForbidden;
+use Drupal\Core\Cache\CacheableDependencyInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Config\Entity\ThirdPartySettingsInterface;
+use Drupal\language\Entity\ContentLanguageSettings;
 use Drupal\paragraphs\ParagraphInterface;
 
 /**
@@ -65,6 +70,97 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    * @var \Drupal\Core\Entity\EntityInterface
    */
   protected $entity;
+
+  /**
+   * Whether the layout is being edited in a translation of its host entity.
+   *
+   * The widget and the frontend builder form record this on the layout, so
+   * that every render and route that has nothing but the layout applies the
+   * same translation restrictions.
+   *
+   * @return bool
+   *   TRUE if the host entity is being translated.
+   */
+  public function isTranslating(): bool {
+    return (bool) $this->getThirdPartySetting('layout_paragraphs', 'is_translating', FALSE);
+  }
+
+  /**
+   * Sets whether the layout is being edited in a translation of its host.
+   *
+   * @param bool $translating
+   *   TRUE if the host entity is being translated.
+   */
+  public function setTranslating(bool $translating): void {
+    $this->setThirdPartySetting('layout_paragraphs', 'is_translating', $translating);
+  }
+
+  /**
+   * Whether user have access to change the layout of the paragraphs.
+   *
+   * In general, layout can be changed. But when users create or edit a
+   * translation, we might want to prevent layout to be changed.
+   * 1. Default translation -> access allowed.
+   * 2. Translation, paragraphs field is translatable -> access allowed.
+   * 3. Translation, paragraphs field untranslatable, untranslatable fields of
+   *    host entity aren't hidden -> access allowed.
+   * 4. Translation, paragraphs field untranslatable, untranslatable fields of
+   *    host entity are hidden -> access denied.
+   * For being compatible with both front-end rendering and also with access
+   * checker services used in routes, this method returns explicit allowed or
+   * forbidden result.
+   *
+   * @param bool $returnObject
+   *   Set to TRUE to return an access result object, FALSE to signal a boolean
+   *   result whether access should be granted. Defaults to TRUE.
+   *
+   * @return \Drupal\Core\Access\AccessResultAllowed|\Drupal\Core\Access\AccessResultForbidden|bool
+   *   Allowed or forbidden access result object, or TRUE or FALSE respectively,
+   *   if $returnObject was FALSE;
+   */
+  public function layoutChangeAccess(bool $returnObject = TRUE): AccessResultAllowed|AccessResultForbidden|bool {
+    $host = $this->getEntity();
+    // The bundle setting only matters while translating an untranslatable
+    // reference field. Only load it then: a translation implies the language
+    // module, which provides the settings, while a site without that module
+    // renders the builder too.
+    $contentLanguageSettings = $this->isTranslating() && !$this->supportsAsymmetricTranslations()
+      ? ContentLanguageSettings::loadByEntityTypeBundle($host->getEntityTypeId(), $host->bundle())
+      : NULL;
+    $hostHidesUntranslatableFields = $contentLanguageSettings?->getThirdPartySettings('content_translation')['bundle_settings']['untranslatable_fields_hide'] ?? FALSE;
+
+    $accessAllowed = !$this->isTranslating() ||
+      $this->supportsAsymmetricTranslations() ||
+      !$hostHidesUntranslatableFields;
+
+    $accessResult = $accessAllowed ? AccessResult::allowed() : AccessResult::forbidden();
+    if ($contentLanguageSettings instanceof CacheableDependencyInterface) {
+      $accessResult->addCacheableDependency($contentLanguageSettings);
+    }
+    // Method ::supportsAsymmetricTranslations uses the paragraph field
+    // definition. So if the field definition has cacheability metadata we add
+    // it to the access result object.
+    $paragraphsFieldDefinition = $this->getParagraphsReferenceField()->getFieldDefinition();
+    if ($paragraphsFieldDefinition instanceof CacheableDependencyInterface) {
+      $accessResult->addCacheableDependency($paragraphsFieldDefinition);
+    }
+
+    return $returnObject ? $accessResult : $accessResult->isAllowed();
+  }
+
+  /**
+   * Whether or not to support asymmetric translations.
+   *
+   * @see https://www.drupal.org/project/paragraphs/issues/2461695
+   * @see https://www.drupal.org/project/paragraphs/issues/2904705
+   * @see https://www.drupal.org/project/paragraphs_asymmetric_translation_widgets
+   *
+   * @return bool
+   *   True if asymmetric translation is supported.
+   */
+  public function supportsAsymmetricTranslations() {
+    return $this->getParagraphsReferenceField()->getFieldDefinition()->isTranslatable();
+  }
 
   /**
    * Class constructor.
@@ -212,8 +308,11 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    * @param string $uuid
    *   The uuid to search for.
    *
-   * @return LayoutParagraphsComponent|null
+   * @return \Drupal\layout_paragraphs\LayoutParagraphsComponent
    *   The component.
+   *
+   * @throws \InvalidArgumentException
+   *   Thrown when no component matches the UUID.
    */
   public function getComponentByUuid($uuid) {
     foreach ($this->getEntities() as $entity) {
@@ -221,6 +320,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
         return $this->getComponent($entity);
       }
     }
+    throw new \InvalidArgumentException('No component found with UUID ' . $uuid . '.');
   }
 
   /**
@@ -373,6 +473,16 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
         ];
       }
     }
+    $ordered_uuids = array_flip(array_column($ordered_items, 'uuid'));
+    foreach ($this->getEntities() as $entity) {
+      if (!isset($ordered_uuids[$entity->uuid()])) {
+        $reordered_items[] = [
+          'entity' => $entity,
+          'target_id' => $entity->id(),
+          'target_revision_id' => $entity->getRevisionId(),
+        ];
+      }
+    }
     $this->paragraphsReferenceField->setValue($reordered_items);
     return $this;
   }
@@ -430,7 +540,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
     // Create a layout component for the new paragraph.
     $component = $this->getComponent($paragraph);
     // Make sure the parent component exists.
-    if ($this->getComponentByUuid($parent_uuid)) {
+    if ($parent_component = $this->getComponentByUuid($parent_uuid)) {
       // Set the parent and region.
       $component->setSettings([
         'parent_uuid' => $parent_uuid,
@@ -439,10 +549,23 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
       // Get the paragraph entity from the component.
       $new_paragraph = $component->getEntity();
       $new_paragraph->setParentEntity($this->getEntity(), $this->getFieldName());
-      // Splice the new paragraph into the field item list.
+      // Splice the new paragraph into the field item list immediately after
+      // the last existing component in the target region, or immediately
+      // after the parent component if the region is still empty. Inserting
+      // relative to the parent (rather than at the head of the entire field)
+      // keeps the delta correct regardless of nesting depth.
+      $section = $this->getLayoutSection($parent_component->getEntity());
+      $region_components = $section->getComponentsForRegion($region);
+      if (!empty($region_components)) {
+        $last_component = end($region_components);
+        $delta = $this->getComponentDeltaByUuid($last_component->getEntity()->uuid()) + 1;
+      }
+      else {
+        $delta = $this->getComponentDeltaByUuid($parent_uuid) + 1;
+      }
       $item_list = $this->getParagraphsReferenceField();
       $list = $item_list->getValue();
-      array_unshift($list, ['entity' => $new_paragraph]);
+      array_splice($list, $delta, 0, ['entity' => $new_paragraph]);
       $item_list->setValue($list);
       $this->setParagraphsReferenceField($item_list);
     }

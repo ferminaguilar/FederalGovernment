@@ -201,7 +201,9 @@ class PromptContentSuggestion extends FieldWidgetActionBase {
    * {@inheritdoc}
    */
   public function getLibraries(): array {
-    return ['ai_content_suggestions/field_widget'];
+    // The result is always shown in a dialog, including when there are no
+    // suggestions, so the dialog AJAX command must be available on the page.
+    return ['ai_content_suggestions/field_widget', 'core/drupal.dialog.ajax'];
   }
 
   /**
@@ -220,6 +222,19 @@ class PromptContentSuggestion extends FieldWidgetActionBase {
     $settings = $this->getConfiguration();
     if (!empty($settings['settings']['display_on_focus'])) {
       $form['#attributes']['class'][] = 'ai-content-suggestions--on-focus';
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function actionButton(array &$form, FormStateInterface $form_state, array $context = []) {
+    parent::actionButton($form, $form_state, $context);
+    // Mark only this action's button, so that "display on focus" does not hide
+    // the buttons of other actions on the same field.
+    if (!empty($this->getConfiguration()['settings']['display_on_focus'])) {
+      $field_name = $context['items']->getFieldDefinition()->getName();
+      $form[$this->getActionButtonWidgetId($field_name, $context)]['#attributes']['class'][] = 'ai-content-suggestions--on-focus-button';
     }
   }
 

@@ -825,7 +825,7 @@
       title: marker_title ?? "",
       className: feature.icon && feature.icon.className ? feature.icon.className.replaceAll(",", "") : '',
       // Alt property always set matching Simple Title or Feature Tooltip.
-      alt: feature.tooltip && feature.tooltip.value ? feature.tooltip.value.replace(/<[^>]*>/g, '').trim() : marker_title,
+      alt: feature.tooltip && feature.tooltip.value ? new DOMParser().parseFromString(feature.tooltip.value, 'text/html').body.textContent.trim() : marker_title,
       group_label: feature.group_label ?? '',
     };
   }

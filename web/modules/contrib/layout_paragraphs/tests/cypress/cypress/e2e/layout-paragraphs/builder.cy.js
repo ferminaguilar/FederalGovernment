@@ -94,6 +94,70 @@ describe('Layout Paragraphs Builder Tests', () => {
     cy.get('.ui-dialog-title').should('contain', 'Edit Text');
   });
 
+  it('double-clicks to edit a component', () => {
+    cy.lpCreateTestPage('Test Double Click Edit');
+
+    // Add a section and text component
+    cy.lpAddSection('layout_threecol_25_50_25', '.lpb-btn--add');
+    cy.lpAddTextComponent(
+      'Text to double-click',
+      '.layout__region--first .lpb-btn--add',
+    );
+
+    // Save and go to edit mode
+    cy.lpSavePage();
+
+    cy.visit('/admin/content');
+    cy.get('a[aria-label="Edit Test Double Click Edit"]')
+      .first()
+      .scrollIntoView()
+      .click();
+
+    // Select the component, then double-click it.
+    cy.lpFindComponent('Text to double-click');
+    cy.get('@selectedComponent').dblclick();
+
+    // Double-clicking a selected component should open the edit form.
+    cy.get('.ui-dialog-title').should('contain', 'Edit Text');
+  });
+
+  it('does not edit on double-click when it is turned off', () => {
+    cy.drush(
+      'config:set',
+      ['layout_paragraphs.builder_settings', 'double_click_to_edit', 'false'],
+      { 'input-format': 'yaml' },
+    );
+    cy.lpCreateTestPage('Test Double Click Off');
+
+    cy.lpAddSection('layout_threecol_25_50_25', '.lpb-btn--add');
+    cy.lpAddTextComponent(
+      'Text not to double-click',
+      '.layout__region--first .lpb-btn--add',
+    );
+
+    cy.lpSavePage();
+
+    cy.visit('/admin/content');
+    cy.get('a[aria-label="Edit Test Double Click Off"]')
+      .first()
+      .scrollIntoView()
+      .click();
+
+    cy.intercept('/layout-paragraphs-builder/*/edit/*').as('editForm');
+    cy.lpFindComponent('Text not to double-click');
+    cy.get('@selectedComponent').dblclick();
+    // Give a double-click time to request the edit form before checking.
+    cy.wait(1000);
+    cy.get('@editForm.all').should('have.length', 0);
+    cy.get('.ui-dialog').should('not.exist');
+
+    cy.drush(
+      'config:set',
+      ['layout_paragraphs.builder_settings', 'double_click_to_edit', 'true'],
+      { 'input-format': 'yaml' },
+    );
+  });
+
   it('deletes a component', () => {
     cy.lpCreateTestPage('Test Delete Component');
 
@@ -318,8 +382,12 @@ describe('Layout Paragraphs Builder Tests', () => {
 
     // Verify all three components are present on the saved page
     cy.contains('Text added via keyboard navigation').should('be.visible');
-    cy.contains('Second text added via keyboard navigation').should('be.visible');
-    cy.contains('Third text added via keyboard navigation').should('be.visible');
+    cy.contains('Second text added via keyboard navigation').should(
+      'be.visible',
+    );
+    cy.contains('Third text added via keyboard navigation').should(
+      'be.visible',
+    );
   });
 
   // @todo: Add test for reordering components via keyboard navigation

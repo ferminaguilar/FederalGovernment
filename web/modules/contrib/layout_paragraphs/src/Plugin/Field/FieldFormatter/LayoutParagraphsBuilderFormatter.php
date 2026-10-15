@@ -4,6 +4,7 @@ namespace Drupal\layout_paragraphs\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -109,9 +110,17 @@ class LayoutParagraphsBuilderFormatter extends LayoutParagraphsFormatter impleme
     $definition = $items->getFieldDefinition();
     $layout = new LayoutParagraphsLayout($items, $this->getSettings() + ['reference_field_view_mode' => $this->viewMode]);
 
-    if (!$entity->id() || !$this->layoutParagraphsBuilderAccess->access($this->account, $layout)->isAllowed() || $entity->in_preview) {
-      return $elements['#root_components'];
+    $access = $this->layoutParagraphsBuilderAccess->access($this->account, $layout);
+    if (!$entity->id() || !$access->isAllowed() || $entity->in_preview) {
+      $build = $elements['#root_components'];
+      CacheableMetadata::createFromRenderArray($build)
+        ->addCacheableDependency($access)
+        ->applyTo($build);
+      return $build;
     }
+    CacheableMetadata::createFromRenderArray($elements)
+      ->addCacheableDependency($access)
+      ->applyTo($elements);
 
     $elements['#link_text'] = $this->t('Edit @label', ['@label' => $definition->label()]);
 

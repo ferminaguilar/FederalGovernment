@@ -33,13 +33,18 @@ trait AutowireTrait
                 $service = (string) $attribute->newInstance()->value;
             }
 
-            if (!$container->has($service)) {
+            if ($container->has($service)) {
+                $args[] = $container->get($service);
+            } elseif ($parameter->isDefaultValueAvailable()) {
+                $args[] = $parameter->getDefaultValue();
+            } elseif ($parameter->isOptional()) {
+                $args[] = null;
+            } else {
                 throw new AutowiringFailedException($service, sprintf('Cannot autowire service "%s": argument "$%s" of method "%s::_construct()", you should configure its value explicitly.', $service, $parameter->getName(), static::class));
             }
-
-            $args[] = $container->get($service);
         }
 
-        return new self(...$args);
+        // @phpstan-ignore-next-line new.static
+        return new static(...$args);
     }
 }

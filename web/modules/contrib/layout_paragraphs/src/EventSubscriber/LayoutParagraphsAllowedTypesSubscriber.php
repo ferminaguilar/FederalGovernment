@@ -31,19 +31,21 @@ class LayoutParagraphsAllowedTypesSubscriber implements EventSubscriberInterface
     $types = $event->getTypes();
     $layout = $event->getLayout();
     $settings = $layout->getSettings();
+    $require_layouts = $settings['require_layouts'] ?? 0;
+    $nesting_depth = $settings['nesting_depth'] ?? 0;
 
-    if ($settings['require_layouts'] && !$parent_uuid) {
+    if ($require_layouts && !$parent_uuid) {
       $event->setTypes(array_filter($types, function ($type) {
         return $type['is_section'] === TRUE;
       }));
     }
 
     $depth = 0;
-    while ($parent = $layout->getComponentByUuid($parent_uuid)) {
+    while ($parent_uuid && ($parent = $layout->getComponentByUuid($parent_uuid))) {
       $depth++;
       $parent_uuid = $parent->getParentUuid();
     }
-    if ($depth > $settings['nesting_depth']) {
+    if ($depth > $nesting_depth) {
       $event->setTypes(array_filter($types, function ($type) {
         return $type['is_section'] === FALSE;
       }));

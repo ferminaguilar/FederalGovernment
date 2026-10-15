@@ -44,10 +44,6 @@ include:
 .is-push-rule: &is-push-rule
   if: $CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_ROOT_NAMESPACE == "project"
 
-# Override the PHPUnit job to skip existing test failures
-phpunit:
-  script:
-    - echo "Skipping PHPUnit tests - see issue for test failures"
 cypress:
   stage: test
   needs:
@@ -99,6 +95,20 @@ cypress:
         - "**/*.{php,module,inc,install}"
       when: on_success
 
+# Browser tests belong in Cypress (tests/cypress); only Unit and Kernel tests
+# are allowed in PHPUnit.
+forbid-browser-phpunit-tests:
+  stage: validate
+  needs: []
+  script:
+    - |
+      found=$(find . -type d \( -name Functional -o -name FunctionalJavascript \) -path '*/tests/src/*')
+      if [ -n "$found" ]; then
+        echo "Browser tests must be written in Cypress (tests/cypress), not PHPUnit. Found:"
+        echo "$found"
+        exit 1
+      fi
+
 ################
 # Pipeline configuration variables
 #
@@ -107,6 +117,7 @@ cypress:
 # Docs at https://git.drupalcode.org/project/gitlab_templates/-/blob/1.0.x/includes/include.drupalci.variables.yml
 ################
 variables:
+  _COMPOSER_YARN_INSTALL: '0'
   OPT_IN_TEST_PREVIOUS_MINOR: 1
   OPT_IN_TEST_NEXT_MINOR: 1
   _CSPELL_WORDS: 'tooltiptext, Toupin, Italo, Mairo, itamair, autoresize, Fieldto, cclip, cdefs, cpath, crect, csvg, Unchoose'
