@@ -4,7 +4,8 @@
  * @file
  * Utility code related to paragraphs.
  */
-
+use Drupal\Component\Utility\DeprecationHelper;
+use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\Core\Entity\FieldableEntityInterface;
 
 /**
@@ -17,7 +18,7 @@ function _uswds_edge_to_edge_mode() {
   $result = &drupal_static(__FUNCTION__);
   if (!isset($result)) {
     $result = FALSE;
-    if (theme_get_setting('uswds_paragraphs_edge_to_edge')) {
+    if (DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_paragraphs_edge_to_edge'), fn() => theme_get_setting('uswds_paragraphs_edge_to_edge'))) {
       if (_uswds_current_entity_references_paragraphs()) {
         // Make sure we are not editing a node.
         // @TODO: Do this in a better way that includes all entity types.

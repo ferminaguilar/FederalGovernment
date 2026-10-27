@@ -273,50 +273,36 @@
     Drupal.behaviors.AJAX.attach(container, settings);
     setUiElementVisibility();
   }
+
   /**
-   * Repositions open dialogs when their height changes to exceed viewport.
+   * Repositions a dialog when its height changes to exceed viewport.
    *
    * The height of an open dialog will change based on its contents and can
    * cause a dialog to grow taller than the current window viewport, making
    * it impossible to reach parts of the content (for example, submit buttons).
    * Repositioning the dialog fixes the issue.
    * @see https://www.drupal.org/project/layout_paragraphs/issues/3252978
-   * @see https://stackoverflow.com/questions/5456298/refresh-jquery-ui-dialog-position
    *
-   * @param {Number} intervalId
-   *   The interval id.
+   * @param {HTMLElement} dialog
+   *   The dialog widget element.
    */
-  function repositionDialog(intervalId) {
-    const $dialogs = $('.lpb-dialog');
-    if ($dialogs.length === 0) {
-      clearInterval(intervalId);
+  function repositionDialog(dialog) {
+    const viewPortHeight =
+      window.innerHeight || document.documentElement.clientHeight;
+    const $dialog = $('.ui-dialog-content', dialog);
+    if (
+      $dialog.length === 0 ||
+      dialog.getBoundingClientRect().bottom <= viewPortHeight
+    ) {
       return;
     }
-    $dialogs.each((i, dialog) => {
-      let bounding = dialog.getBoundingClientRect();
-      let viewPortHeight =
-        window.innerHeight || document.documentElement.clientHeight;
-      if (bounding.bottom > viewPortHeight) {
-        const $dialog = $('.ui-dialog-content', dialog);
-        if ($dialog.length === 0) {
-          return;
-        }
-        const height = viewPortHeight - 200;
-        $dialog.dialog('option', 'height', height);
-        $dialog[0].style.overscrollBehavior = 'contain';
 
-        if ($dialog.data('lpOriginalHeight') !== height) {
-          $dialog.data('lpOriginalHeight', height);
-          bounding = dialog.getBoundingClientRect();
-          viewPortHeight =
-            window.innerHeight || document.documentElement.clientHeight;
-          if (bounding.bottom > viewPortHeight) {
-            const pos = $dialog.dialog('option', 'position');
-            $dialog.dialog('option', 'position', pos);
-          }
-        }
-      }
-    });
+    // jQuery UI only applies maxHeight when height is 'auto'. Setting a fixed
+    // height would also stop core from resizing the dialog later.
+    const option =
+      $dialog.dialog('option', 'height') === 'auto' ? 'maxHeight' : 'height';
+    $dialog.dialog('option', option, viewPortHeight - 200);
+    $dialog[0].style.overscrollBehavior = 'contain';
   }
 
   /**
@@ -820,19 +806,23 @@
 
   // Repositions open dialogs.
   // @see https://www.drupal.org/project/layout_paragraphs/issues/3252978
-  // @see https://stackoverflow.com/questions/5456298/refresh-jquery-ui-dialog-position
 
-  let lpDialogInterval;
+  const dialogObserver = new ResizeObserver((entries) => {
+    // Resizing within the observer callback triggers a loop error.
+    entries.forEach(({ target }) =>
+      window.requestAnimationFrame(() => repositionDialog(target)),
+    );
+  });
 
   const handleAfterDialogCreate = (event, dialog, $dialog) => {
     const $element = $dialog || jQuery(event.target);
-    if ($element.attr('id').startsWith('lpb-dialog-')) {
+    if ($element.attr('id')?.startsWith('lpb-dialog-')) {
       updateDialogButtons($element);
-      clearInterval(lpDialogInterval);
-      lpDialogInterval = setInterval(
-        repositionDialog.bind(null, lpDialogInterval),
-        500,
-      );
+      const widget = $element.closest('.ui-dialog')[0];
+      if (widget) {
+        dialogObserver.observe(widget);
+        $element.one('dialogclose', () => dialogObserver.unobserve(widget));
+      }
     }
   };
   if (typeof DrupalDialogEvent === 'undefined') {

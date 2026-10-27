@@ -1,10 +1,12 @@
 <?php
 
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\uswds\Hook\BlockSystemMenuBlockSecondaryMenuPreprocessHooks;
+
 /**
  * @file
  * Preprocess function for this hook.
  */
-
 /**
  * Implements hook_preprocess_block__DELTA__REGION().
  *
@@ -12,6 +14,7 @@
  *
  * @see uswds_theme_suggestions_block_alter()
  */
+#[LegacyHook]
 function uswds_preprocess_block__system_menu_block__secondary_menu(&$variables) {
-  _uswds_mark_menu_items($variables, 'secondary_menu');
+  \Drupal::service(BlockSystemMenuBlockSecondaryMenuPreprocessHooks::class)->preprocessBlockSystemMenuBlockSecondaryMenu($variables);
 }

@@ -4,7 +4,8 @@
  * @file
  * Custom theme setting form elements for the USWDS theme.
  */
-
+use Drupal\Component\Utility\DeprecationHelper;
+use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -28,19 +29,19 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
         'basic' => t('Basic'),
         'extended' => t('Extended'),
       ],
-      '#default_value' => theme_get_setting('uswds_header_style'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_header_style'), fn() => theme_get_setting('uswds_header_style')),
     ],
     'uswds_header_mega' => [
       '#type' => 'checkbox',
       '#title' => t('Use megamenus in the header?'),
       '#description' => t('Site building note: Megamenus require hierarchical three-level menus, where the second level of menu items is not rendered, but instead is used to determine the "columns" for the megamenu.'),
-      '#default_value' => theme_get_setting('uswds_header_mega'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_header_mega'), fn() => theme_get_setting('uswds_header_mega')),
     ],
     'uswds_header_mega_display_second' => [
       '#type' => 'checkbox',
       '#title' => t('Megamenu: Display second level as headers'),
       '#description' => t('Check this to display the second level of the menu links as headers above the megamenu "columns"'),
-      '#default_value' => theme_get_setting('uswds_header_mega_display_second'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_header_mega_display_second'), fn() => theme_get_setting('uswds_header_mega_display_second')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_header_mega"]' => ['checked' => TRUE],
@@ -50,12 +51,12 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_government_banner' => [
       '#type' => 'checkbox',
       '#title' => t('Display the official U.S. government banner at the top of each page?'),
-      '#default_value' => theme_get_setting('uswds_government_banner'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_government_banner'), fn() => theme_get_setting('uswds_government_banner')),
     ],
     'uswds_government_banner_mil' => [
       '#type' => 'checkbox',
       '#title' => t('Display the .mil version of the government banner?'),
-      '#default_value' => theme_get_setting('uswds_government_banner_mil'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_government_banner_mil'), fn() => theme_get_setting('uswds_government_banner_mil')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_government_banner"]' => ['checked' => TRUE],
@@ -78,7 +79,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
         'medium' => t('Medium'),
         'slim' => t('Slim'),
       ],
-      '#default_value' => theme_get_setting('uswds_footer_style'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_footer_style'), fn() => theme_get_setting('uswds_footer_style')),
     ],
     'uswds_big_footer_help' => [
       '#type' => 'container',
@@ -94,12 +95,12 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_footer_agency' => [
       '#type' => 'checkbox',
       '#title' => t('Add agency information in the footer?'),
-      '#default_value' => theme_get_setting('uswds_footer_agency'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_footer_agency'), fn() => theme_get_setting('uswds_footer_agency')),
     ],
     'uswds_footer_agency_name' => [
       '#type' => 'textfield',
       '#title' => t('Footer agency name'),
-      '#default_value' => theme_get_setting('uswds_footer_agency_name'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_footer_agency_name'), fn() => theme_get_setting('uswds_footer_agency_name')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -109,7 +110,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_footer_agency_url' => [
       '#type' => 'textfield',
       '#title' => t('Footer agency URL'),
-      '#default_value' => theme_get_setting('uswds_footer_agency_url'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_footer_agency_url'), fn() => theme_get_setting('uswds_footer_agency_url')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -120,7 +121,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
       '#type' => 'textfield',
       '#title' => t("Path to footer agency logo (from this theme's folder)"),
       '#description' => t('For example: images/footer-agency.png'),
-      '#default_value' => theme_get_setting('uswds_footer_agency_logo'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_footer_agency_logo'), fn() => theme_get_setting('uswds_footer_agency_logo')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -130,7 +131,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_contact_center' => [
       '#type' => 'textfield',
       '#title' => t('Name of contact center'),
-      '#default_value' => theme_get_setting('uswds_contact_center'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_contact_center'), fn() => theme_get_setting('uswds_contact_center')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -140,7 +141,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_email' => [
       '#type' => 'textfield',
       '#title' => t('Email'),
-      '#default_value' => theme_get_setting('uswds_email'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_email'), fn() => theme_get_setting('uswds_email')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -150,7 +151,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_phone' => [
       '#type' => 'textfield',
       '#title' => t('Phone'),
-      '#default_value' => theme_get_setting('uswds_phone'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_phone'), fn() => theme_get_setting('uswds_phone')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -160,7 +161,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_facebook' => [
       '#type' => 'textfield',
       '#title' => t('Facebook link'),
-      '#default_value' => theme_get_setting('uswds_facebook'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_facebook'), fn() => theme_get_setting('uswds_facebook')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -170,7 +171,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_twitter' => [
       '#type' => 'textfield',
       '#title' => t('Twitter link'),
-      '#default_value' => theme_get_setting('uswds_twitter'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_twitter'), fn() => theme_get_setting('uswds_twitter')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -180,7 +181,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_x' => [
       '#type' => 'textfield',
       '#title' => t('X link'),
-      '#default_value' => theme_get_setting('uswds_x'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_x'), fn() => theme_get_setting('uswds_x')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -190,7 +191,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_youtube' => [
       '#type' => 'textfield',
       '#title' => t('Youtube link'),
-      '#default_value' => theme_get_setting('uswds_youtube'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_youtube'), fn() => theme_get_setting('uswds_youtube')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -200,7 +201,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_rss' => [
       '#type' => 'textfield',
       '#title' => t('RSS feed'),
-      '#default_value' => theme_get_setting('uswds_rss'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_rss'), fn() => theme_get_setting('uswds_rss')),
       '#states' => [
         'visible' => [
           ':input[name="uswds_footer_agency"]' => ['checked' => TRUE],
@@ -217,7 +218,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_paragraphs_edge_to_edge' => [
       '#type' => 'checkbox',
       '#title' => t('Turn on "edge-to-edge" mode* whenever the full entity being displayed contains Paragraphs.'),
-      '#default_value' => theme_get_setting('uswds_paragraphs_edge_to_edge'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_paragraphs_edge_to_edge'), fn() => theme_get_setting('uswds_paragraphs_edge_to_edge')),
       '#description' => t('*"Edge-to-edge" mode causes the main Content area to be "off the grid", so that Paragraphs can extend across the entire width of the screen. It also disables any sidebars while active.'),
     ],
   ];
@@ -232,7 +233,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
   }
 
   // Menu behavior.
-  $saved_bypass = theme_get_setting('uswds_menu_bypass');
+  $saved_bypass = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_menu_bypass'), fn() => theme_get_setting('uswds_menu_bypass'));
   if (empty($saved_bypass)) {
     $saved_bypass = [];
   }
@@ -243,7 +244,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
     'uswds_menu_accordion_duplicate_parent' => [
       '#type' => 'checkbox',
       '#title' => t('Duplicate parent menu items as first item in dropdowns.'),
-      '#default_value' => theme_get_setting('uswds_menu_accordion_duplicate_parent'),
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_menu_accordion_duplicate_parent'), fn() => theme_get_setting('uswds_menu_accordion_duplicate_parent')),
     ],
     'uswds_menu_bypass' => [
       '#type' => 'checkboxes',
@@ -261,7 +262,7 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
   ];
 
   // Search Box
-  $search_bypass = theme_get_setting('uswds_search_bypass');
+  $search_bypass = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_search_bypass'), fn() => theme_get_setting('uswds_search_bypass'));
   if (empty($search_bypass)) {
     $search_bypass = 0;
   }
@@ -288,10 +289,10 @@ function uswds_form_system_theme_settings_alter(&$form, FormStateInterface &$for
           'big' => t('Big'),
           'small' => t('Small (icon)'),
       ],
-      '#default_value' => theme_get_setting('uswds_search_style') ?? 'small',
+      '#default_value' => DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_search_style'), fn() => theme_get_setting('uswds_search_style')) ?? 'small',
     ],
   ];
-  $form_optional_label = theme_get_setting('uswds_form_optional_label');
+  $form_optional_label = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_form_optional_label'), fn() => theme_get_setting('uswds_form_optional_label'));
   $form['form_fieldset'] = [
     '#type' => 'fieldset',
     '#title' => t('Form Settings'),

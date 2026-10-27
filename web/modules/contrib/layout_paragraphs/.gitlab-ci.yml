@@ -120,5 +120,5 @@ variables:
   _COMPOSER_YARN_INSTALL: '0'
   OPT_IN_TEST_PREVIOUS_MINOR: 1
   OPT_IN_TEST_NEXT_MINOR: 1
-  _CSPELL_WORDS: 'tooltiptext, Toupin, Italo, Mairo, itamair, autoresize, Fieldto, cclip, cdefs, cpath, crect, csvg, Unchoose'
+  _CSPELL_WORDS: 'tooltiptext, Toupin, Italo, Mairo, itamair, autoresize, Fieldto, cclip, cdefs, cpath, crect, csvg, Unchoose, dialogclose'
 # SKIP_ESLINT: '1'

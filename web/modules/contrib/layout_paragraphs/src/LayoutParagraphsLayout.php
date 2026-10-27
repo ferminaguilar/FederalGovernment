@@ -303,24 +303,31 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
   }
 
   /**
-   * Returns the component with matching uuid.
+   * Gets a layout component by its UUID.
    *
-   * @param string $uuid
-   *   The uuid to search for.
+   * Returns NULL if no matching component exists. This preserves the behavior
+   * established in earlier versions of Layout Paragraphs, which callers may
+   * rely on when checking for optional or missing components.
    *
-   * @return \Drupal\layout_paragraphs\LayoutParagraphsComponent
-   *   The component.
+   * @param string|null $uuid
+   *   The UUID of the component to retrieve, or NULL if no UUID is available.
    *
-   * @throws \InvalidArgumentException
-   *   Thrown when no component matches the UUID.
+   * @return \Drupal\layout_paragraphs\LayoutParagraphsComponent|null
+   *   The matching component, or NULL if the UUID is empty or no component
+   *   matches.
    */
-  public function getComponentByUuid($uuid) {
-    foreach ($this->getEntities() as $entity) {
-      if ($entity->uuid() == $uuid) {
-        return $this->getComponent($entity);
+  public function getComponentByUuid(?string $uuid): ?LayoutParagraphsComponent {
+    if (empty($uuid)) {
+      return NULL;
+    }
+
+    foreach ($this->getComponents() as $component) {
+      if ($component->getEntity()->uuid() === $uuid) {
+        return $component;
       }
     }
-    throw new \InvalidArgumentException('No component found with UUID ' . $uuid . '.');
+
+    return NULL;
   }
 
   /**

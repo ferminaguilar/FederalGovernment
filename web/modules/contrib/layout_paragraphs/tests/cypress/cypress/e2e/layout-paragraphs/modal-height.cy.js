@@ -20,6 +20,9 @@ describe('Layout Paragraphs Modal Height Tests', () => {
     cy.visit('/node/add/lp_test_ct');
     cy.get('input[name="title[0][value]"]').type('Modal Height Test');
 
+    // Repositioning must not depend on a timer.
+    cy.clock(Date.now(), ['setInterval', 'clearInterval']);
+
     // Open the component chooser.
     cy.get('.lpb-btn--add').first().click();
     cy.get('.ui-dialog-title').should('contain', 'Choose a component');
@@ -29,16 +32,21 @@ describe('Layout Paragraphs Modal Height Tests', () => {
     cy.get('.ui-dialog-title').should('contain', 'Create new Text');
     cy.get('.ajax-progress').should('not.exist');
 
+    // Core's sizing of the new dialog, debounced by 20ms, re-centers it. Let
+    // it settle first, so this module handles the growth below.
+    // @see core/misc/dialog/dialog.position.js
+    cy.wait(250);
+
     // Artificially expand the form height far beyond the viewport.
     cy.get('.layout-paragraphs-component-form').then(($form) => {
       $form[0].style.height = '2000px';
     });
 
-    // Brief pause to let the dialog react to the size change.
-    cy.wait(500);
-
-    // The save button in the dialog footer must still be visible in the
-    // viewport (the dialog should scroll or remain fixed at the bottom).
-    cy.get('.ui-dialog-buttonpane .lpb-btn--save').should('be.visible');
+    cy.get('.lpb-dialog').should(($dialog) => {
+      const { innerHeight } = $dialog[0].ownerDocument.defaultView;
+      expect($dialog[0].getBoundingClientRect().bottom).to.be.at.most(
+        innerHeight,
+      );
+    });
   });
 });

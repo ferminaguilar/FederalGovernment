@@ -4,7 +4,10 @@
  * @file
  * Utility code related to menus and menu blocks.
  */
-
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\uswds\Hook\MenusHooks;
+use Drupal\Component\Utility\DeprecationHelper;
+use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\block\Entity\Block;
 
 /**
@@ -14,7 +17,7 @@ use Drupal\block\Entity\Block;
  *   The machine name of the region.
  */
 function _uswds_process_menu_region($region) {
-  $menu_bypass = theme_get_setting('uswds_menu_bypass');
+  $menu_bypass = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.3.0', fn() => \Drupal::service(ThemeSettingsProvider::class)->getSetting('uswds_menu_bypass'), fn() => theme_get_setting('uswds_menu_bypass'));
   if (empty($menu_bypass)) {
     $menu_bypass = [];
   }
@@ -24,54 +27,19 @@ function _uswds_process_menu_region($region) {
 /**
  * Implements hook_theme_suggestions_HOOK_alter().
  */
-function uswds_theme_suggestions_block_alter(array &$suggestions, array $variables) {
-  // We need to suggest our custom theming for menu blocks in certain regions.
-  if (in_array('block__system_menu_block', $suggestions)) {
-    if (!empty($variables['elements']['#id'])) {
-      $block = Block::load($variables['elements']['#id']);
-      $menu_regions = [
-        'primary_menu',
-        'secondary_menu',
-        'sidebar_first',
-        'sidebar_second',
-        'footer_menu',
-      ];
-      if (
-        is_object($block) && method_exists($block, 'getRegion') &&
-        in_array($block->getRegion(), $menu_regions) &&
-        _uswds_process_menu_region($block->getRegion())
-      ) {
-        $suggestion = 'block__system_menu_block__' . $block->getRegion();
-        if (!in_array($suggestion, $suggestions)) {
-          $suggestions[] = $suggestion;
-        }
-      }
-    }
-  }
-  return $suggestions;
+#[LegacyHook]
+function uswds_theme_suggestions_block_alter(array &$suggestions, array $variables)
+{
+    return \Drupal::service(MenusHooks::class)->themeSuggestionsBlockAlter($suggestions, $variables);
 }
 
 /**
  * Implements hook_theme_suggestions_HOOK_alter().
  */
-function uswds_theme_suggestions_menu_alter(array &$suggestions, array $variables) {
-  if (!empty($variables['items'])) {
-    foreach ($variables['items'] as $item) {
-      if (!empty($item['#uswds_region'])) {
-        if (_uswds_process_menu_region($item['#uswds_region'])) {
-          $suggestion = 'menu__' . $item['#uswds_region'];
-          if (in_array($suggestion, $suggestions)) {
-            continue;
-          }
-
-          $suggestions[] = $suggestion;
-        }
-      }
-      // We only need to look at one.
-      break;
-    }
-  }
-  return $suggestions;
+#[LegacyHook]
+function uswds_theme_suggestions_menu_alter(array &$suggestions, array $variables)
+{
+    return \Drupal::service(MenusHooks::class)->themeSuggestionsMenuAlter($suggestions, $variables);
 }
 
 /**
