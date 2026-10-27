@@ -1,9 +1,11 @@
 # Ignore the vendor folder (it's huge, use composer install instead)
 /vendor/
 
-# Ignore uploaded assets, BUT keep the SQLite database
+# Ignore uploaded assets and SQLite database
 /web/sites/default/files/*
-!/web/sites/default/files/.ht.sqlite
+*.sqlite
+*.sqlite-*
+.ht.sqlite
 
 # Ignore environment and node files
 /.env.local
