@@ -6,7 +6,7 @@ dependencies:
   - drupal:migrate
   - migrate_tools:migrate_tools
 
-# Information added by Drupal.org packaging script on 2026-05-13
-version: '6.1.4'
+# Information added by Drupal.org packaging script on 2026-11-02
+version: '6.1.5'
 project: 'migrate_tools'
-datestamp: 1778689497
+datestamp: 1793658872

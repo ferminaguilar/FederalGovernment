@@ -56,8 +56,6 @@ final class JsonTest extends KernelTestBase {
    *   Array of fields to pass to the plugin.
    * @param array $expected
    *   Expected array from json decoded file.
-   *
-   * @dataProvider providerTestMissingProperties
    */
   #[DataProvider('providerTestMissingProperties')]
   public function testMissingProperties(string $file, array $ids, array $fields, array $expected): void {
@@ -134,8 +132,6 @@ final class JsonTest extends KernelTestBase {
 
   /**
    * Tests item_selector parser property.
-   *
-   * @dataProvider providerItemSelector
    */
   #[DataProvider('providerItemSelector')]
   public function testItemSelector(mixed $item_selector, array $fields, array $expected): void {

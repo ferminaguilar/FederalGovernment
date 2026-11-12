@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_tools\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Tests\BrowserTestBase;
 use Drush\TestTraits\DrushTestTrait;
 
 /**
  * Test that batch import runs correctly in drush command.
- *
- * @group migrate_tools
  */
+#[Group('migrate_tools')]
+#[RunTestsInSeparateProcesses]
 final class DrushBatchImportTest extends BrowserTestBase {
   use DrushTestTrait;
 

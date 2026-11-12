@@ -37,8 +37,6 @@ final class DomStrReplaceTest extends MigrateProcessTestCase {
 
   /**
    * Tests empty configuration.
-   *
-   * @dataProvider providerTestConfigEmpty
    */
   #[DataProvider('providerTestConfigEmpty')]
   public function testConfigValidation(array $config_overrides, string $message): void {
@@ -104,8 +102,6 @@ final class DomStrReplaceTest extends MigrateProcessTestCase {
 
   /**
    * Tests valid input.
-   *
-   * @dataProvider providerTestTransform
    */
   #[DataProvider('providerTestTransform')]
   public function testTransform(string $input_string, array $configuration, string $output_string): void {
@@ -140,6 +136,15 @@ final class DomStrReplaceTest extends MigrateProcessTestCase {
           'regex' => TRUE,
         ] + self::$exampleConfiguration,
         '<a href="/fbar/Fbar/fbar">text</a>',
+      ],
+      'regex:multiple' => [
+        '<a href="/foo/Foo/bar/Bar">text</a>',
+        [
+          'search'  => ['/foo/', '/bar/'],
+          'replace' => ['baz', 'qux'],
+          'regex' => TRUE,
+        ] + self::$exampleConfiguration,
+        '<a href="/baz/Foo/qux/Bar">text</a>',
       ],
       'mode-text' => [
         '<a href="/foo/Foo/foo">foo</a>',

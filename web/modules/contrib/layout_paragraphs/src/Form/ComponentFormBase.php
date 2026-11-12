@@ -233,7 +233,12 @@ abstract class ComponentFormBase extends FormBase implements ComponentFormInterf
       ],
     ];
 
-    if ($this->paragraphType->hasEnabledBehaviorPlugin('layout_paragraphs')) {
+    // Behavior settings are shared by all translations, so they are hidden when
+    // the layout is locked or, as in ParagraphsWidget, when the paragraph type
+    // hides its untranslatable fields.
+    $hide_untranslatable_fields = !$this->paragraph->isDefaultTranslation() && $this->paragraph->isDefaultTranslationAffectedOnly();
+    $behaviors_editable = !$hide_untranslatable_fields && $this->layoutParagraphsLayout->layoutChangeAccess(FALSE);
+    if ($behaviors_editable && $this->paragraphType->hasEnabledBehaviorPlugin('layout_paragraphs')) {
       $form['layout_paragraphs'] = [
         '#process' => [
           [$this, 'layoutParagraphsBehaviorForm'],
@@ -241,7 +246,7 @@ abstract class ComponentFormBase extends FormBase implements ComponentFormInterf
       ];
     }
 
-    if (count($this->getEnabledBehaviorPlugins())) {
+    if ($behaviors_editable && count($this->getEnabledBehaviorPlugins())) {
       $form['behavior_plugins'] = [
         '#weight' => $lp_config->get('paragraph_behaviors_position') ?? -99,
         '#type' => 'details',
@@ -279,7 +284,6 @@ abstract class ComponentFormBase extends FormBase implements ComponentFormInterf
     // Untranslatable fields are shared by every translation, so they are
     // hidden or labeled as such while translating, as in ParagraphsWidget.
     if (!$this->paragraph->isDefaultTranslation()) {
-      $hide_untranslatable_fields = $this->paragraph->isDefaultTranslationAffectedOnly();
       foreach (Element::children($form) as $field_name) {
         if (!$this->paragraph->hasField($field_name)) {
           continue;
@@ -374,15 +378,17 @@ abstract class ComponentFormBase extends FormBase implements ComponentFormInterf
     $paragraph->getAllBehaviorSettings();
 
     $paragraphs_type = $paragraph->getParagraphType();
-    if ($paragraphs_type->hasEnabledBehaviorPlugin('layout_paragraphs')) {
+    if (isset($form['layout_paragraphs']['layout'])) {
       $layout_paragraphs_plugin = $paragraphs_type->getEnabledBehaviorPlugins()['layout_paragraphs'];
       $subform_state = SubformState::createForSubform($form['layout_paragraphs'], $form, $form_state);
       $layout_paragraphs_plugin->submitBehaviorForm($paragraph, $form['layout_paragraphs'], $subform_state);
     }
 
     foreach ($this->getEnabledBehaviorPlugins() as $behavior_id => $behavior_plugin) {
-      $subform_state = SubformState::createForSubform($form['behavior_plugins'][$behavior_id], $form, $form_state);
-      $behavior_plugin->submitBehaviorForm($paragraph, $form['behavior_plugins'][$behavior_id], $subform_state);
+      if (isset($form['behavior_plugins'][$behavior_id])) {
+        $subform_state = SubformState::createForSubform($form['behavior_plugins'][$behavior_id], $form, $form_state);
+        $behavior_plugin->submitBehaviorForm($paragraph, $form['behavior_plugins'][$behavior_id], $subform_state);
+      }
     }
 
     $paragraph->setNeedsSave(TRUE);

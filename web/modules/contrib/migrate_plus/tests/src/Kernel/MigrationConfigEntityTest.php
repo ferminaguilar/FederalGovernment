@@ -24,6 +24,7 @@ final class MigrationConfigEntityTest extends MigrateTestBase {
    * {@inheritdoc}
    */
   protected static $modules = [
+    'filter',
     'migrate',
     'migrate_plus',
     'migrate_plus_test',
@@ -145,6 +146,14 @@ final class MigrationConfigEntityTest extends MigrateTestBase {
     $migration = $this->pluginManager->createInstance('dummy');
     $id_map = $migration->getIdMap();
     $this->assertInstanceOf(Sql::class, $id_map);
+  }
+
+  /**
+   * Tests a migration whose configuration has a NULL id_map.
+   */
+  public function testIdMapNull(): void {
+    $migration = Migration::create(['id' => 'null_id_map', 'idMap' => NULL]);
+    $this->assertSame([], $migration->get('idMap'));
   }
 
 }

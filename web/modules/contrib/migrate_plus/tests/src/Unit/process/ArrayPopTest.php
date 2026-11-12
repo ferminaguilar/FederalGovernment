@@ -56,8 +56,6 @@ final class ArrayPopTest extends MigrateProcessTestCase {
    *   The input values.
    * @param mixed $expected_output
    *   The expected output.
-   *
-   * @dataProvider arrayPopDataProvider
    */
   #[DataProvider('arrayPopDataProvider')]
   public function testArrayPop(array $input, mixed $expected_output): void {

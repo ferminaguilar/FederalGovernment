@@ -27,9 +27,9 @@ final class EntityLookupTest extends KernelTestBase {
   use NodeCreationTrait;
 
   /**
-   * The migrate executable mock object.
+   * The migrate executable stub.
    *
-   * @var \Drupal\migrate\MigrateExecutable|\PHPUnit\Framework\MockObject\MockObject
+   * @var \Drupal\migrate\MigrateExecutable&\PHPUnit\Framework\MockObject\Stub
    */
   protected $migrateExecutable;
 
@@ -54,9 +54,7 @@ final class EntityLookupTest extends KernelTestBase {
     $this->installEntitySchema('node');
     $this->installConfig(['filter']);
 
-    $this->migrateExecutable = $this->getMockBuilder(MigrateExecutable::class)
-      ->disableOriginalConstructor()
-      ->getMock();
+    $this->migrateExecutable = $this->createStub(MigrateExecutable::class);
 
     $test_nodes = [
       ['title' => 'foo 1'],
@@ -172,8 +170,6 @@ final class EntityLookupTest extends KernelTestBase {
 
   /**
    * Tests lookup with different operators.
-   *
-   * @dataProvider providerTestLookupOperators
    */
   #[DataProvider('providerTestLookupOperators')]
   public function testLookupOperators(array $configuration, mixed $lookup_value, mixed $expected_value): void {

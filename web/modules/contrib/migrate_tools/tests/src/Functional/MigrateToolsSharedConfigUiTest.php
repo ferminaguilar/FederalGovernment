@@ -2,13 +2,15 @@
 
 namespace Drupal\Tests\migrate_tools\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests UI rendering of a migration using shared configuration.
- *
- * @group migrate_tools
  */
+#[Group('migrate_tools')]
+#[RunTestsInSeparateProcesses]
 class MigrateToolsSharedConfigUiTest extends BrowserTestBase {
 
   /**

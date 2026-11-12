@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\migrate_tools\Controller;
 
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Controller\ControllerBase;
@@ -102,7 +103,8 @@ class MigrationController extends ControllerBase implements ContainerInjectionIn
       '#markup' => Xss::filterAdmin($migration->label()),
       '#type' => 'item',
     ];
-    $migration_dependencies = $this->getMigrationPlugin($migration)->getMigrationDependencies(TRUE);
+    $migration_plugin = $this->getMigrationPlugin($migration);
+    $migration_dependencies = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.0.0', fn() => $migration_plugin->getMigrationDependencies(), fn() => $migration_plugin->getMigrationDependencies(TRUE));
     if (!empty($migration_dependencies['required'])) {
       $build['overview']['dependencies'] = [
         '#title' => $this->t('Migration Dependencies') ,

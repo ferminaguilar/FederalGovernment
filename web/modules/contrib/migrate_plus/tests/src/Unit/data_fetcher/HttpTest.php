@@ -16,7 +16,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 
 /**
  * Test the http data fetcher plugin.
@@ -71,9 +71,9 @@ final class HttpTest extends MigrateTestCase {
   ';
 
   /**
-   * Mocked up Basic authentication plugin.
+   * Stubbed Basic authentication plugin.
    */
-  private ?MockObject $basicAuthenticator = NULL;
+  private ?Stub $basicAuthenticator = NULL;
 
   /**
    * Set up test environment.
@@ -81,7 +81,7 @@ final class HttpTest extends MigrateTestCase {
   public function setUp(): void {
     parent::setUp();
     // Mock up a Basic authentication plugin that will be used in requests.
-    $basic_authenticator = $this->createMock(Basic::class);
+    $basic_authenticator = $this->createStub(Basic::class);
 
     $basic_authenticator->method('getAuthenticationOptions')
       ->willReturn([
@@ -168,9 +168,9 @@ final class HttpTest extends MigrateTestCase {
 final class TestHttp extends Http {
 
   /**
-   * Mocked authenticator plugin.
+   * Stubbed authenticator plugin.
    *
-   * @var \PHPUnit_Framework_MockObject_MockObject
+   * @var \PHPUnit\Framework\MockObject\Stub
    */
   public $authenticator = NULL;
 

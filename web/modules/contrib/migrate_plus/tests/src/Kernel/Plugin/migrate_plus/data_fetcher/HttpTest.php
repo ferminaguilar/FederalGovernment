@@ -24,8 +24,6 @@ final class HttpTest extends KernelTestBase {
 
   /**
    * Test http headers option.
-   *
-   * @dataProvider headerDataProvider
    */
   #[DataProvider('headerDataProvider')]
   public function testHttpHeaders(array $definition, array $expected, array $preSeed = []): void {

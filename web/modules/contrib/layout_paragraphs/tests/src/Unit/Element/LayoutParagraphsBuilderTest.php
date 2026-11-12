@@ -90,9 +90,21 @@ class LayoutParagraphsBuilderTest extends UnitTestCase {
   }
 
   /**
+   * Tests read scope cleanup when building a component fails.
+   *
+   * @covers ::preRender
+   */
+  public function testReadScopeEndsOnException() {
+    $builder = $this->createBuilder($this->createMock(LayoutInterface::class), TRUE);
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Render failed.');
+    $builder->preRender($this->createElement());
+  }
+
+  /**
    * Creates a builder with its plugin and component construction stubbed.
    */
-  private function createBuilder(LayoutInterface $layout_plugin): LayoutParagraphsBuilder {
+  private function createBuilder(LayoutInterface $layout_plugin, bool $throw = FALSE): LayoutParagraphsBuilder {
     $paragraph = $this->createMock(ParagraphInterface::class);
     $paragraph->method('uuid')->willReturn('section-uuid');
 
@@ -106,6 +118,8 @@ class LayoutParagraphsBuilderTest extends UnitTestCase {
     $section->method('getLayoutConfiguration')->willReturn([]);
 
     $layout = $this->createMock(LayoutParagraphsLayout::class);
+    $layout->expects($this->once())->method('beginReadScope');
+    $layout->expects($this->once())->method('endReadScope');
     $layout->method('getComponents')->willReturn([$component]);
     $layout->method('getSetting')
       ->willReturnCallback(static function ($name, $default = NULL) {
@@ -117,7 +131,7 @@ class LayoutParagraphsBuilderTest extends UnitTestCase {
     $tempstore->method('get')->willReturn($layout);
 
     $layout_plugin_manager = $this->createMock(LayoutPluginManagerInterface::class);
-    $layout_plugin_manager->expects($this->once())
+    $layout_plugin_manager->expects($throw ? $this->never() : $this->once())
       ->method('createInstance')
       ->with('test_layout', ['layout_paragraphs_section' => $section])
       ->willReturn($layout_plugin);
@@ -138,8 +152,12 @@ class LayoutParagraphsBuilderTest extends UnitTestCase {
       ])
       ->onlyMethods(['buildComponent'])
       ->getMock();
-    $builder->method('buildComponent')
-      ->willReturn(['regions' => ['content' => []]]);
+    if ($throw) {
+      $builder->method('buildComponent')->willThrowException(new \RuntimeException('Render failed.'));
+    }
+    else {
+      $builder->method('buildComponent')->willReturn(['regions' => ['content' => []]]);
+    }
 
     return $builder;
   }

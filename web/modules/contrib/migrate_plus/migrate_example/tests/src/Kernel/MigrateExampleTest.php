@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\migrate_example\Kernel;
 
 use Drupal\node\Entity\NodeType;
-use Drupal\Tests\migrate_drupal\Kernel\MigrateDrupalTestBase;
+use Drupal\Tests\migrate\Kernel\MigrateTestBase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -14,12 +14,15 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  */
 #[Group('migrate_plus')]
 #[RunTestsInSeparateProcesses]
-final class MigrateExampleTest extends MigrateDrupalTestBase {
+final class MigrateExampleTest extends MigrateTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected static $modules = [
+    'system',
+    'user',
+    'field',
     'node',
     'taxonomy',
     'comment',
@@ -33,6 +36,10 @@ final class MigrateExampleTest extends MigrateDrupalTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
+    $this->installEntitySchema('user');
+    $this->installEntitySchema('node');
+    $this->installEntitySchema('comment');
+    $this->installEntitySchema('taxonomy_term');
 
     $this->installConfig([
       'node',

@@ -2,6 +2,9 @@
 
 namespace Drupal\Tests\geofield\Unit\Plugin\jsonapi\FieldEnhancer;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use Shaper\Util\Context;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\geofield\GeoPHP\GeoPHPWrapper;
@@ -9,29 +12,47 @@ use Drupal\geofield\Plugin\jsonapi\FieldEnhancer\GeofieldGeoJsonEnhancer;
 use Drupal\Tests\UnitTestCase;
 
 /**
+ * Tests the GeoJSON field enhancer.
+ *
+ * Deprecations are ignored because, on Drupal 12, JSON:API Extras'
+ * ResourceFieldEnhancerBase triggers DebugClassLoader notices for the Shaper
+ * interfaces it implements. PHPUnit 11, which Drupal 11 runs, does not accept
+ * a message pattern on this attribute.
+ *
  * @coversDefaultClass \Drupal\geofield\Plugin\jsonapi\FieldEnhancer\GeofieldGeoJsonEnhancer
  * @group geofield
  */
+#[Group('geofield')]
+#[IgnoreDeprecations]
 class GeofieldGeoJsonEnhancerTest extends UnitTestCase {
 
+  /**
+   * The Geofield JSON:API enhancer under test.
+   *
+   * @var \Drupal\geofield\Plugin\jsonapi\FieldEnhancer\GeofieldGeoJsonEnhancer
+   */
   protected GeofieldGeoJsonEnhancer $geoFieldEnhancer;
 
-
-  protected function setUp(): void
-  {
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
 
     $this->geoFieldEnhancer = new GeofieldGeoJsonEnhancer([], 'geofield_geojson',
-      ['id' => 'geofield_geojson',
-        'label'=> new TranslatableMarkup('GeoJSON (Geofield)'),
+      [
+        'id' => 'geofield_geojson',
+        'label' => new TranslatableMarkup('GeoJSON (Geofield)'),
         'description' => new TranslatableMarkup('Converts Geofield data to GeoJSON format.'),
-        'dependencies' => ['geofield']], new GeoPHPWrapper);
+        'dependencies' => ['geofield'],
+      ], new GeoPHPWrapper());
   }
 
   /**
    * Data provider for testUndoTransform.
    *
    * @return array<string, array{string, array<string, mixed>}>
+   *   Named WKT inputs and their expected GeoJSON outputs.
    */
   public static function undoTransformProvider(): array {
     return [
@@ -54,6 +75,7 @@ class GeofieldGeoJsonEnhancerTest extends UnitTestCase {
    * Data provider for testTransform.
    *
    * @return array<string, array{array<string, mixed>, string}>
+   *   Named GeoJSON inputs and their expected WKT outputs.
    */
   public static function transformProvider(): array {
     return [
@@ -110,6 +132,7 @@ class GeofieldGeoJsonEnhancerTest extends UnitTestCase {
    * @covers ::doUndoTransform
    * @dataProvider undoTransformProvider
    */
+  #[DataProvider('undoTransformProvider')]
   public function testUndoTransform(string $wkt, array $expected): void {
     $result = $this->geoFieldEnhancer->undoTransform(['value' => $wkt], new Context([]));
     $this->assertEquals($expected, $result);
@@ -171,6 +194,7 @@ class GeofieldGeoJsonEnhancerTest extends UnitTestCase {
    * @covers ::doTransform
    * @dataProvider transformProvider
    */
+  #[DataProvider('transformProvider')]
   public function testTransform(array $geojson, string $expectedWkt): void {
     $this->assertEquals($expectedWkt, $this->geoFieldEnhancer->transform($geojson));
   }

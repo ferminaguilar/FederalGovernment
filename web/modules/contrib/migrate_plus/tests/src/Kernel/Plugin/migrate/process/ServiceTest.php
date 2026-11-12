@@ -78,8 +78,6 @@ final class ServiceTest extends KernelTestBase {
    *   and 'method'.
    * @param string $message
    *   The expected exception message.
-   *
-   * @dataProvider providerConfig
    */
   #[DataProvider('providerConfig')]
   public function testInvalidConfig(array $configuration, string $message): void {

@@ -1,5 +1,5 @@
 /**
- * Attach functionality for Proximity Origin Summary Lat and Lon behaviours.
+ * Attach functionality for Proximity Origin Summary Lat and Lon behaviors.
  */
 (function ($, Drupal, drupalSettings) {
   Drupal.behaviors.geofield_proximity_origin_summary_update = {

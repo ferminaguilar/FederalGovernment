@@ -79,6 +79,11 @@ class Migration extends ConfigEntityBase implements MigrationInterface {
   protected ?string $label = NULL;
 
   /**
+   * The ID map plugin configuration.
+   */
+  protected ?array $idMap = [];
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $values, $entity_type) {
@@ -88,7 +93,6 @@ class Migration extends ConfigEntityBase implements MigrationInterface {
     // \Drupal\migrate\Plugin\Migration::getIdMap() and
     // \Drupal\migrate\Plugin\MigratePluginManager::createInstance()
     // Those core functions requires array value.
-    // @phpstan-ignore variable.undefined
     $this->idMap = $values['idMap'] ?? [];
   }
 

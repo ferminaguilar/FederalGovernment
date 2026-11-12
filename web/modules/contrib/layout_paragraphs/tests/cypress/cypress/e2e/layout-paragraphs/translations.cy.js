@@ -83,6 +83,19 @@ describe('Layout Paragraphs Translation Tests', () => {
   }
 
   /**
+   * Helper: toggle the bold text behavior of the lp_test_text paragraph type.
+   *
+   * @param {boolean} enabled Whether the behavior is enabled.
+   */
+  function enableBoldTextBehavior(enabled) {
+    phpEval(
+      '\\Drupal\\paragraphs\\Entity\\ParagraphsType::load("lp_test_text")'
+      + ` ->set("behavior_plugins", ["test_bold_text" => ["enabled" => ${enabled ? 'TRUE' : 'FALSE'}]])->save();`,
+    );
+    cy.drush('cr');
+  }
+
+  /**
    * Helper: count the Sortable instances the builder created on the page.
    */
   function countSortableInstances() {
@@ -403,6 +416,7 @@ describe('Layout Paragraphs Translation Tests', () => {
 
   describe('with untranslatable fields hidden', () => {
     after(() => {
+      enableBoldTextBehavior(false);
       hideUntranslatableFields(false);
     });
 
@@ -443,6 +457,41 @@ describe('Layout Paragraphs Translation Tests', () => {
         cy.get('.lpb-btn--save:visible').click();
         cy.contains('Locked first (de)').should('be.visible');
         assertLayoutLocked('.lp-builder');
+      });
+    });
+
+    it('hides the behavior settings of a locked translation', () => {
+      const boldText = '[name="behavior_plugins[test_bold_text][bold_text]"]';
+
+      function assertBehaviorSettings(assertion) {
+        cy.lpFindComponent('Behavior text');
+        cy.get('a.lpb-edit:visible').click();
+        cy.get('.ck-editor__editable[contenteditable="true"]').should('exist');
+        cy.get(boldText).should(assertion);
+        cy.get('.lpb-btn--cancel:visible').click();
+      }
+
+      enableSymmetricTranslations();
+      enableBoldTextBehavior(true);
+      hideUntranslatableFields(true);
+
+      cy.lpCreateTestPage('Behavior Settings Test', 'lp_test_ct');
+      cy.lpAddSection('layout_threecol_25_50_25', '.lpb-btn--add');
+      cy.lpAddTextComponent(
+        'Behavior text',
+        '.layout__region--first .lpb-btn--add',
+      );
+      cy.lpSavePage();
+      cy.drush('cr');
+
+      cy.url().then((url) => {
+        const nid = url.match(/node\/(\d+)/)[1];
+
+        cy.visit(`/node/${nid}/edit`);
+        assertBehaviorSettings('exist');
+
+        cy.visit(`/node/${nid}/translations/add/en/de`);
+        assertBehaviorSettings('not.exist');
       });
     });
   });

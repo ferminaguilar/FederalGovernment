@@ -63,11 +63,12 @@
  */
 
 /* - Outlines - */
+.js-lpb-component {
+  /* Keep the inherited cursor stable when the hover state changes. */
+  cursor: default;
+}
 .js-lpb-component[data-hover="true"] {
   outline: var(--lp-hover-outline-width) solid var(--lp-hover-outline-color);
-  &:hover {
-    cursor: default;
-  }
 }
 .js-lpb-component[data-active="true"] {
   outline: var(--lp-focus-outline-width) solid var(--lp-focus-outline-color);
@@ -97,11 +98,14 @@
 .js-lpb-component[data-active="true"].is-dragging .lpb-controls.lpb-drag-image {
   opacity: 1;
 }
-.js-lpb-component[data-active="true"]:not(.is-dragging):hover > .lpb-btn--add,
+/* data-lpb-pointer is set by builder.js on the active component and the
+   regions inside it that hold the pointer. It stands in for :hover, which was
+   expensive here (see updatePointerState()). */
+.js-lpb-component[data-active="true"][data-lpb-pointer]:not(.is-dragging) > .lpb-btn--add,
 .js-lpb-component[data-active="true"]:not(.is-dragging) > .lpb-btn--add:focus {
   opacity: 1;
 }
-.js-lpb-component[data-active="true"] .js-lpb-region:hover > .lpb-btn--add,
+.js-lpb-component[data-active="true"] .js-lpb-region[data-lpb-pointer] > .lpb-btn--add,
 .js-lpb-component[data-active="true"] .js-lpb-region > .lpb-btn--add:focus {
   opacity: 1;
 }

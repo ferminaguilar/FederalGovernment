@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_tools\Unit;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\migrate_tools\MigrateTools;
 use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @coversDefaultClass \Drupal\migrate_tools\MigrateTools
- * @group migrate_tools
+ * Tests the MigrateTools helper.
  */
+#[CoversClass(MigrateTools::class)]
+#[Group('migrate_tools')]
 final class MigrateToolsTest extends UnitTestCase {
 
   /**
-   * @covers ::buildIdList
-   *
-   * @dataProvider dataProviderIdList
+   * Tests building the ID list from the command options.
    */
+  #[DataProvider('dataProviderIdList')]
   public function testBuildIdList(array $options, array $expected): void {
     $results = MigrateTools::buildIdList($options);
     $this->assertEquals($results, $expected);

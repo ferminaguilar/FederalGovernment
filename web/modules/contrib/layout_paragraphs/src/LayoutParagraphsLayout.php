@@ -29,7 +29,9 @@ use Drupal\paragraphs\ParagraphInterface;
  */
 class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
 
-  use DependencySerializationTrait;
+  use DependencySerializationTrait {
+    __sleep as protected dependencySerializationSleep;
+  }
 
   /**
    * The paragraph reference field the layout is attached to.
@@ -37,6 +39,29 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    * @var \Drupal\Core\Field\EntityReferenceFieldItemListInterface
    */
   protected $paragraphsReferenceField;
+
+  /**
+   * Transient component UUID to reference field delta lookup cache.
+   *
+   * Cached deltas are validated against the current field before use.
+   *
+   * @var int[]
+   */
+  protected $uuidIndex = [];
+
+  /**
+   * Depth of active read scopes; see beginReadScope().
+   *
+   * @var int
+   */
+  protected $readScopeDepth = 0;
+
+  /**
+   * Entities, components and children by parent uuid cached during a scope.
+   *
+   * @var array
+   */
+  protected $readCache = [];
 
   /**
    * Third party settings.
@@ -266,6 +291,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    * @return $this
    */
   public function setParagraphsReferenceField(EntityReferenceFieldItemListInterface $paragraphs_reference_field) {
+    $this->readCache = [];
     foreach ($paragraphs_reference_field as $key => $field_item) {
       if ($field_item->entity) {
         $paragraphs_reference_field[$key]->entity->_referringItem = $field_item;
@@ -321,13 +347,38 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
       return NULL;
     }
 
-    foreach ($this->getComponents() as $component) {
-      if ($component->getEntity()->uuid() === $uuid) {
-        return $component;
+    $delta = $this->uuidIndex[$uuid] ?? NULL;
+    if ($delta !== NULL && isset($this->paragraphsReferenceField[$delta])) {
+      $entity = $this->paragraphsReferenceField[$delta]->entity;
+      if ($entity && $entity->uuid() === $uuid) {
+        return $this->getComponent($entity);
       }
     }
 
+    // Rebuild on a miss or stale delta, including externally changed fields.
+    $this->uuidIndex = [];
+    foreach ($this->paragraphsReferenceField as $delta => $field_item) {
+      if ($entity = $field_item->entity) {
+        // Preserve the first match when the field contains duplicate UUIDs.
+        $this->uuidIndex += [$entity->uuid() => $delta];
+      }
+    }
+    if (isset($this->uuidIndex[$uuid])) {
+      return $this->getComponent($this->paragraphsReferenceField[$this->uuidIndex[$uuid]]->entity);
+    }
+
     return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __sleep(): array {
+    // The lookup index and read cache are transient; don't store them.
+    return array_values(array_diff(
+      $this->dependencySerializationSleep(),
+      ['uuidIndex', 'readCache', 'readScopeDepth'],
+    ));
   }
 
   /**
@@ -346,6 +397,17 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
       return FALSE;
     }
     $uuid = $paragraph->uuid();
+    if ($this->readScopeDepth > 0) {
+      // Group the components by parent once, instead of filtering every
+      // component for each section.
+      if (!isset($this->readCache['children'])) {
+        $this->readCache['children'] = [];
+        foreach ($this->getComponents() as $key => $component) {
+          $this->readCache['children'][$component->getParentUuid()][$key] = $component;
+        }
+      }
+      return new LayoutParagraphsSection($paragraph, $this->readCache['children'][$uuid] ?? []);
+    }
     $components = array_filter(
       $this->getComponents(),
       function ($component) use ($uuid) {
@@ -356,12 +418,41 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
   }
 
   /**
+   * Starts a read-only scope, during which the entity lists are cached.
+   *
+   * Rendering asks for the entities, components and sections many times for
+   * the same unchanged layout, and each call resolves every referenced entity.
+   * Layouts must not be changed within a scope; the cache is also dropped by
+   * every method that changes the paragraph reference field.
+   *
+   * @see ::endReadScope()
+   */
+  public function beginReadScope(): void {
+    $this->readScopeDepth++;
+  }
+
+  /**
+   * Ends a read-only scope started with beginReadScope().
+   */
+  public function endReadScope(): void {
+    $this->readScopeDepth = max(0, $this->readScopeDepth - 1);
+    if (!$this->readScopeDepth) {
+      $this->readCache = [];
+    }
+  }
+
+  /**
    * Returns a list of root level components for this collection.
    *
    * @return array
    *   An array of root level layout paragraph components.
    */
   public function getRootComponents() {
+    if ($this->readScopeDepth > 0) {
+      return $this->readCache['root'] ??= array_filter($this->getComponents(), function ($component) {
+        return $component->isRoot();
+      });
+    }
     return array_filter($this->getComponents(), function ($component) {
       return $component->isRoot();
     });
@@ -374,6 +465,19 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    *   An array of layout paragraph components.
    */
   public function getComponents() {
+    if ($this->readScopeDepth > 0) {
+      return $this->readCache['components'] ??= $this->buildComponents();
+    }
+    return $this->buildComponents();
+  }
+
+  /**
+   * Builds a component for every entity in the collection.
+   *
+   * @return array
+   *   An array of layout paragraph components.
+   */
+  protected function buildComponents() {
     return array_map(function ($paragraph) {
       return $this->getComponent($paragraph);
     }, $this->getEntities());
@@ -386,11 +490,17 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    *   An array of paragraph entities.
    */
   public function getEntities() {
+    if ($this->readScopeDepth > 0 && isset($this->readCache['entities'])) {
+      return $this->readCache['entities'];
+    }
     $items = [];
     foreach ($this->paragraphsReferenceField as $field_item) {
       if ($field_item->entity) {
         $items[] = $field_item->entity;
       }
+    }
+    if ($this->readScopeDepth > 0) {
+      $this->readCache['entities'] = $items;
     }
     return $items;
   }
@@ -419,6 +529,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    * @return $this
    */
   public function setComponent(ParagraphInterface $paragraph) {
+    $this->readCache = [];
     $delta = $this->getComponentDeltaByUuid($paragraph->uuid());
     if ($delta > -1) {
       // Use setValue() with a structured array including target_id and
@@ -461,6 +572,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    * @return $this
    */
   public function reorderComponents(array $ordered_items) {
+    $this->readCache = [];
     $reordered_items = [];
     foreach ($ordered_items as $ordered_item) {
       if ($component = $this->getComponentByUuid($ordered_item['uuid'])) {
@@ -491,6 +603,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
       }
     }
     $this->paragraphsReferenceField->setValue($reordered_items);
+    $this->readCache = [];
     return $this;
   }
 
@@ -667,6 +780,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    * @return $this
    */
   public function appendComponent(ParagraphInterface $new_paragraph) {
+    $this->readCache = [];
     $new_paragraph->setParentEntity($this->getEntity(), $this->getFieldName());
     $this->paragraphsReferenceField->appendItem(['entity' => $new_paragraph]);
     return $this;
@@ -683,6 +797,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
    * @return $this
    */
   public function deleteComponent(string $uuid, $recursive = FALSE) {
+    $this->readCache = [];
     if ($recursive) {
       $component = $this->getComponentByUuid($uuid);
       if ($component->isLayout()) {
@@ -697,6 +812,7 @@ class LayoutParagraphsLayout implements ThirdPartySettingsInterface {
     if (isset($this->paragraphsReferenceField[$delta])) {
       unset($this->paragraphsReferenceField[$delta]);
     }
+    $this->readCache = [];
     return $this;
   }
 

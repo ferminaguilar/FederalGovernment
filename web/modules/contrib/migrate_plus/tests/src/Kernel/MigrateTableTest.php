@@ -215,8 +215,6 @@ class MigrateTableTest extends MigrateTestBase {
 
   /**
    * Tests table update.
-   *
-   * @dataProvider tableDestinationMigration
    */
   #[DataProvider('tableDestinationMigration')]
   public function testTableUpdate(array $definition): void {

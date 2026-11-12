@@ -224,7 +224,8 @@ class EntityLookup extends ProcessPluginBase implements ContainerFactoryPluginIn
 
     if (empty($this->lookupValueKey) || empty($this->lookupBundleKey) || empty($this->lookupBundle) || empty($this->lookupEntityType)) {
       // See if we can introspect the lookup properties from destination field.
-      if (!empty($this->migration->getProcess()[$this->destinationBundleKey][0]['default_value'])) {
+      // Destinations without bundles, such as users, have no bundle key.
+      if ($this->destinationBundleKey !== NULL && !empty($this->migration->getProcess()[$this->destinationBundleKey][0]['default_value'])) {
         $destinationEntityBundle = $this->migration->getProcess()[$this->destinationBundleKey][0]['default_value'];
         $fieldConfig = $this->entityFieldManager->getFieldDefinitions($this->destinationEntityType, $destinationEntityBundle)[$destinationProperty]->getConfig($destinationEntityBundle);
         switch ($fieldConfig->getType()) {

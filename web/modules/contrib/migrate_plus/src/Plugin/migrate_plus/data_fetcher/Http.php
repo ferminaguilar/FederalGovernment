@@ -124,9 +124,6 @@ class Http extends DataFetcherPluginBase implements ContainerFactoryPluginInterf
       }
       $method = $this->configuration['method'] ?? 'GET';
       $response = $this->httpClient->request($method, $url, $options);
-      if (empty($response)) {
-        throw new MigrateException('No response at ' . $url . '.');
-      }
     }
     catch (RequestException $e) {
       throw new MigrateException('Error message: ' . $e->getMessage() . ' at ' . $url . '.');

@@ -12,7 +12,7 @@
 # To test a Drupal 7 project, change the first include filename from .main.yml to .main-d7.yml
 include:
   - project: $_GITLAB_TEMPLATES_REPO
-    ref: $_GITLAB_TEMPLATES_REF
+    ref: 1.x-latest
     file:
       - '/includes/include.drupalci.main.yml'
       - '/includes/include.drupalci.variables.yml'
@@ -28,6 +28,7 @@ include:
 #   OPT_IN_TEST_NEXT_MAJOR: '1'
 #   _CURL_TEMPLATES_REF: 'main'
 variables:
+  _CURL_TEMPLATES_REF: '1.x-latest'
   _CSPELL_IGNORE_PATHS: 'README.md, ludwig.json'
   OPT_IN_TEST_PREVIOUS_MAJOR: '1'
   OPT_IN_TEST_PREVIOUS_MINOR: '1'

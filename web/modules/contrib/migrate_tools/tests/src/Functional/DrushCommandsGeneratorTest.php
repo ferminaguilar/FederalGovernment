@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_tools\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Tests\BrowserTestBase;
@@ -11,9 +13,9 @@ use Drush\TestTraits\DrushTestTrait;
 
 /**
  * Execute drush on fully functional website using source generators.
- *
- * @group migrate_tools
  */
+#[Group('migrate_tools')]
+#[RunTestsInSeparateProcesses]
 final class DrushCommandsGeneratorTest extends BrowserTestBase {
   use DrushTestTrait;
 

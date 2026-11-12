@@ -20,8 +20,6 @@ final class DomSelectTest extends MigrateProcessTestCase {
 
   /**
    * Tests valid input.
-   *
-   * @dataProvider providerTestTransform
    */
   #[DataProvider('providerTestTransform')]
   public function testTransform(string $input_string, array $configuration, array $output_array): void {

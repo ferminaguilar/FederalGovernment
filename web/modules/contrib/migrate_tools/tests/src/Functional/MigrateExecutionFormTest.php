@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_tools\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
@@ -12,9 +14,9 @@ use Drupal\Tests\BrowserTestBase;
 
 /**
  * Execution form test.
- *
- * @group migrate_tools
  */
+#[Group('migrate_tools')]
+#[RunTestsInSeparateProcesses]
 final class MigrateExecutionFormTest extends BrowserTestBase {
 
   use StringTranslationTrait;

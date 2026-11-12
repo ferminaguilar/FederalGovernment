@@ -67,12 +67,70 @@
    */
   function setUiElementVisibility() {
     selectAll('.js-lpb-component .js-lpb-ui').forEach((element) => {
-      if (element.closest('.js-lpb-component')?.getAttribute('data-active')) {
-        element.classList.remove('visually-hidden');
-      } else {
-        element.classList.add('visually-hidden');
+      const hidden = !element
+        .closest('.js-lpb-component')
+        ?.getAttribute('data-active');
+      // Avoid redundant class mutations when the visibility is unchanged.
+      if (element.classList.contains('visually-hidden') !== hidden) {
+        element.classList.toggle('visually-hidden', hidden);
       }
     });
+  }
+
+  // The element the pointer was last over, and the elements marked as holding
+  // the pointer.
+  let pointerTarget = null;
+  let pointerElements = new Set();
+
+  /**
+   * Marks the active component and its regions while its add buttons are shown.
+   *
+   * The add buttons used to be revealed with :hover rules. Whenever :hover
+   * changes on a large ancestor, those descendant selectors can cause broad
+   * style invalidation. Mark only the active component and its own regions,
+   * avoiding changes on unrelated components.
+   *
+   * @param {EventTarget|null} target The element under the pointer.
+   * @param {boolean} force Update even if the target has not changed.
+   */
+  function updatePointerState(target, force = false) {
+    if (!force && target === pointerTarget) {
+      return;
+    }
+    pointerTarget = target;
+    // Moving within the selected component does not change button visibility.
+    if (
+      !force &&
+      pointerElements.has(activeComponent) &&
+      target instanceof Element &&
+      activeComponent.contains(target)
+    ) {
+      return;
+    }
+    const wanted = new Set();
+    if (
+      activeComponent &&
+      target instanceof Element &&
+      activeComponent.contains(target)
+    ) {
+      wanted.add(activeComponent);
+      selectAll('.js-lpb-region', activeComponent).forEach((region) => {
+        if (region.closest('.js-lpb-component') === activeComponent) {
+          wanted.add(region);
+        }
+      });
+    }
+    pointerElements.forEach((element) => {
+      if (!wanted.has(element)) {
+        element.removeAttribute('data-lpb-pointer');
+      }
+    });
+    wanted.forEach((element) => {
+      if (!pointerElements.has(element)) {
+        element.setAttribute('data-lpb-pointer', '');
+      }
+    });
+    pointerElements = wanted;
   }
 
   /**
@@ -103,7 +161,9 @@
       if (componentRect.bottom + controlsGap > thresholdY) {
         controls.classList.add('is-fixed');
         controls.classList.remove('position-below');
-        activeComponent.style.setProperty(
+        // Keep this inherited property on its consumer so positioning the
+        // controls does not invalidate styles throughout the component.
+        controls.style.setProperty(
           '--lp-controls-sticky-left',
           `${componentRect.left + componentRect.width / 2}px`,
         );
@@ -147,6 +207,7 @@
     );
     activeComponent = null;
     setUiElementVisibility();
+    updatePointerState(pointerTarget, true);
   }
 
   /**
@@ -179,6 +240,9 @@
     // @Todo: Consider a different event name.
     setUiElementVisibility();
     setControlsPosition();
+    // Selection also occurs after AJAX updates or keyboard navigation, without
+    // a mousemove. Reveal the add buttons immediately for the selected element.
+    updatePointerState(element, true);
     // Add the data-active-within attribute to all parent elements.
     let parent = element.parentNode.closest('.js-lpb-component');
     while (parent) {
@@ -193,6 +257,7 @@
    * @param {MouseEvent} event The MouseEvent object triggering the hover.
    */
   function hoverComponent(event) {
+    updatePointerState(event.target);
     let element = event.target.closest('.js-lpb-component');
     // Remove hover from all components.
     selectAll('[data-hover="true"]').forEach((hoverElement) => {
@@ -842,6 +907,7 @@
     if (event.target.ownerDocument !== document) {
       return;
     }
+    updatePointerState(event.target);
     let element = event.target.closest('.js-lpb-component');
     if (element) {
       while (
@@ -931,6 +997,11 @@
    * Handles hover state and tooltip for components.
    */
   listen(document, 'mousemove', hoverComponent);
+  listen(document, 'mouseout', (event) => {
+    if (!event.relatedTarget || activeComponent?.contains(event.target)) {
+      updatePointerState(event.relatedTarget);
+    }
+  });
 
   /**
    * Selects a newly inserted component.

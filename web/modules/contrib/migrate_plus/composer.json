@@ -22,19 +22,18 @@
         "source": "https://git.drupalcode.org/project/migrate_plus"
     },
     "suggest": {
-        "sainsburys/guzzle-oauth2-plugin": "3.0 required for the OAuth2 authentication plugin",
+        "drupal/modeler_api": "Provides a UI to build migrations",
+        "league/oauth2-client": "Required for the OAuth2 authentication plugin",
         "ext-soap": "*"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "config": {
-        "preferred-install": "dist"
-    },
     "require": {
         "php": ">=8.2",
-        "drupal/core": "^10.5 || ^11"
+        "drupal/core": "^10.5 || ^11 || ^12"
     },
     "require-dev": {
-        "sainsburys/guzzle-oauth2-plugin": "^3"
+        "drupal/modeler_api": "^1.1",
+        "league/oauth2-client": "^2.2"
     }
 }

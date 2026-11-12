@@ -6,7 +6,7 @@
     "authors": [
         {
             "name": "Mike Ryan",
-            "homepage":"https://www.drupal.org/u/mikeryan",
+            "homepage": "https://www.drupal.org/u/mikeryan",
             "role": "Maintainer"
         },
         {
@@ -21,29 +21,20 @@
         "source": "https://git.drupalcode.org/project/migrate_tools"
     },
     "license": "GPL-2.0-or-later",
-    "minimum-stability": "stable",
-    "prefer-stable": false,
-    "config": {
-        "preferred-install": "dist"
-    },
     "require": {
-        "php": ">=8.0",
-        "drupal/core": "^9.1 || ^10 || ^11"
+        "php": ">=8.1",
+        "drupal/core": "^10.5 || ^11 || ^12"
     },
     "require-dev": {
         "drupal/migrate_source_csv": "^3",
-        "drush/drush": "^11 || ^12 || ^13",
-        "drupal/migrate_plus": "^5 || ^6"
+        "drush/drush": "^13.7 || ^14",
+        "drupal/migrate_plus": "^6"
+    },
+    "conflict": {
+        "drush/drush": "<13.7"
     },
     "suggest": {
-        "drush/drush": "^11 || ^12 || ^13",
-        "drupal/migrate_plus": "^5 || ^6"
-    },
-    "extra": {
-        "drush": {
-            "services": {
-                "drush.services.yml": "^11 || ^12 || ^13"
-            }
-        }
+        "drush/drush": "^13.7 || ^14",
+        "drupal/migrate_plus": "^6"
     }
 }

@@ -28,7 +28,13 @@ services:
   migrate_tools.shared_config_include_handler:
     class: Drupal\migrate_tools\MigrateIncludeHandler
     arguments: ['@plugin.manager.migrate_shared_config']
+  Drupal\migrate_tools\MigrateIncludeHandler: '@migrate_tools.shared_config_include_handler'
 
   migrate_tools.migrate_tools:
     class: Drupal\migrate_tools\MigrateTools
     arguments: ['@database']
+  Drupal\migrate_tools\MigrateTools: '@migrate_tools.migrate_tools'
+
+  Drupal\migrate_tools\Hook\MigrateToolsHooks:
+    class: Drupal\migrate_tools\Hook\MigrateToolsHooks
+    autowire: true

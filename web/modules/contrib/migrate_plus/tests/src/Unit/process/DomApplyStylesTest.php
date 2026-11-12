@@ -72,8 +72,6 @@ final class DomApplyStylesTest extends MigrateProcessTestCase {
 
   /**
    * Tests validation rules.
-   *
-   * @dataProvider providerTestConfig
    */
   #[DataProvider('providerTestConfig')]
   public function testValidateRules(array $config_overrides, string $message): void {

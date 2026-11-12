@@ -6,7 +6,6 @@ namespace Drupal\migrate_plus\Plugin\migrate\process;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\migrate\Attribute\MigrateProcess;
@@ -59,11 +58,6 @@ class EntityValue extends ProcessPluginBase implements ContainerFactoryPluginInt
   protected ?string $langCodeRef;
 
   /**
-   * Entity storage.
-   */
-  protected EntityStorageInterface $entityStorage;
-
-  /**
    * Flag indicating whether there are multiple values.
    */
   protected ?bool $multiple = NULL;
@@ -80,7 +74,6 @@ class EntityValue extends ProcessPluginBase implements ContainerFactoryPluginInt
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
    *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \InvalidArgumentException
    */
@@ -96,8 +89,8 @@ class EntityValue extends ProcessPluginBase implements ContainerFactoryPluginInt
       throw new \InvalidArgumentException("'entity_type' configuration must be specified for the entity_value process plugin.");
     }
 
-    $entity_type = $this->configuration['entity_type'];
-    $this->entityStorage = $this->entityTypeManager->getStorage($entity_type);
+    // Fail early on an unknown entity type.
+    $this->entityTypeManager->getDefinition($this->configuration['entity_type']);
 
     $this->langCodeRef = $this->configuration['langcode'] ?? NULL;
 
@@ -173,8 +166,7 @@ class EntityValue extends ProcessPluginBase implements ContainerFactoryPluginInt
    *   The entities.
    */
   protected function loadEntities(array $ids): array {
-    $entities = $this->entityStorage->loadMultiple($ids);
-    return $entities;
+    return $this->entityTypeManager->getStorage($this->configuration['entity_type'])->loadMultiple($ids);
   }
 
 }

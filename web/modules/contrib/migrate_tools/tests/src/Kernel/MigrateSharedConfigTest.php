@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_tools\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\migrate\Plugin\MigrationInterface;
 
 /**
  * Tests merging shared configuration.
- *
- * @group migrate_tools
  */
+#[Group('migrate_tools')]
+#[RunTestsInSeparateProcesses]
 final class MigrateSharedConfigTest extends KernelTestBase {
 
   /**

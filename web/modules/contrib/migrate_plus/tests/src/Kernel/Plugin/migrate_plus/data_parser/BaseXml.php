@@ -199,8 +199,6 @@ abstract class BaseXml extends KernelTestBase {
 
   /**
    * Tests predicate matching.
-   *
-   * @dataProvider predicateMatchProvider
    */
   #[DataProvider('predicateMatchProvider')]
   public function testPredicateMatch(string $item_selector, array $expected_items): void {

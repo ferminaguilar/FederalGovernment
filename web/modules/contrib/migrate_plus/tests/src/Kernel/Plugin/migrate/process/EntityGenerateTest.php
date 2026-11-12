@@ -126,8 +126,6 @@ final class EntityGenerateTest extends KernelTestBase implements MigrateMessageI
 
   /**
    * Tests generating an entity.
-   *
-   * @dataProvider transformDataProvider
    */
   #[DataProvider('transformDataProvider')]
   public function testTransform(array $definition, array $expected, array $preSeed = []): void {

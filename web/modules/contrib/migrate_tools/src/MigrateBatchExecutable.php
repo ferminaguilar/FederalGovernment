@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\migrate_tools;
 
+use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
@@ -202,7 +203,7 @@ class MigrateBatchExecutable extends MigrateExecutable {
         $migration->set('requirements', []);
       }
       else {
-        $dependencies = $migration->getMigrationDependencies(TRUE);
+        $dependencies = DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.0.0', fn() => $migration->getMigrationDependencies(), fn() => $migration->getMigrationDependencies(TRUE));
         if (!empty($dependencies['required'])) {
           $required_migrations = $this->migrationPluginManager->createInstances($dependencies['required']);
           // For dependent migrations will need to be migrate all items.
@@ -268,7 +269,7 @@ class MigrateBatchExecutable extends MigrateExecutable {
       );
     }
 
-    $executable = new MigrateBatchExecutable(
+    $executable = new static(
       $migration,
       $message,
       \Drupal::service('keyvalue'),

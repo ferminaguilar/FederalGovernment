@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_tools\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Tests\BrowserTestBase;
 
 /**
  * Execution form test.
- *
- * @group migrate_tools
  */
+#[Group('migrate_tools')]
+#[RunTestsInSeparateProcesses]
 final class MigrateListBuilderTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
@@ -46,6 +48,9 @@ final class MigrateListBuilderTest extends BrowserTestBase {
    * Test migrate UI list page with default migrations.
    */
   public function testMigrateListBuilderDefault(): void {
+    $this->drupalGet('/admin/structure/migrate');
+    $this->assertSession()->linkExists('List migrations');
+
     // List migrations from default group.
     $this->drupalGet('/admin/structure/migrate/manage/default/migrations');
     $this->assertSession()->statusCodeEquals(200);

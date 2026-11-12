@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\migrate_json_example\Kernel;
 
 use Drupal\node\Entity\NodeType;
-use Drupal\Tests\migrate_drupal\Kernel\MigrateDrupalTestBase;
+use Drupal\Tests\migrate\Kernel\MigrateTestBase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -14,12 +14,15 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  */
 #[Group('migrate_plus')]
 #[RunTestsInSeparateProcesses]
-final class MigrateJsonExampleTest extends MigrateDrupalTestBase {
+final class MigrateJsonExampleTest extends MigrateTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected static $modules = [
+    'system',
+    'user',
+    'field',
     'node',
     'file',
     'text',
@@ -32,6 +35,8 @@ final class MigrateJsonExampleTest extends MigrateDrupalTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
+    $this->installEntitySchema('user');
+    $this->installEntitySchema('node');
 
     $this->installConfig(['node']);
     $this->installEntitySchema('file');

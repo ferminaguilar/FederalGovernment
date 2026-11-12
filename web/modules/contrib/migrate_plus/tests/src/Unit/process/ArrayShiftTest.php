@@ -56,8 +56,6 @@ final class ArrayShiftTest extends MigrateProcessTestCase {
    *   The input values.
    * @param mixed $expected_output
    *   The expected output.
-   *
-   * @dataProvider arrayShiftDataProvider
    */
   #[DataProvider('arrayShiftDataProvider')]
   public function testArrayShift(array $input, mixed $expected_output): void {

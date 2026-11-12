@@ -2,7 +2,7 @@ type: module
 name: Migrate Example Setup
 description: 'Separate site configuration for the example from the actual migration.'
 package: Migration
-core_version_requirement: '^10.5 || ^11'
+core_version_requirement: '^10.5 || ^11 || ^12'
 hidden: true
 dependencies:
   - drupal:comment
@@ -11,7 +11,7 @@ dependencies:
   - drupal:options
   - drupal:taxonomy
 
-# Information added by Drupal.org packaging script on 2026-01-23
-version: '6.0.10'
+# Information added by Drupal.org packaging script on 2026-11-02
+version: '6.0.11'
 project: 'migrate_plus'
-datestamp: 1769180624
+datestamp: 1793655109

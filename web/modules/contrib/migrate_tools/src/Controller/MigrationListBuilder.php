@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Drupal\migrate_tools\Controller;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Url;
@@ -31,14 +32,14 @@ class MigrationListBuilder extends ConfigEntityListBuilder {
 
   public function __construct(
     EntityTypeInterface $entity_type,
-    EntityStorageInterface $storage,
-    protected readonly CurrentRouteMatch $currentRouteMatch,
-    protected readonly MigrationPluginManagerInterface $migrationPluginManager,
-    protected readonly LoggerInterface $logger,
-    protected readonly KeyValueFactoryInterface $keyValue,
-    protected readonly DateFormatterInterface $dateFormatter,
+    EntityTypeManagerInterface $entity_type_manager,
+    protected CurrentRouteMatch $currentRouteMatch,
+    protected MigrationPluginManagerInterface $migrationPluginManager,
+    protected LoggerInterface $logger,
+    protected KeyValueFactoryInterface $keyValue,
+    protected DateFormatterInterface $dateFormatter,
   ) {
-    parent::__construct($entity_type, $storage);
+    parent::__construct($entity_type, $entity_type_manager->getStorage($entity_type->id()));
   }
 
   /**
@@ -47,7 +48,7 @@ class MigrationListBuilder extends ConfigEntityListBuilder {
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type): static {
     return new static(
       $entity_type,
-      $container->get('entity_type.manager')->getStorage($entity_type->id()),
+      $container->get('entity_type.manager'),
       $container->get('current_route_match'),
       $container->get('plugin.manager.migration'),
       $container->get('logger.channel.migrate_tools'),
@@ -194,8 +195,8 @@ class MigrationListBuilder extends ConfigEntityListBuilder {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultOperations(EntityInterface $entity) {
-    $operations = parent::getDefaultOperations($entity);
+  public function getDefaultOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
+    $operations = parent::getDefaultOperations($entity, $cacheability);
     $migration_group = $entity->get('migration_group');
     if (!$migration_group) {
       $migration_group = 'default';

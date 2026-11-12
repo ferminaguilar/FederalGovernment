@@ -27,8 +27,6 @@ final class ArrayTemplateTest extends MigrateProcessTestCase {
    *   The expected output.
    * @param array $configuration
    *   The configuration.
-   *
-   * @dataProvider providerTestArrayTemplate
    */
   #[DataProvider('providerTestArrayTemplate')]
   public function testArrayTemplate($input, $expected, array $configuration): void {
@@ -164,8 +162,6 @@ final class ArrayTemplateTest extends MigrateProcessTestCase {
    *   The configuration.
    * @param string $message
    *   The exception message we expect.
-   *
-   * @dataProvider providerArrayTemplateConstructorExceptions
    */
   #[DataProvider('providerArrayTemplateConstructorExceptions')]
   public function testArrayTemplateConstructorExceptions(array $configuration, string $message): void {

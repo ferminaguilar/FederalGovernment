@@ -27,7 +27,7 @@ class GeofieldGeoJsonEnhancer extends ResourceFieldEnhancerBase implements Conta
    *
    * @var \Drupal\geofield\GeoPHP\GeoPHPInterface
    */
-  private readonly GeoPHPInterface $geoPHP;
+  protected GeoPHPInterface $geoPHP;
 
   /**
    * Constructs a new GeofieldGeoJsonEnhancer.
@@ -62,6 +62,9 @@ class GeofieldGeoJsonEnhancer extends ResourceFieldEnhancerBase implements Conta
    * {@inheritdoc}
    *
    * Convert GeoJSON back to WKT for storage.
+   *
+   * @return mixed
+   *   The transformed value.
    */
   protected function doTransform($data, Context $context) {
     if (empty($data)) {
@@ -82,6 +85,9 @@ class GeofieldGeoJsonEnhancer extends ResourceFieldEnhancerBase implements Conta
    * {@inheritdoc}
    *
    *  Converts a Geofield WKT value to a decoded GeoJSON array.
+   *
+   * @return mixed
+   *   The value with the transformation undone.
    */
   protected function doUndoTransform($data, Context $context) {
     if (empty($data)) {

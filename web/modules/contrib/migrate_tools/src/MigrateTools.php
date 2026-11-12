@@ -61,7 +61,7 @@ class MigrateTools {
     if (is_scalar($options['idlist'])) {
       $id_list = explode(',', (string) $options['idlist']);
       array_walk($id_list, function (&$value) use ($options): void {
-        $value = str_getcsv($value, $options['idlist-delimiter']);
+        $value = str_getcsv($value, $options['idlist-delimiter'], escape: '\\');
       });
     }
     return $id_list;

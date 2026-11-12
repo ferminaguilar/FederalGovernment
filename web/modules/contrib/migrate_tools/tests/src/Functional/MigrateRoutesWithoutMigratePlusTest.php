@@ -2,13 +2,15 @@
 
 namespace Drupal\Tests\migrate_tools\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests that migrate routes do not break when migrate_plus is missing.
- *
- * @group migrate_tools
  */
+#[Group('migrate_tools')]
+#[RunTestsInSeparateProcesses]
 class MigrateRoutesWithoutMigratePlusTest extends BrowserTestBase {
 
   /**

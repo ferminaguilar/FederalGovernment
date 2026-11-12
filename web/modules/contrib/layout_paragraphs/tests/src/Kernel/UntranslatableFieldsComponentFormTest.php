@@ -53,6 +53,7 @@ class UntranslatableFieldsComponentFormTest extends KernelTestBase {
     'node',
     'layout_discovery',
     'layout_paragraphs',
+    'paragraphs_test',
   ];
 
   /**
@@ -83,7 +84,17 @@ class UntranslatableFieldsComponentFormTest extends KernelTestBase {
     ConfigurableLanguage::createFromLangcode('de')->save();
 
     NodeType::create(['type' => 'lp_test', 'name' => 'LP Test'])->save();
-    ParagraphsType::create(['id' => 'lp_text', 'label' => 'Text'])->save();
+    ParagraphsType::create([
+      'id' => 'lp_text',
+      'label' => 'Text',
+      'behavior_plugins' => [
+        'layout_paragraphs' => [
+          'enabled' => TRUE,
+          'available_layouts' => ['layout_twocol' => 'Two column'],
+        ],
+        'test_bold_text' => ['enabled' => TRUE],
+      ],
+    ])->save();
     FieldStorageConfig::create([
       'field_name' => 'field_lp',
       'entity_type' => 'node',
@@ -95,6 +106,7 @@ class UntranslatableFieldsComponentFormTest extends KernelTestBase {
       'field_name' => 'field_lp',
       'entity_type' => 'node',
       'bundle' => 'lp_test',
+      'translatable' => FALSE,
     ])->save();
     foreach (['field_translatable' => TRUE, 'field_untranslatable' => FALSE] as $field_name => $translatable) {
       FieldStorageConfig::create([
@@ -126,6 +138,8 @@ class UntranslatableFieldsComponentFormTest extends KernelTestBase {
       'field_untranslatable' => 'Shared',
     ]);
     $this->paragraph->addTranslation('de', ['field_translatable' => 'DE translatable']);
+    $this->paragraph->setBehaviorSettings('layout_paragraphs', ['layout' => 'layout_twocol']);
+    $this->paragraph->setBehaviorSettings('test_bold_text', ['bold_text' => 1]);
     $this->paragraph->save();
     $this->node = Node::create([
       'type' => 'lp_test',
@@ -144,6 +158,7 @@ class UntranslatableFieldsComponentFormTest extends KernelTestBase {
 
     $this->assertFalse($form['field_untranslatable']['#access']);
     $this->assertNotFalse($form['field_translatable']['#access'] ?? TRUE);
+    $this->assertArrayNotHasKey('behavior_plugins', $form);
   }
 
   /**
@@ -156,6 +171,7 @@ class UntranslatableFieldsComponentFormTest extends KernelTestBase {
     $this->assertNotFalse($form['field_untranslatable']['#access'] ?? TRUE);
     $this->assertStringContainsString('all languages', (string) $form['field_untranslatable']['widget'][0]['value']['#title']);
     $this->assertStringNotContainsString('all languages', (string) $form['field_translatable']['widget'][0]['value']['#title']);
+    $this->assertArrayHasKey('behavior_plugins', $form);
   }
 
   /**
@@ -167,6 +183,26 @@ class UntranslatableFieldsComponentFormTest extends KernelTestBase {
 
     $this->assertNotFalse($form['field_untranslatable']['#access'] ?? TRUE);
     $this->assertStringNotContainsString('all languages', (string) $form['field_untranslatable']['widget'][0]['value']['#title']);
+    $this->assertArrayHasKey('layout', $form['layout_paragraphs']);
+    $this->assertArrayHasKey('behavior_plugins', $form);
+  }
+
+  /**
+   * Tests that a locked layout keeps the shared behavior settings.
+   */
+  public function testBehaviorSettingsKeptWhileLayoutIsLocked(): void {
+    $this->setUntranslatableFieldsHide(FALSE);
+    ContentLanguageSettings::loadByEntityTypeBundle('node', 'lp_test')
+      ->setThirdPartySetting('content_translation', 'bundle_settings', ['untranslatable_fields_hide' => '1'])
+      ->save();
+    $form_state = new FormState();
+    $form = $this->buildEditForm($this->paragraph->getTranslation('de'), TRUE, $form_state);
+
+    $this->assertArrayNotHasKey('layout', $form['layout_paragraphs']);
+    $this->assertArrayNotHasKey('behavior_plugins', $form);
+    $paragraph = $form_state->getFormObject()->buildParagraphComponent($form, $form_state);
+    $this->assertSame('layout_twocol', $paragraph->getBehaviorSetting('layout_paragraphs', 'layout'));
+    $this->assertSame(1, $paragraph->getBehaviorSetting('test_bold_text', 'bold_text'));
   }
 
   /**
@@ -189,16 +225,21 @@ class UntranslatableFieldsComponentFormTest extends KernelTestBase {
    *
    * @param \Drupal\paragraphs\ParagraphInterface $paragraph
    *   The paragraph translation the form edits.
+   * @param bool $translating
+   *   Whether the layout is being translated.
+   * @param \Drupal\Core\Form\FormState $form_state
+   *   The form state.
    *
    * @return array
    *   The built form.
    */
-  protected function buildEditForm(ParagraphInterface $paragraph) {
+  protected function buildEditForm(ParagraphInterface $paragraph, bool $translating = FALSE, FormState $form_state = new FormState()) {
     $items = $this->node->get('field_lp');
     $items[0]->entity = $paragraph;
     $layout = new LayoutParagraphsLayout($items, ['form_display_mode' => 'default']);
+    $layout->setTranslating($translating);
     $form_object = $this->container->get('class_resolver')->getInstanceFromDefinition(EditComponentForm::class);
-    $form_state = (new FormState())->addBuildInfo('args', [$layout, $paragraph->uuid()]);
+    $form_state->addBuildInfo('args', [$layout, $paragraph->uuid()]);
     return $this->container->get('renderer')->executeInRenderContext(new RenderContext(), function () use ($form_object, $form_state) {
       return $this->container->get('form_builder')->buildForm($form_object, $form_state);
     });

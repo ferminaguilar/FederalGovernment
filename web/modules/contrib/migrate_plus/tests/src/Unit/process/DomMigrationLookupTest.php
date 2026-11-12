@@ -108,8 +108,6 @@ final class DomMigrationLookupTest extends MigrateProcessTestCase {
 
   /**
    * Tests config validation.
-   *
-   * @dataProvider providerTestConfigValidation
    */
   #[DataProvider('providerTestConfigValidation')]
   public function testConfigValidation(array $config_overrides, string $message): void {
@@ -156,8 +154,6 @@ final class DomMigrationLookupTest extends MigrateProcessTestCase {
 
   /**
    * Tests valid input.
-   *
-   * @dataProvider providerTestTransform
    */
   #[DataProvider('providerTestTransform')]
   public function testTransform($config_overrides, $input_string, $output_string): void {

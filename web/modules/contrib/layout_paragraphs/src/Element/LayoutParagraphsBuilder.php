@@ -189,7 +189,28 @@ class LayoutParagraphsBuilder extends RenderElementBase implements ContainerFact
    * @todo Better inline comments for all functionality in this method.
    */
   public function preRender($element) {
-    $this->layoutParagraphsLayout = $this->tempstore->get($element['#layout_paragraphs_layout']);
+    $layout = $this->layoutParagraphsLayout = $this->tempstore->get($element['#layout_paragraphs_layout']);
+    // Building the element asks for the same unchanged lists of entities and
+    // components many times, so let the layout cache them while we render.
+    $layout->beginReadScope();
+    try {
+      return $this->buildElement($element);
+    }
+    finally {
+      $layout->endReadScope();
+    }
+  }
+
+  /**
+   * Builds the builder element for the current layout.
+   *
+   * @param array $element
+   *   The element.
+   *
+   * @return array
+   *   The element, with the components built.
+   */
+  protected function buildElement($element) {
     // A render without the #is_translating property falls back to the
     // translation mode the widget or the frontend builder form recorded on the
     // layout. A property that is set wins, including when it is FALSE.

@@ -20,8 +20,6 @@ final class DomRemoveTest extends MigrateProcessTestCase {
 
   /**
    * Tests valid input.
-   *
-   * @dataProvider providerTestTransform
    */
   #[DataProvider('providerTestTransform')]
   public function testTransform($input_string, $configuration, $output_string): void {

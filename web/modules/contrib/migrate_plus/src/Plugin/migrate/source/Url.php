@@ -44,7 +44,11 @@ class Url extends SourcePluginExtension implements ContainerFactoryPluginInterfa
     MigrationInterface $migration,
     protected DataParserPluginManager $parserPluginManager,
   ) {
-    if (!is_array($configuration['urls'])) {
+
+    if (!array_key_exists('urls', $configuration)) {
+      $configuration['urls'] = [];
+    }
+    elseif (is_scalar($configuration['urls'])) {
       $configuration['urls'] = [$configuration['urls']];
     }
     parent::__construct($configuration, $plugin_id, $plugin_definition, $migration);

@@ -130,8 +130,6 @@ class MigrateTableIncrementTest extends MigrateTestBase {
    *
    * @param array $definition
    *   The migration definition.
-   *
-   * @dataProvider tableDestinationMigration
    */
   #[DataProvider('tableDestinationMigration')]
   public function testTableDestination(array $definition) {
@@ -157,8 +155,6 @@ class MigrateTableIncrementTest extends MigrateTestBase {
    *
    * @param array $definition
    *   The migration definition.
-   *
-   * @dataProvider tableDestinationMigration
    */
   #[DataProvider('tableDestinationMigration')]
   public function testTableDestinationWithExistingData(array $definition) {

@@ -32,8 +32,6 @@ final class TransposeTest extends MigrateProcessTestCase {
    *   The input values.
    * @param mixed $expected_output
    *   The expected output.
-   *
-   * @dataProvider transposeDataProvider
    */
   #[DataProvider('transposeDataProvider')]
   public function testTranspose(array $input, array $expected_output): void {

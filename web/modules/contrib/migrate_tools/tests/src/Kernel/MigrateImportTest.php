@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_tools\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\migrate_tools\MigrateExecutable;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\taxonomy\VocabularyInterface;
@@ -11,9 +13,9 @@ use Drupal\Tests\migrate\Kernel\MigrateTestBase;
 
 /**
  * Tests imports.
- *
- * @group migrate_tools
  */
+#[Group('migrate_tools')]
+#[RunTestsInSeparateProcesses]
 final class MigrateImportTest extends MigrateTestBase {
 
   /**

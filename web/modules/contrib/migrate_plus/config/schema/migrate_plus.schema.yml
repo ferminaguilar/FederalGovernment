@@ -57,6 +57,9 @@ migrate_plus.migration.*:
             type: string
             label: 'Dependency'
 
+migrate_plus.migration.*.third_party.modeler_api:
+  type: model_settings.third_party.modeler_api
+
 migrate_plus.migration_group.*:
   type: config_entity
   label: 'Migration Group'

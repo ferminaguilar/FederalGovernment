@@ -54,8 +54,6 @@ final class SnippetTest extends KernelTestBase implements MigrateMessageInterfac
    *   The path to the snippet, relative to migrations/process.
    * @param mixed $expected
    *   The expected result of the snippet.
-   *
-   * @dataProvider providerValidSnippet
    */
   #[DataProvider('providerValidSnippet')]
   public function testValidSnippet(string $path, $expected): void {
@@ -107,8 +105,6 @@ final class SnippetTest extends KernelTestBase implements MigrateMessageInterfac
    *   and 'path'.
    * @param string $message
    *   The expected exception message.
-   *
-   * @dataProvider providerConfig
    */
   #[DataProvider('providerConfig')]
   public function testInvalidConfig(array $configuration, string $message): void {

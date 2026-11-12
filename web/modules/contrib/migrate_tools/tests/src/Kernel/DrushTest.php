@@ -4,19 +4,33 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_tools\Kernel {
 
+  use Drupal\migrate\Event\MigrateEvents;
   use Drupal\migrate\Plugin\MigrationInterface;
   use Drupal\migrate\Plugin\MigrationPluginManagerInterface;
-  use Drupal\migrate_tools\Drush\Commands\MigrateToolsCommands;
-  use Drupal\migrate_tools\MigrateTools;
+  use Consolidation\OutputFormatters\FormatterManager;
+  use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
+  use Drupal\migrate_tools\Drush\Commands\MigrateFieldsSourceCommand;
+  use Drupal\migrate_tools\Drush\Commands\MigrateImportCommand;
+  use Drupal\migrate_tools\Drush\Commands\MigrateMessagesCommand;
+  use Drupal\migrate_tools\Drush\Commands\MigrateResetStatusCommand;
+  use Drupal\migrate_tools\Drush\Commands\MigrateRollbackCommand;
+  use Drupal\migrate_tools\Drush\Commands\MigrateStatusCommand;
+  use Drupal\migrate_tools\Drush\Commands\MigrateStopCommand;
   use Drupal\Tests\migrate\Kernel\MigrateTestBase;
-  use Drush\Log\DrushLoggerManager;
+  use Drupal\user\Entity\User;
+  use PHPUnit\Framework\Attributes\Group;
+  use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
   use Psr\Log\LoggerInterface;
+  use Psr\Log\NullLogger;
+  use Symfony\Component\Console\Command\Command;
+  use Symfony\Component\Console\Input\ArrayInput;
+  use Symfony\Component\Console\Tester\CommandTester;
 
   /**
    * Tests for the Drush commands.
-   *
-   * @group migrate_tools
    */
+  #[Group('migrate_tools')]
+  #[RunTestsInSeparateProcesses]
   final class DrushTest extends MigrateTestBase {
 
     /**
@@ -27,44 +41,14 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       'migrate_tools',
       'migrate_plus',
       'taxonomy',
+      'filter',
       'text',
       'system',
       'user',
     ];
 
     /**
-     * Base options array for import.
-     *
-     * @var array
-     */
-    private array $importBaseOptions = [
-      'all' => NULL,
-      'group' => NULL,
-      'tag' => NULL,
-      'limit' => NULL,
-      'batch-size' => FALSE,
-      'feedback' => NULL,
-      'idlist' => NULL,
-      'idlist-delimiter' => MigrateTools::DEFAULT_ID_LIST_DELIMITER,
-      'update' => NULL,
-      'force' => NULL,
-      'execute-dependencies' => NULL,
-      'skip-progress-bar' => FALSE,
-      'continue-on-failure' => FALSE,
-      'sync' => FALSE,
-    ];
-
-    /**
-     * Migrate Tools Drush commands.
-     *
-     * @var \Drupal\migrate_tools\Drush\Commands\MigrateToolsCommands|null
-     */
-    private ?MigrateToolsCommands $commands = NULL;
-
-    /**
      * The Migration plugin manager.
-     *
-     * @var \Drupal\migrate\Plugin\MigrationPluginManagerInterface
      */
     private MigrationPluginManagerInterface $migrationPluginManager;
 
@@ -80,19 +64,51 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       $this->installSchema('user', ['users_data']);
       $this->installSchema('migrate_tools', ['migrate_tools_sync_source_ids']);
       $this->migrationPluginManager = $this->container->get('plugin.manager.migration');
-      // Handle Drush 10 vs Drush 11 differences.
-      $logger_class = class_exists(DrushLoggerManager::class) ? DrushLoggerManager::class : LoggerInterface::class;
-      $this->logger = $this->prophesize($logger_class)->reveal();
-      $this->commands = new MigrateToolsCommands(
-        $this->migrationPluginManager,
-        $this->container->get('date.formatter'),
-        $this->container->get('entity_type.manager'),
-        $this->container->get('keyvalue'),
-        $this->container->get('datetime.time'),
-        $this->container->get('string_translation'),
-        $this->container->get('migrate_tools.migration_drush_command_progress'),
-      );
-      $this->commands->setLogger($this->logger);
+    }
+
+    /**
+     * Creates a command the way Drush does.
+     *
+     * @param class-string<\Symfony\Component\Console\Command\Command> $class
+     *   The command class.
+     *
+     * @return \Symfony\Component\Console\Command\Command
+     *   The command.
+     */
+    private function command(string $class): Command {
+      // Services the Drush container provides.
+      $this->container->set(LoggerInterface::class, new NullLogger());
+      $this->container->set(FormatterManager::class, new FormatterManager());
+      return $class::create($this->container);
+    }
+
+    /**
+     * Runs a command that writes no structured output.
+     *
+     * @param class-string<\Symfony\Component\Console\Command\Command> $class
+     *   The command class.
+     * @param array $input
+     *   The command arguments and options.
+     */
+    private function runCommand(string $class, array $input): void {
+      (new CommandTester($this->command($class)))->execute($input);
+    }
+
+    /**
+     * Returns the rows a formatted command would print.
+     *
+     * @param class-string<\Symfony\Component\Console\Command\Command> $class
+     *   The command class, which has a doExecute() method.
+     * @param array $input
+     *   The command arguments and options.
+     *
+     * @return array
+     *   The rows.
+     */
+    private function rows(string $class, array $input = []): array {
+      $command = $this->command($class);
+      $result = $command->doExecute(new ArrayInput($input, $command->getDefinition()));
+      return $result instanceof RowsOfFields ? $result->getArrayCopy() : [];
     }
 
     /**
@@ -100,12 +116,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
      */
     public function testStatus(): void {
       $this->executeMigration('fruit_terms');
-      $result = $this->commands->status('fruit_terms', [
-        'group' => NULL,
-        'tag' => NULL,
-        'names-only' => FALSE,
-      ]);
-      $rows = $result->getArrayCopy();
+      $rows = $this->rows(MigrateStatusCommand::class, ['migration_names' => 'fruit_terms']);
       $this->assertCount(1, $rows);
       $row = reset($rows);
       $this->assertSame('fruit_terms', $row['id']);
@@ -113,15 +124,10 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       $this->assertSame(3, $row['imported']);
       $this->assertSame('Idle', $row['status']);
 
-      // Migrate status should not display migrate_drupal migrations if no
-      // source database is defined.
-      \Drupal::service('module_installer')->uninstall([
-        'migrate_tools_test',
-      ]);
-      $this->enableModules(['migrate_drupal']);
-      $this->migrationPluginManager->clearCachedDefinitions();
-      $rows = $this->commands->status();
-      $this->assertEmpty($rows);
+      // Migrations whose requirements are not met are not listed.
+      $this->assertTrue($this->migrationPluginManager->hasDefinition('requirements_not_met'));
+      $rows = $this->rows(MigrateStatusCommand::class, ['--continue-on-failure' => TRUE]);
+      $this->assertNotContains('requirements_not_met', array_column($rows, 'id'));
     }
 
     /**
@@ -130,15 +136,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
     public function testFailingStatusThrowsException(): void {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('The "does_not_exist" plugin does not exist.');
-      // Explicitly pass an array of the defaults for $options, as otherwise
-      // its default value, which contains definitions of the options for
-      // Drush, will be incorrectly used as actual values.
-      $this->commands->status('invalid_plugin', [
-        'group' => '',
-        'tag' => '',
-        'names-only' => FALSE,
-        'continue-on-failure' => FALSE,
-      ]);
+      $this->rows(MigrateStatusCommand::class, ['migration_names' => 'invalid_plugin']);
     }
 
     /**
@@ -150,14 +148,15 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
       $migration = $this->migrationPluginManager->createInstance('fruit_terms');
       $id_map = $migration->getIdMap();
-      $this->commands->import('fruit_terms', array_merge($this->importBaseOptions, ['idlist' => 'Apple']));
+      $this->runCommand(MigrateImportCommand::class, ['migration_names' => 'fruit_terms', '--idlist' => 'Apple']);
       $this->assertSame(1, $id_map->importedCount());
-      $this->commands->import('fruit_terms', $this->importBaseOptions);
+      $this->runCommand(MigrateImportCommand::class, ['migration_names' => 'fruit_terms']);
       $this->assertSame(3, $id_map->importedCount());
-      $this->commands->import('fruit_terms', array_merge($this->importBaseOptions, [
-        'idlist' => 'Apple',
-        'update' => TRUE,
-      ]));
+      $this->runCommand(MigrateImportCommand::class, [
+        'migration_names' => 'fruit_terms',
+        '--idlist' => 'Apple',
+        '--update' => TRUE,
+      ]);
       $this->assertCount(0, $id_map->getRowsNeedingUpdate(100));
     }
 
@@ -167,7 +166,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
     public function testFailingImportThrowsException(): void {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('source_exception migration failed.');
-      $this->commands->import('source_exception', $this->importBaseOptions);
+      $this->runCommand(MigrateImportCommand::class, ['migration_names' => 'source_exception']);
     }
 
     /**
@@ -182,13 +181,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       $migration = $this->migrationPluginManager->createInstance('fruit_terms');
       $id_map = $migration->getIdMap();
       $id_map->saveMessage(['name' => 'Apple'], $message);
-      /** @var \Consolidation\OutputFormatters\StructuredData\RowsOfFields $result */
-      $result = $this->commands->messages('fruit_terms', [
-        'csv' => FALSE,
-        'idlist' => NULL,
-        'idlist-delimiter' => MigrateTools::DEFAULT_ID_LIST_DELIMITER,
-      ]);
-      $rows = $result->getArrayCopy();
+      $rows = $this->rows(MigrateMessagesCommand::class, ['migration_id' => 'fruit_terms']);
       $this->assertSame($message, $rows[0]['message']);
     }
 
@@ -198,11 +191,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
     public function testFailingMessagesThrowsException(): void {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('Migration does_not_exist does not exist');
-      $this->commands->messages('does_not_exist', [
-        'csv' => FALSE,
-        'idlist' => NULL,
-        'idlist-delimiter' => MigrateTools::DEFAULT_ID_LIST_DELIMITER,
-      ]);
+      $this->rows(MigrateMessagesCommand::class, ['migration_id' => 'does_not_exist']);
     }
 
     /**
@@ -214,7 +203,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       $migration = $this->migrationPluginManager->createInstance('fruit_terms');
       $id_map = $migration->getIdMap();
       $this->assertSame(3, $id_map->importedCount());
-      $this->commands->rollback('fruit_terms', $this->importBaseOptions);
+      $this->runCommand(MigrateRollbackCommand::class, ['migration_names' => 'fruit_terms']);
       $this->assertSame(0, $id_map->importedCount());
     }
 
@@ -227,7 +216,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
       $migration = $this->migrationPluginManager->createInstance('source_exception');
       $migration->setStatus(MigrationInterface::STATUS_IMPORTING);
-      $this->commands->rollback('source_exception', $this->importBaseOptions);
+      $this->runCommand(MigrateRollbackCommand::class, ['migration_names' => 'source_exception']);
     }
 
     /**
@@ -239,13 +228,8 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
       $migration = $this->migrationPluginManager->createInstance('fruit_terms');
       $migration->setStatus(MigrationInterface::STATUS_IMPORTING);
-      $status = $this->commands->status('fruit_terms', [
-        'group' => NULL,
-        'tag' => NULL,
-        'names-only' => FALSE,
-      ])->getArrayCopy()[0]['status'];
-      $this->assertSame('Importing', $status);
-      $this->commands->resetStatus('fruit_terms');
+      $this->assertSame('Importing', $this->rows(MigrateStatusCommand::class, ['migration_names' => 'fruit_terms'])[0]['status']);
+      $this->runCommand(MigrateResetStatusCommand::class, ['migration_id' => 'fruit_terms']);
       $this->assertSame(MigrationInterface::STATUS_IDLE, $migration->getStatus());
 
     }
@@ -256,7 +240,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
     public function testFailingResetStatusThrowsException(): void {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('Migration does_not_exist does not exist');
-      $this->commands->resetStatus('does_not_exist');
+      $this->runCommand(MigrateResetStatusCommand::class, ['migration_id' => 'does_not_exist']);
     }
 
     /**
@@ -268,7 +252,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
       /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
       $migration = $this->migrationPluginManager->createInstance('fruit_terms');
       $migration->setStatus(MigrationInterface::STATUS_IMPORTING);
-      $this->commands->stop('fruit_terms');
+      $this->runCommand(MigrateStopCommand::class, ['migration_id' => 'fruit_terms']);
       $this->assertSame(MigrationInterface::STATUS_STOPPING, $migration->getStatus());
     }
 
@@ -278,16 +262,14 @@ namespace Drupal\Tests\migrate_tools\Kernel {
     public function testFailingStopThrowsException(): void {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('Migration does_not_exist does not exist');
-      $this->commands->stop('does_not_exist');
+      $this->runCommand(MigrateStopCommand::class, ['migration_id' => 'does_not_exist']);
     }
 
     /**
      * Tests drush mfs.
      */
     public function testFieldsSource(): void {
-      /** @var \Consolidation\OutputFormatters\StructuredData\RowsOfFields $result */
-      $result = $this->commands->fieldsSource('fruit_terms');
-      $rows = $result->getArrayCopy();
+      $rows = $this->rows(MigrateFieldsSourceCommand::class, ['migration_id' => 'fruit_terms']);
       $this->assertCount(1, $rows);
       $this->assertSame('name', $rows[0]['machine_name']);
       $this->assertSame('name', $rows[0]['description']);
@@ -299,15 +281,114 @@ namespace Drupal\Tests\migrate_tools\Kernel {
     public function testFailingFieldsSourceThrowsException(): void {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage('Migration does_not_exist does not exist');
-      $this->commands->fieldsSource('does_not_exist');
+      $this->rows(MigrateFieldsSourceCommand::class, ['migration_id' => 'does_not_exist']);
+    }
+
+    /**
+     * Tests drush mim --uid switches user during import.
+     */
+    public function testImportWithUidOption(): void {
+      // Record the original current user ID (should be anonymous).
+      $original_uid = (int) \Drupal::currentUser()->id();
+
+      // Create a test user to switch to during import.
+      $account = User::create([
+        'name' => 'migrate_test_user',
+        'mail' => 'migrate_test_user@example.com',
+        'status' => 1,
+      ]);
+      $account->save();
+      $target_uid = (int) $account->id();
+      $this->assertGreaterThan(0, $target_uid);
+
+      // Register a PRE_ROW_SAVE event listener to capture the current user
+      // ID during migration execution, proving the account was switched.
+      $captured_uid = NULL;
+      $listener = static function () use (&$captured_uid): void {
+        $captured_uid = (int) \Drupal::currentUser()->id();
+      };
+      /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher */
+      $dispatcher = \Drupal::service('event_dispatcher');
+      $dispatcher->addListener(MigrateEvents::PRE_ROW_SAVE, $listener);
+
+      // Run the import with the --uid option.
+      $this->runCommand(MigrateImportCommand::class, ['migration_names' => 'fruit_terms', '--uid' => $target_uid]);
+
+      // Verify the user was switched to the target user during import.
+      $this->assertSame($target_uid, $captured_uid);
+
+      // Verify the user was switched back to the original after import.
+      $this->assertSame($original_uid, (int) \Drupal::currentUser()->id());
+
+      // Clean up the event listener.
+      $dispatcher->removeListener(MigrateEvents::PRE_ROW_SAVE, $listener);
+    }
+
+    /**
+     * Tests drush mim without --uid does not switch user.
+     */
+    public function testImportWithoutUidOption(): void {
+      $original_uid = (int) \Drupal::currentUser()->id();
+
+      // Register a PRE_ROW_SAVE event listener to capture the current user
+      // ID during migration execution.
+      $captured_uid = NULL;
+      $listener = static function () use (&$captured_uid): void {
+        $captured_uid = (int) \Drupal::currentUser()->id();
+      };
+      /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher */
+      $dispatcher = \Drupal::service('event_dispatcher');
+      $dispatcher->addListener(MigrateEvents::PRE_ROW_SAVE, $listener);
+
+      // Run the import without the --uid option.
+      $this->runCommand(MigrateImportCommand::class, ['migration_names' => 'fruit_terms']);
+
+      // Verify the user remains the original (anonymous) during import.
+      $this->assertSame($original_uid, $captured_uid);
+
+      // Verify the user is still the original after import.
+      $this->assertSame($original_uid, (int) \Drupal::currentUser()->id());
+
+      // Clean up the event listener.
+      $dispatcher->removeListener(MigrateEvents::PRE_ROW_SAVE, $listener);
+    }
+
+    /**
+     * Tests that import with a non-existent uid throws an exception.
+     */
+    public function testImportWithInvalidUidThrowsException(): void {
+      $this->expectException(\Exception::class);
+      $this->expectExceptionMessage('Unable to load user by uid: 9999');
+      $this->runCommand(MigrateImportCommand::class, ['migration_names' => 'fruit_terms', '--uid' => 9999]);
+    }
+
+    /**
+     * Tests that import with a blocked user throws an exception.
+     */
+    public function testImportWithBlockedUserThrowsException(): void {
+      $account = User::create([
+        'name' => 'blocked_user',
+        'mail' => 'blocked@example.com',
+        'status' => 0,
+      ]);
+      $account->save();
+
+      $this->expectException(\InvalidArgumentException::class);
+      $this->expectExceptionMessage('Account blocked_user is blocked');
+      $this->runCommand(MigrateImportCommand::class, [
+        'migration_names' => 'fruit_terms',
+        '--uid' => (int) $account->id(),
+      ]);
     }
 
     /**
      * Tests that optional dependencies are respected in migration ordering.
      */
     public function testOptionalDependencyOrdering(): void {
-      $result = $this->commands->status('order_beta,order_gamma,order_alpha', ['names-only' => TRUE]);
-      $rows = $result->getArrayCopy();
+      $rows = $this->rows(MigrateStatusCommand::class, [
+        'migration_names' => 'order_beta,order_gamma,order_alpha',
+        '--names-only' => TRUE,
+      ]);
       $this->assertSame('order_gamma', $rows[0]['id']);
       $this->assertSame('order_beta', $rows[1]['id']);
       $this->assertSame('order_alpha', $rows[2]['id']);

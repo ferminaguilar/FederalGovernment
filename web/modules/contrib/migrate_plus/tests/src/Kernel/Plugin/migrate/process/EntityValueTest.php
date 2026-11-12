@@ -173,8 +173,6 @@ final class EntityValueTest extends KernelTestBase {
    *
    * @param mixed $config
    *   The plugin Config.
-   *
-   * @dataProvider entityValueFailureConfigData
    */
   #[DataProvider('entityValueFailureConfigData')]
   public function testEntityValueConfig(array $config): void {

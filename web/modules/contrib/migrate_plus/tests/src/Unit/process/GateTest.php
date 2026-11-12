@@ -20,8 +20,6 @@ final class GateTest extends MigrateProcessTestCase {
 
   /**
    * Test Gate plugin.
-   *
-   * @dataProvider gateProvider
    */
   #[DataProvider('gateProvider')]
   public function testGate($row_data, $destination_data, $configuration, $message): void {
@@ -152,8 +150,6 @@ final class GateTest extends MigrateProcessTestCase {
 
   /**
    * Test Gate plugin with bad configuration.
-   *
-   * @dataProvider badConfigurationProvider
    */
   #[DataProvider('badConfigurationProvider')]
   public function testGateBadConfiguration($configuration, string $message): void {
