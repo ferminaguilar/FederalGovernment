@@ -4,7 +4,7 @@ deployment:
     - export DEPLOYPATH=/home/fermpgjg/govfed.us
     - export PATH=/opt/cpanel/ea-php83/root/usr/bin:$HOME/bin:/usr/local/bin:$PATH
     - export COMPOSER_MEMORY_LIMIT=-1
-    - /bin/rsync -a --chmod=D755,F644 --exclude='.git' --exclude='web/sites/default/files' --exclude='web/sites/default/settings.local.php' ./ $DEPLOYPATH/
+    - /bin/rsync -a --chmod=D755,F644 --exclude='.git' --exclude='vendor' --exclude='web/sites/default/files' --exclude='web/sites/default/settings.local.php' ./ $DEPLOYPATH/
     - test -f $DEPLOYPATH/web/sites/default/settings.php || cp $DEPLOYPATH/web/sites/default/default.settings.php $DEPLOYPATH/web/sites/default/settings.php
     - chmod 755 $DEPLOYPATH 2>/dev/null || true
     - find $DEPLOYPATH -maxdepth 3 -type d -exec chmod 755 {} +

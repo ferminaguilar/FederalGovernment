@@ -31,7 +31,7 @@ jobs:
             export COMPOSER_MEMORY_LIMIT=-1
             chmod 755 $DEPLOYPATH 2>/dev/null || true
             chmod 755 $DEPLOYPATH/web/sites/default 2>/dev/null || true
-            /bin/rsync -a --chmod=D755,F644 --exclude='.git' --exclude='web/sites/default/files' --exclude='web/sites/default/settings.local.php' ./ $DEPLOYPATH/
+            /bin/rsync -a --chmod=D755,F644 --exclude='.git' --exclude='vendor' --exclude='web/sites/default/files' --exclude='web/sites/default/settings.local.php' ./ $DEPLOYPATH/
             
             # Ensure permissions adhere to cPanel/LiteSpeed requirements (Dirs 755, Files 644, Executables 755)
             chmod 755 $DEPLOYPATH
